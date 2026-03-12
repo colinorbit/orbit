@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbit — Autonomous Fundraising Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #f6f5f1;
+  --surface:      #ffffff;
+  --surface-2:    #eeecea;
+  --surface-3:    #e5e2dd;
+  --ink:          #18181f;
+  --ink-70:       rgba(24,24,31,0.70);
+  --ink-45:       rgba(24,24,31,0.45);
+  --ink-20:       rgba(24,24,31,0.20);
+  --ink-08:       rgba(24,24,31,0.08);
+  --ink-04:       rgba(24,24,31,0.04);
+
+  --teal:         #2a8c7e;
+  --teal-hover:   #1f6e63;
+  --teal-light:   #e4f4f1;
+  --teal-mid:     #48a99d;
+  --teal-glow:    rgba(42,140,126,0.22);
+
+  --coral:        #cc6d52;
+  --coral-light:  #faede8;
+  --rose:         #b85a72;
+  --rose-light:   #f9eaee;
+  --amber:        #c2853a;
+  --amber-light:  #fdf2e4;
+  --slate:        #5a6da8;
+  --slate-light:  #edf0fa;
+
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 32px;
+
+  --sh-sm: 0 1px 4px rgba(24,24,31,0.07), 0 4px 14px rgba(24,24,31,0.05);
+  --sh-md: 0 4px 20px rgba(24,24,31,0.09), 0 1px 4px rgba(24,24,31,0.05);
+  --sh-lg: 0 16px 56px rgba(24,24,31,0.12), 0 4px 16px rgba(24,24,31,0.06);
+  --sh-xl: 0 32px 96px rgba(24,24,31,0.16), 0 8px 24px rgba(24,24,31,0.08);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+a { text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+ul { list-style: none; }
+
+/* ─── KEYFRAMES ─── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:none; } }
+@keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+@keyframes fadeRight{ from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:none; } }
+@keyframes pulseDot { 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(0.7); opacity:0.5; } }
+@keyframes orbit    {
+  from { transform: rotate(0deg) translateX(110px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
+}
+@keyframes orbit2   {
+  from { transform: rotate(180deg) translateX(80px) rotate(-180deg); }
+  to   { transform: rotate(540deg) translateX(80px) rotate(-540deg); }
+}
+@keyframes orbit3   {
+  from { transform: rotate(90deg) translateX(140px) rotate(-90deg); }
+  to   { transform: rotate(450deg) translateX(140px) rotate(-450deg); }
+}
+@keyframes float    { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+@keyframes shimmer  { 0%,100%{ opacity:0.5; } 50%{ opacity:1; } }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 62px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 36px;
+  background: rgba(246,245,241,0.88);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid var(--ink-08);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 9px;
+  margin-right: 16px;
+}
+.nav-logomark {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(145deg, var(--teal) 0%, var(--teal-mid) 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 10px var(--teal-glow);
+  flex-shrink: 0;
+}
+.nav-logomark span {
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px; font-weight: 800;
+  color: white; letter-spacing: -0.5px;
+}
+.nav-wordmark {
+  font-family: 'Outfit', sans-serif;
+  font-size: 19px; font-weight: 700;
+  color: var(--ink); letter-spacing: -0.3px;
+}
+.nav-links { display: flex; align-items: center; gap: 2px; flex: 1; }
+.nav-links a {
+  font-size: 13.5px; font-weight: 500; color: var(--ink-70);
+  padding: 6px 12px; border-radius: var(--r-sm);
+  transition: color 0.15s, background 0.15s;
+}
+.nav-links a:hover { color: var(--ink); background: var(--ink-08); }
+.nav-end { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.nav-ghost {
+  font-size: 13.5px; font-weight: 500; color: var(--ink-70);
+  padding: 7px 14px; border-radius: var(--r-sm);
+  transition: color 0.15s, background 0.15s;
+}
+.nav-ghost:hover { color: var(--ink); background: var(--ink-08); }
+.nav-cta {
+  font-size: 13.5px; font-weight: 600; color: white;
+  background: var(--teal); padding: 8px 18px; border-radius: var(--r-sm);
+  box-shadow: 0 2px 8px var(--teal-glow);
+  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.nav-cta:hover { background: var(--teal-hover); transform: translateY(-1px); box-shadow: 0 4px 16px var(--teal-glow); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 80px 60px 60px;
+  gap: 48px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-blobs { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(72px); will-change: transform;
+}
+.blob-a { width: 520px; height: 520px; background: radial-gradient(circle, #d1f0ec 0%, transparent 65%); top: -60px; right: -40px; opacity: 0.7; }
+.blob-b { width: 380px; height: 380px; background: radial-gradient(circle, #faede8 0%, transparent 65%); bottom: 40px; left: -60px; opacity: 0.6; }
+.blob-c { width: 300px; height: 300px; background: radial-gradient(circle, #edf0fa 0%, transparent 65%); top: 40%; left: 40%; opacity: 0.5; }
+
+.hero-left { position: relative; z-index: 1; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--ink-20);
+  border-radius: 100px; padding: 5px 14px 5px 6px;
+  font-size: 12px; font-weight: 600; color: var(--ink-70);
+  margin-bottom: 28px; box-shadow: var(--sh-sm);
+  animation: fadeUp 0.55s ease both;
+}
+.badge-pip {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--teal-light);
+  display: flex; align-items: center; justify-content: center;
+}
+.badge-pip::after {
+  content: ''; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--teal); animation: pulseDot 2s ease infinite;
+}
+.hero h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(40px, 4.8vw, 68px);
+  font-weight: 800; line-height: 1.07; letter-spacing: -1.8px;
+  color: var(--ink); margin-bottom: 20px;
+  animation: fadeUp 0.65s ease 0.08s both;
+}
+.hero h1 .hi { color: var(--teal); }
+.hero-sub {
+  font-size: 16.5px; line-height: 1.72;
+  color: var(--ink-70); max-width: 460px;
+  margin-bottom: 36px; font-weight: 400;
+  animation: fadeUp 0.65s ease 0.16s both;
+}
+.hero-actions {
+  display: flex; align-items: center; gap: 12px;
+  animation: fadeUp 0.65s ease 0.24s both;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 14px; font-weight: 700; color: white;
+  background: var(--teal); padding: 13px 24px; border-radius: var(--r-sm);
+  box-shadow: 0 4px 16px var(--teal-glow);
+  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.btn-primary:hover { background: var(--teal-hover); transform: translateY(-2px); box-shadow: 0 8px 24px var(--teal-glow); }
+.btn-ghost-dark {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 14px; font-weight: 600; color: var(--ink-70);
+  padding: 13px 20px; border-radius: var(--r-sm); border: 1.5px solid var(--ink-20);
+  background: var(--surface); transition: all 0.18s;
+}
+.btn-ghost-dark:hover { color: var(--ink); border-color: var(--ink-45); background: var(--surface); transform: translateY(-1px); box-shadow: var(--sh-sm); }
+.hero-stats {
+  display: flex; gap: 32px; margin-top: 48px; padding-top: 40px;
+  border-top: 1px solid var(--ink-08);
+  animation: fadeUp 0.65s ease 0.32s both;
+}
+.stat-n {
+  font-family: 'Outfit', sans-serif;
+  font-size: 34px; font-weight: 800; letter-spacing: -1px;
+  color: var(--ink); display: block; line-height: 1;
+}
+.stat-l {
+  font-size: 11.5px; font-weight: 600; color: var(--ink-45);
+  letter-spacing: 0.04em; margin-top: 5px; display: block;
+}
+
+/* Orbit visual */
+.hero-right {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeRight 0.8s ease 0.2s both;
+}
+.orbit-visual {
+  position: relative; width: 340px; height: 340px;
+  display: flex; align-items: center; justify-content: center;
+}
+.orbit-core {
+  width: 90px; height: 90px; border-radius: 50%;
+  background: linear-gradient(145deg, var(--teal) 0%, var(--teal-mid) 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 18px var(--teal-light), 0 0 0 36px rgba(42,140,126,0.08), 0 8px 32px var(--teal-glow);
+  z-index: 10;
+  animation: float 4s ease-in-out infinite;
+}
+.orbit-core-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px; font-weight: 700; color: white;
+  text-align: center; letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+.orbit-ring {
+  position: absolute; border-radius: 50%;
+  border: 1.5px dashed var(--ink-12);
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+}
+.ring-1 { width: 170px; height: 170px; }
+.ring-2 { width: 240px; height: 240px; border-style: solid; border-color: var(--ink-08); }
+.ring-3 { width: 320px; height: 320px; }
+
+.orbit-node {
+  position: absolute; top: 50%; left: 50%;
+  width: 44px; height: 44px; margin: -22px 0 0 -22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--sh-md);
+  z-index: 5;
+}
+.node-veo  { background: var(--teal-light); animation: orbit  7s linear infinite; }
+.node-vso  { background: var(--coral-light); animation: orbit2 5s linear infinite; }
+.node-vpgo { background: var(--slate-light); animation: orbit3 9s linear infinite; }
+.node-vco  { background: var(--amber-light); animation: orbit  11s linear infinite reverse; }
+
+.orbit-card {
+  position: absolute;
+  background: var(--surface); border-radius: var(--r-md);
+  padding: 13px 16px; box-shadow: var(--sh-md);
+  border: 1px solid var(--ink-08);
+  font-size: 12px; min-width: 140px;
+  animation: shimmer 3s ease-in-out infinite;
+}
+.oc-top { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+.oc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.oc-label { font-weight: 700; color: var(--ink); font-size: 11.5px; }
+.oc-val { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 19px; color: var(--ink); letter-spacing: -0.5px; }
+.oc-sub { font-size: 10.5px; color: var(--ink-45); font-weight: 500; margin-top: 1px; }
+
+.orbit-card-a { bottom: 8px; left: -10px; }
+.orbit-card-b { top: 20px; right: -20px; animation-delay: 1s; }
+
+/* ─── SECTION SHARED ─── */
+.section { padding: 96px 60px; }
+.section-sm { padding: 72px 60px; }
+.s-label {
+  display: inline-block;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 16px;
+}
+.s-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(30px, 3.5vw, 48px);
+  font-weight: 800; letter-spacing: -1px; line-height: 1.1;
+  color: var(--ink); margin-bottom: 16px;
+}
+.s-sub {
+  font-size: 15.5px; line-height: 1.75;
+  color: var(--ink-70); max-width: 520px;
+}
+.s-header { margin-bottom: 56px; }
+
+/* ─── HOW IT WORKS ─── */
+.how-section { background: var(--ink); }
+.how-section .s-label { color: var(--teal-mid); }
+.how-section .s-title { color: white; }
+.how-section .s-sub { color: rgba(255,255,255,0.55); }
+
+.how-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1.5px; background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.07); border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.how-card {
+  background: var(--ink);
+  padding: 36px 30px;
+  transition: background 0.2s;
+}
+.how-card:hover { background: rgba(255,255,255,0.04); }
+.how-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; letter-spacing: 0.14em; color: var(--teal-mid);
+  margin-bottom: 18px; display: block;
+}
+.how-icon { font-size: 30px; margin-bottom: 16px; display: block; }
+.how-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px; font-weight: 700; color: white;
+  margin-bottom: 10px;
+}
+.how-desc { font-size: 13.5px; line-height: 1.72; color: rgba(255,255,255,0.5); }
+
+/* ─── AGENTS ─── */
+.agents-section { background: var(--bg); }
+
+.agent-tabs {
+  display: flex; gap: 4px;
+  background: var(--surface-2); border-radius: var(--r-md);
+  padding: 4px; width: fit-content; margin-bottom: 48px;
+}
+.agent-tab {
+  padding: 9px 18px; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 600; color: var(--ink-45);
+  transition: all 0.2s; cursor: pointer; background: none; border: none;
+  font-family: inherit;
+}
+.agent-tab.active { background: var(--surface); color: var(--ink); box-shadow: var(--sh-sm); }
+
+.agent-panel { display: none; }
+.agent-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+
+.agent-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 100px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.tag-veo  { background: var(--teal-light); color: var(--teal-hover); }
+.tag-vso  { background: var(--coral-light); color: #9e4e38; }
+.tag-vpgo { background: var(--slate-light); color: #3a4f85; }
+.tag-vco  { background: var(--amber-light); color: #8f5c1a; }
+
+.agent-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 34px; font-weight: 800; letter-spacing: -0.8px;
+  line-height: 1.12; color: var(--ink); margin-bottom: 14px;
+}
+.agent-desc {
+  font-size: 15px; line-height: 1.75; color: var(--ink-70); margin-bottom: 28px;
+}
+.feature-list { display: flex; flex-direction: column; gap: 11px; }
+.feature-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 14px; line-height: 1.6; color: var(--ink-70);
+}
+.feature-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--teal); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.feature-check::after { content:'✓'; font-size: 10px; font-weight: 700; color: white; }
+
+/* Journey card */
+.journey-card {
+  background: var(--ink); border-radius: var(--r-lg);
+  padding: 28px; box-shadow: var(--sh-xl);
+}
+.journey-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--teal-mid); margin-bottom: 24px;
+}
+.j-steps { display: flex; flex-direction: column; }
+.j-step {
+  display: flex; gap: 14px;
+  padding-bottom: 18px; position: relative;
+}
+.j-step:last-child { padding-bottom: 0; }
+.j-step::before {
+  content: ''; position: absolute; left: 14px; top: 28px; bottom: 0;
+  width: 1px; background: rgba(255,255,255,0.08);
+}
+.j-step:last-child::before { display: none; }
+.j-dot {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(42,140,126,0.2); border: 1.5px solid var(--teal-mid);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--teal-mid);
+  font-family: 'JetBrains Mono', monospace;
+}
+.j-body { flex: 1; }
+.j-title { font-size: 12.5px; font-weight: 700; color: rgba(255,255,255,0.88); margin-bottom: 3px; }
+.j-desc  { font-size: 11.5px; line-height: 1.55; color: rgba(255,255,255,0.4); font-family: 'JetBrains Mono', monospace; }
+
+/* ─── GIFT DOCS ─── */
+.gifts-section { background: var(--surface-2); }
+.gifts-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+.gift-card {
+  background: var(--surface); border-radius: var(--r-lg);
+  padding: 30px; border: 1.5px solid transparent;
+  box-shadow: var(--sh-sm); transition: all 0.25s; cursor: default;
+  position: relative; overflow: hidden;
+}
+.gift-card:hover { border-color: var(--teal-mid); box-shadow: var(--sh-md); transform: translateY(-4px); }
+.gift-icon-wrap {
+  width: 48px; height: 48px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 20px;
+}
+.gift-card:nth-child(1) .gift-icon-wrap { background: var(--teal-light); }
+.gift-card:nth-child(2) .gift-icon-wrap { background: var(--coral-light); }
+.gift-card:nth-child(3) .gift-icon-wrap { background: var(--slate-light); }
+.gift-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 8px;
+}
+.gift-desc { font-size: 13.5px; line-height: 1.7; color: var(--ink-70); margin-bottom: 18px; }
+.gift-stat {
+  font-size: 12px; font-weight: 700;
+  color: var(--teal); letter-spacing: 0.02em;
+}
+
+/* ─── DASHBOARD ─── */
+.dash-section { background: var(--bg); }
+.dash-wrap {
+  background: var(--ink); border-radius: var(--r-xl);
+  overflow: hidden; box-shadow: var(--sh-xl);
+  margin-top: 56px;
+}
+.dash-bar {
+  background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 20px;
+}
+.dash-dots { display: flex; gap: 6px; }
+.dash-dots span { width: 11px; height: 11px; border-radius: 50%; }
+.dash-dots span:nth-child(1){ background:#ff5f57; }
+.dash-dots span:nth-child(2){ background:#ffbd2e; }
+.dash-dots span:nth-child(3){ background:#28c840; }
+.dash-tabs-bar { display: flex; gap: 2px; }
+.dash-tab-btn {
+  padding: 6px 13px; border-radius: var(--r-xs);
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4);
+  cursor: pointer; transition: all 0.15s; font-family: inherit; border: none; background: none;
+}
+.dash-tab-btn.active { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); }
+.dash-tab-btn:hover:not(.active) { color: rgba(255,255,255,0.65); }
+.dash-search {
+  flex: 1; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: var(--r-sm);
+  padding: 7px 12px; font-size: 12px; color: rgba(255,255,255,0.3);
+  font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 8px;
+}
+.dash-body { display: grid; grid-template-columns: 210px 1fr; min-height: 520px; }
+.dash-sidebar {
+  border-right: 1px solid rgba(255,255,255,0.07);
+  padding: 20px 14px;
+}
+.dash-section-label {
+  font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.25); padding: 14px 12px 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.dash-nav-btn {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4);
+  cursor: pointer; transition: all 0.15s; margin-bottom: 1px;
+  width: 100%; text-align: left; font-family: inherit; border: none; background: none;
+}
+.dash-nav-btn:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); }
+.dash-nav-btn.active { background: rgba(42,140,126,0.18); color: var(--teal-mid); }
+.dash-nav-icon { font-size: 13px; width: 16px; text-align: center; }
+.dash-main { padding: 24px; }
+.metrics-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+.m-tile {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: var(--r-md);
+  padding: 18px 16px;
+}
+.m-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
+.m-val { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; color: rgba(255,255,255,0.92); display: block; letter-spacing: -0.5px; }
+.m-chg { font-size: 11px; color: #4ade80; margin-top: 5px; display: flex; align-items: center; gap: 3px; font-weight: 600; }
+.m-chg.down { color: #f87171; }
+
+.dash-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.dash-panel {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--r-md); padding: 18px;
+}
+.panel-title { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 14px; font-family: 'JetBrains Mono', monospace; }
+.activity-list { display: flex; flex-direction: column; gap: 8px; }
+.act-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--r-sm); background: rgba(255,255,255,0.03);
+}
+.act-badge {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10.5px; font-weight: 800; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.act-body { flex: 1; }
+.act-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.82); }
+.act-detail { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+.act-amt { font-size: 12.5px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+.funnel-rows { display: flex; flex-direction: column; gap: 9px; }
+.f-row { display: flex; align-items: center; gap: 10px; }
+.f-lbl { font-size: 10.5px; color: rgba(255,255,255,0.45); width: 72px; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+.f-track { flex: 1; background: rgba(255,255,255,0.06); border-radius: 4px; height: 20px; overflow: hidden; }
+.f-bar { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.85); }
+
+/* ─── RESULTS ─── */
+.results-section { background: var(--surface-2); }
+.results-grid { display: grid; grid-template-columns: repeat(4,1fr); border: 1.5px solid var(--ink-20); border-radius: var(--r-lg); overflow: hidden; margin-top: 56px; }
+.r-block { padding: 44px 32px; border-right: 1.5px solid var(--ink-20); }
+.r-block:last-child { border-right: none; }
+.r-big {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(44px, 4.5vw, 60px); font-weight: 800;
+  letter-spacing: -2px; line-height: 1; margin-bottom: 8px; display: block; color: var(--ink);
+}
+.r-big .hi { color: var(--teal); }
+.r-cap { font-size: 13.5px; line-height: 1.65; color: var(--ink-70); }
+
+/* ─── INTEGRATIONS ─── */
+.integrations-section { background: var(--ink); }
+.integrations-section .s-label { color: var(--teal-mid); }
+.integrations-section .s-title { color: white; }
+.integrations-section .s-sub { color: rgba(255,255,255,0.5); }
+.int-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 10px; margin-top: 52px; }
+.int-tile {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r-md); padding: 22px 14px;
+  text-align: center; transition: background 0.18s; cursor: default;
+}
+.int-tile:hover { background: rgba(255,255,255,0.09); }
+.int-icon { font-size: 26px; margin-bottom: 8px; display: block; }
+.int-name { font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,0.5); }
+
+/* ─── PRICING ─── */
+.pricing-section { background: var(--bg); }
+.pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-top: 56px; align-items: start; }
+.price-card {
+  background: var(--surface); border-radius: var(--r-lg);
+  padding: 34px; border: 1.5px solid var(--ink-12);
+  box-shadow: var(--sh-sm); transition: all 0.25s;
+}
+.price-card:hover { box-shadow: var(--sh-md); transform: translateY(-3px); }
+.price-card.featured {
+  background: var(--ink); border-color: var(--ink);
+  transform: scale(1.025); box-shadow: var(--sh-xl);
+}
+.price-card.featured:hover { transform: scale(1.025) translateY(-3px); }
+.price-tier { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 18px; display: block; }
+.price-card:not(.featured) .price-tier { color: var(--teal); }
+.price-card.featured .price-tier { color: var(--teal-mid); }
+.price-amount { font-family: 'Outfit', sans-serif; font-size: 44px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; display: block; }
+.price-card:not(.featured) .price-amount { color: var(--ink); }
+.price-card.featured .price-amount { color: white; }
+.price-period { font-size: 12.5px; color: var(--ink-45); margin-bottom: 20px; display: block; }
+.price-card.featured .price-period { color: rgba(255,255,255,0.4); }
+.price-desc { font-size: 13.5px; line-height: 1.7; margin-bottom: 24px; }
+.price-card:not(.featured) .price-desc { color: var(--ink-70); }
+.price-card.featured .price-desc { color: rgba(255,255,255,0.55); }
+.price-feats { display: flex; flex-direction: column; gap: 9px; margin-bottom: 30px; }
+.price-feats li { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+.price-card:not(.featured) .price-feats li { color: var(--ink-70); }
+.price-card.featured .price-feats li { color: rgba(255,255,255,0.7); }
+.feat-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; flex-shrink: 0;
+}
+.price-card:not(.featured) .feat-check { background: var(--teal-light); color: var(--teal); }
+.price-card.featured .feat-check { background: rgba(42,140,126,0.3); color: var(--teal-mid); }
+.price-btn {
+  width: 100%; padding: 13px; border-radius: var(--r-sm);
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: all 0.18s; font-family: inherit;
+}
+.price-btn.filled { background: var(--teal); color: white; border: 2px solid var(--teal); }
+.price-btn.filled:hover { background: var(--teal-hover); border-color: var(--teal-hover); }
+.price-btn.outlined { background: transparent; color: var(--ink); border: 2px solid var(--ink-20); }
+.price-btn.outlined:hover { border-color: var(--ink-45); background: var(--ink-04); }
+
+/* ─── CTA ─── */
+.cta-section {
+  background: linear-gradient(145deg, var(--teal-dark) 0%, var(--teal) 55%, var(--teal-mid) 100%);
+  padding: 110px 60px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='1' fill='rgba(255,255,255,0.06)'/%3E%3C/svg%3E") repeat;
+}
+.cta-section .s-title { color: white; max-width: 580px; margin: 0 auto 18px; position: relative; }
+.cta-section .s-sub { color: rgba(255,255,255,0.7); margin: 0 auto 44px; max-width: 480px; position: relative; }
+.cta-actions { display: flex; gap: 14px; justify-content: center; position: relative; }
+.cta-btn-main {
+  font-size: 14.5px; font-weight: 700; color: var(--teal-dark);
+  background: white; padding: 14px 32px; border-radius: var(--r-sm);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.18); transition: all 0.18s;
+}
+.cta-btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.22); }
+.cta-btn-ghost {
+  font-size: 14.5px; font-weight: 600; color: white;
+  border: 2px solid rgba(255,255,255,0.4); padding: 14px 32px; border-radius: var(--r-sm);
+  transition: all 0.18s;
+}
+.cta-btn-ghost:hover { border-color: white; background: rgba(255,255,255,0.1); }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--ink); padding: 60px 60px 32px;
+}
+.foot-grid { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 56px; }
+.foot-tagline { font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.4); max-width: 240px; margin-top: 14px; }
+.foot-col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+.foot-links { display: flex; flex-direction: column; gap: 9px; }
+.foot-links a { font-size: 13px; color: rgba(255,255,255,0.4); transition: color 0.15s; }
+.foot-links a:hover { color: rgba(255,255,255,0.85); }
+.foot-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+.foot-legal { font-size: 12px; color: rgba(255,255,255,0.3); font-family: 'JetBrains Mono', monospace; }
+.foot-badges { display: flex; gap: 8px; }
+.foot-badge {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--r-xs); padding: 5px 10px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.4); text-transform: uppercase;
+}
+
+/* ─── REVEAL ─── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.65s ease, transform 0.65s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: 0.1s; }
+.reveal-d2 { transition-delay: 0.2s; }
+.reveal-d3 { transition-delay: 0.3s; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  nav { padding: 0 20px; gap: 6px; }
+  .nav-links { display: none; }
+  .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; text-align: center; }
+  .hero-right { display: none; }
+  .hero-stats { justify-content: center; }
+  .hero-actions { justify-content: center; }
+  .hero-sub { margin-left: auto; margin-right: auto; }
+  .section, .section-sm { padding: 64px 24px; }
+  .how-grid { grid-template-columns: 1fr; }
+  .agent-panel.active { grid-template-columns: 1fr; }
+  .gifts-grid { grid-template-columns: 1fr; }
+  .dash-section { display: none; }
+  .results-grid { grid-template-columns: 1fr 1fr; }
+  .int-grid { grid-template-columns: repeat(3,1fr); }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .price-card.featured { transform: none; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+  .cta-section { padding: 72px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logomark"><span>O</span></div>
+    <span class="nav-wordmark">Orbit</span>
+  </a>
+  <div class="nav-links">
+    <a href="#">Agents</a>
+    <a href="#">Gift Documentation</a>
+    <a href="#">Analytics</a>
+    <a href="#">Integrations</a>
+    <a href="#">Pricing</a>
+  </div>
+  <div class="nav-end">
+    <a href="#" class="nav-ghost">Sign in</a>
+    <a href="#" class="nav-cta">Request Demo</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-blobs">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="blob blob-c"></div>
+  </div>
+
+  <div class="hero-left">
+    <div class="hero-badge">
+      <div class="badge-pip"></div>
+      4 AI agents active across 100+ organizations
+    </div>
+    <h1>
+      Every donor<br>
+      in your <span class="hi">orbit.</span><br>
+      Always.
+    </h1>
+    <p class="hero-sub">
+      Orbit deploys autonomous AI fundraising agents that personally engage, steward, and close gifts — reaching every donor in your portfolio with the depth and warmth of a seasoned gift officer. No extra headcount.
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Schedule a Demo →</a>
+      <a href="#" class="btn-ghost-dark">▶ Watch 3-min overview</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <span class="stat-n">$12M+</span>
+        <span class="stat-l">Raised Autonomously</span>
+      </div>
+      <div>
+        <span class="stat-n">96%</span>
+        <span class="stat-l">Donor Retention Rate</span>
+      </div>
+      <div>
+        <span class="stat-n">8–14</span>
+        <span class="stat-l">Touchpoints Per Donor</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="orbit-visual">
+      <div class="orbit-ring ring-1"></div>
+      <div class="orbit-ring ring-2"></div>
+      <div class="orbit-ring ring-3"></div>
+      <div class="orbit-core">
+        <div class="orbit-core-label">Your<br>Donors</div>
+      </div>
+      <div class="orbit-node node-veo" title="Virtual Engagement Officer">✉️</div>
+      <div class="orbit-node node-vso" title="Virtual Stewardship Officer">💌</div>
+      <div class="orbit-node node-vpgo" title="Virtual Planned Giving Officer">📋</div>
+      <div class="orbit-node node-vco" title="Virtual Campaign Officer">🎯</div>
+      <div class="orbit-card orbit-card-a">
+        <div class="oc-top"><div class="oc-dot" style="background:var(--teal);"></div><div class="oc-label">Gift Secured</div></div>
+        <div class="oc-val">$5,000</div>
+        <div class="oc-sub">3-yr pledge · Annual Fund</div>
+      </div>
+      <div class="orbit-card orbit-card-b">
+        <div class="oc-top"><div class="oc-dot" style="background:var(--coral);"></div><div class="oc-label">Retention</div></div>
+        <div class="oc-val">96.2%</div>
+        <div class="oc-sub">VSO-managed portfolio</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="how-section section reveal">
+  <div class="s-header">
+    <div class="s-label">The Framework</div>
+    <h2 class="s-title">Sense → Solve → Engage → Repeat</h2>
+    <p class="s-sub">Every Orbit agent runs a continuous agentic loop — not a rules engine. It reads signals, reasons about the best action, and engages donors in ways that feel genuinely personal.</p>
+  </div>
+  <div class="how-grid">
+    <div class="how-card">
+      <span class="how-num">01 / SENSE</span>
+      <span class="how-icon">📡</span>
+      <div class="how-title">Read the Environment</div>
+      <p class="how-desc">Agents ingest giving history, wealth signals, engagement behavior, communication preferences, life events, and seasonal factors — continuously updating a living donor model.</p>
+    </div>
+    <div class="how-card">
+      <span class="how-num">02 / SOLVE</span>
+      <span class="how-icon">🧠</span>
+      <div class="how-title">Reason &amp; Decide</div>
+      <p class="how-desc">Agents weigh cultivation stage, donor sentiment, channel, tone, timing, and ask amount — dynamically choosing the highest-impact next move for each individual donor.</p>
+    </div>
+    <div class="how-card">
+      <span class="how-num">03 / ENGAGE</span>
+      <span class="how-icon">✉️</span>
+      <div class="how-title">Personalized Outreach</div>
+      <p class="how-desc">Agents reach donors via email, SMS, handwritten note robotics, and phone — always in your organization's voice, with full AI transparency and donor opt-in consent.</p>
+    </div>
+    <div class="how-card">
+      <span class="how-num">04 / LISTEN</span>
+      <span class="how-icon">👂</span>
+      <div class="how-title">Respond in Real Time</div>
+      <p class="how-desc">Agents process donor replies, update sentiment models, escalate to human fundraisers when right, and continuously refine their approach based on what actually works.</p>
+    </div>
+    <div class="how-card">
+      <span class="how-num">05 / CLOSE</span>
+      <span class="how-icon">🤝</span>
+      <div class="how-title">Gift Discovery &amp; Documentation</div>
+      <p class="how-desc">Agents guide donors through Smart Gift Agreements — multi-year pledges, one-time gifts, planned giving — and route to human gift officers at the right moment.</p>
+    </div>
+    <div class="how-card">
+      <span class="how-num">06 / STEWARD</span>
+      <span class="how-icon">💌</span>
+      <div class="how-title">Perpetual Stewardship</div>
+      <p class="how-desc">The relationship never ends. Agents deliver impact updates, milestone recognition, and meaningful touchpoints year-round — converting one-time donors into lifelong advocates.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AGENTS ═══ -->
+<section class="agents-section section reveal">
+  <div class="s-header">
+    <div class="s-label">Digital Labor Suite</div>
+    <h2 class="s-title">Meet your AI fundraising team</h2>
+    <p class="s-sub">Four specialized agents built for each stage of the donor journey. Deploy one or orchestrate all four into a fully autonomous fundraising operation.</p>
+  </div>
+
+  <div class="agent-tabs">
+    <button class="agent-tab active" onclick="showAgent('veo', this)">VEO — Engagement</button>
+    <button class="agent-tab" onclick="showAgent('vso', this)">VSO — Stewardship</button>
+    <button class="agent-tab" onclick="showAgent('vpgo', this)">VPGO — Planned Giving</button>
+    <button class="agent-tab" onclick="showAgent('vco', this)">VCO — Campaigns</button>
+  </div>
+
+  <!-- VEO -->
+  <div id="panel-veo" class="agent-panel active">
+    <div>
+      <div class="agent-tag tag-veo">VEO · Virtual Engagement Officer</div>
+      <h3 class="agent-title">Turn prospects into donors, at scale</h3>
+      <p class="agent-desc">The VEO manages portfolios of 500–2,000 prospects that human gift officers simply can't reach. It builds genuine relationships through personalized moves-management journeys — with giving as the natural outcome.</p>
+      <ul class="feature-list">
+        <li><div class="feature-check"></div>Personalized 8–14 touchpoint donor journeys using moves-management strategy</li>
+        <li><div class="feature-check"></div>Intelligent ask amount calibration based on capacity, history, and peer benchmarks</li>
+        <li><div class="feature-check"></div>Lapsed donor re-engagement with individualized reconnection narratives</li>
+        <li><div class="feature-check"></div>Mid-level donor upgrade pathways toward major gift qualification</li>
+        <li><div class="feature-check"></div>Matching gift discovery and facilitation integrated into outreach flows</li>
+        <li><div class="feature-check"></div>Real-time human handoff for complex situations or major gift thresholds</li>
+        <li><div class="feature-check"></div>Full transparency — always discloses AI identity with complete donor opt-in</li>
+      </ul>
+    </div>
+    <div class="journey-card">
+      <div class="journey-header">Sample VEO Journey · 6-Month Cultivation</div>
+      <div class="j-steps">
+        <div class="j-step"><div class="j-dot">1</div><div class="j-body"><div class="j-title">Warm Introduction</div><div class="j-desc">Personalized intro referencing donor's 2022 gift. Opt-in consent requested.</div></div></div>
+        <div class="j-step"><div class="j-dot">2</div><div class="j-body"><div class="j-title">Impact Story — Week 3</div><div class="j-desc">Tailored impact report matched to donor's stated areas of interest.</div></div></div>
+        <div class="j-step"><div class="j-dot">3</div><div class="j-body"><div class="j-title">Engagement Offer — Month 2</div><div class="j-desc">Event invitation or program director introduction based on engagement signals.</div></div></div>
+        <div class="j-step"><div class="j-dot">4</div><div class="j-body"><div class="j-title">Soft Discovery Ask — Month 3</div><div class="j-desc">Conversational inquiry into donor priorities. Sentiment scored. Ask model updated.</div></div></div>
+        <div class="j-step"><div class="j-dot">5</div><div class="j-body"><div class="j-title">Smart Gift Ask — Month 5</div><div class="j-desc">Calibrated multi-year pledge proposal with pre-filled Smart Gift Agreement.</div></div></div>
+        <div class="j-step"><div class="j-dot">✓</div><div class="j-body"><div class="j-title">Gift Confirmed → VSO Handoff</div><div class="j-desc">Pledge documented. Stewardship agent activated. Human gift officer briefed.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VSO -->
+  <div id="panel-vso" class="agent-panel">
+    <div>
+      <div class="agent-tag tag-vso">VSO · Virtual Stewardship Officer</div>
+      <h3 class="agent-title">World-class stewardship for every donor</h3>
+      <p class="agent-desc">Stewardship is the strongest predictor of donor retention — yet most organizations only deliver it meaningfully to their top 3%. The VSO changes that, delivering personalized impact acknowledgment to every donor in your database, perpetually.</p>
+      <ul class="feature-list">
+        <li><div class="feature-check"></div>Automated personalized impact updates tied to specific funded programs</li>
+        <li><div class="feature-check"></div>Anniversary, milestone, and tribute acknowledgments at scale</li>
+        <li><div class="feature-check"></div>Pledge reminder and fulfillment flows with warm, personal nudges</li>
+        <li><div class="feature-check"></div>Lapsed stewardship reactivation before donors fully disengage</li>
+        <li><div class="feature-check"></div>Perpetual stewardship for donors who have made their final major gift</li>
+        <li><div class="feature-check"></div>Multi-channel delivery: email, SMS, and handwritten note robotics</li>
+        <li><div class="feature-check"></div>Donor sentiment monitoring with escalation triggers to human staff</li>
+      </ul>
+    </div>
+    <div class="journey-card">
+      <div class="journey-header">VSO Stewardship Cadence · Annual Cycle</div>
+      <div class="j-steps">
+        <div class="j-step"><div class="j-dot">Q1</div><div class="j-body"><div class="j-title">Gift Acknowledgment</div><div class="j-desc">Personalized thank-you with tax receipt and impact summary.</div></div></div>
+        <div class="j-step"><div class="j-dot">Q2</div><div class="j-body"><div class="j-title">Impact Report Delivery</div><div class="j-desc">Program outcomes tied to this donor's specific gift — not generic PDFs.</div></div></div>
+        <div class="j-step"><div class="j-dot">Q3</div><div class="j-body"><div class="j-title">Mid-Year Engagement</div><div class="j-desc">Event invite, volunteer opportunity, or peer introduction based on interests.</div></div></div>
+        <div class="j-step"><div class="j-dot">Q4</div><div class="j-body"><div class="j-title">Renewal Journey Initiated</div><div class="j-desc">VSO passes warm donor to VEO for renewal with full context briefing.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VPGO -->
+  <div id="panel-vpgo" class="agent-panel">
+    <div>
+      <div class="agent-tag tag-vpgo">VPGO · Virtual Planned Giving Officer</div>
+      <h3 class="agent-title">Surface bequest conversations at scale</h3>
+      <p class="agent-desc">Planned giving is the most underleveraged revenue category in nonprofit fundraising — primarily because human capacity to identify and cultivate legacy prospects is so limited. The VPGO changes the math entirely.</p>
+      <ul class="feature-list">
+        <li><div class="feature-check"></div>Predictive planned giving prospect identification from your existing database</li>
+        <li><div class="feature-check"></div>Empathetic, age-appropriate legacy conversation initiation</li>
+        <li><div class="feature-check"></div>Educational content delivery on bequest types, tax benefits, and estate planning</li>
+        <li><div class="feature-check"></div>Legacy society recruitment and recognition flows</li>
+        <li><div class="feature-check"></div>Attorney referral facilitation and document support coordination</li>
+        <li><div class="feature-check"></div>Long-horizon relationship maintenance over multi-year bequest cultivation</li>
+        <li><div class="feature-check"></div>Human PGFO warm handoff at appropriate conversation milestones</li>
+      </ul>
+    </div>
+    <div class="journey-card">
+      <div class="journey-header">VPGO Prospect Identification Framework</div>
+      <div class="j-steps">
+        <div class="j-step"><div class="j-dot">🔍</div><div class="j-body"><div class="j-title">Signal Detection</div><div class="j-desc">Age 65+, 15+ year donor tenure, consistent mid-level giving. High bequest propensity score flagged.</div></div></div>
+        <div class="j-step"><div class="j-dot">💬</div><div class="j-body"><div class="j-title">Conversation Opening</div><div class="j-desc">Warm, mission-forward outreach exploring donor's legacy vision and values alignment.</div></div></div>
+        <div class="j-step"><div class="j-dot">📚</div><div class="j-body"><div class="j-title">Education Phase</div><div class="j-desc">Personalized content on charitable remainder trusts, bequests, stock gifts, and tax implications.</div></div></div>
+        <div class="j-step"><div class="j-dot">🤝</div><div class="j-body"><div class="j-title">Advisor Handoff</div><div class="j-desc">Introduction to your planned giving officer or estate planning attorney at the right moment.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VCO -->
+  <div id="panel-vco" class="agent-panel">
+    <div>
+      <div class="agent-tag tag-vco">VCO · Virtual Campaign Officer</div>
+      <h3 class="agent-title">Run every campaign with a full team's power</h3>
+      <p class="agent-desc">The VCO orchestrates time-sensitive campaigns — Giving Tuesday, day-of-giving, year-end, and capital campaigns — with personalized outreach that mass email tools can't match, at a scale your staff never could.</p>
+      <ul class="feature-list">
+        <li><div class="feature-check"></div>Multi-channel campaign orchestration: email, SMS, and direct mail triggers</li>
+        <li><div class="feature-check"></div>Real-time performance monitoring with autonomous tactical adjustments</li>
+        <li><div class="feature-check"></div>Matching gift challenge facilitation and lead gift announcement sequences</li>
+        <li><div class="feature-check"></div>Peer-to-peer fundraising volunteer recruitment and live coaching</li>
+        <li><div class="feature-check"></div>Countdown urgency sequences personalized by donor segment</li>
+        <li><div class="feature-check"></div>Post-campaign impact reporting and next-cycle donor seeding</li>
+      </ul>
+    </div>
+    <div class="journey-card">
+      <div class="journey-header">VCO · 24-Hour Giving Day Playbook</div>
+      <div class="j-steps">
+        <div class="j-step"><div class="j-dot">-7d</div><div class="j-body"><div class="j-title">Donor Pre-Warming</div><div class="j-desc">Personalized preview with donor-specific impact framing. Matching challenge announced.</div></div></div>
+        <div class="j-step"><div class="j-dot">7AM</div><div class="j-body"><div class="j-title">Campaign Launch</div><div class="j-desc">Personalized launch with individual ask amounts. Real-time progress bar link included.</div></div></div>
+        <div class="j-step"><div class="j-dot">2PM</div><div class="j-body"><div class="j-title">Mid-Day Momentum</div><div class="j-desc">Non-donors get urgency nudge. Donors get impact acknowledgment and sharing prompt.</div></div></div>
+        <div class="j-step"><div class="j-dot">9PM</div><div class="j-body"><div class="j-title">Final Push</div><div class="j-desc">3-hour countdown with matching reminder. Highest-propensity non-donors get personal SMS.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GIFT DOCS ═══ -->
+<section class="gifts-section section reveal">
+  <div class="s-header">
+    <div class="s-label">Smart Gift Documentation</div>
+    <h2 class="s-title">Every commitment, captured and confirmed</h2>
+    <p class="s-sub">Orbit's intelligent gift documentation layer turns verbal commitments into binding agreements — 72% confirmed within 24 hours, 94% within one week.</p>
+  </div>
+  <div class="gifts-grid">
+    <div class="gift-card reveal reveal-d1">
+      <div class="gift-icon-wrap">📋</div>
+      <h3 class="gift-title">Smart Gift Agreements</h3>
+      <p class="gift-desc">Digital, personalized pledge agreements for one-time and multi-year gifts. Pre-filled from donor data, countersigned instantly, stored in your CRM automatically.</p>
+      <div class="gift-stat">94% confirmation within 7 days</div>
+    </div>
+    <div class="gift-card reveal reveal-d2">
+      <div class="gift-icon-wrap">📅</div>
+      <h3 class="gift-title">Pledge Schedule Management</h3>
+      <p class="gift-desc">Automated pledge reminders, installment tracking, and payment facilitation — removing manual collection burdens from your team entirely.</p>
+      <div class="gift-stat">3× mid-level revenue growth</div>
+    </div>
+    <div class="gift-card reveal reveal-d3">
+      <div class="gift-icon-wrap">⚖️</div>
+      <h3 class="gift-title">Compliance Automation</h3>
+      <p class="gift-desc">AI-powered policy adherence checks ensure every gift agreement meets your institutional requirements and audit standards before it's ever sent.</p>
+      <div class="gift-stat">100% audit-ready documentation</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DASHBOARD ═══ -->
+<section class="dash-section section reveal">
+  <div class="s-header">
+    <div class="s-label">Command Center</div>
+    <h2 class="s-title">Total visibility across every agent and donor</h2>
+    <p class="s-sub">One unified dashboard to manage your entire autonomous fundraising operation, monitor agent performance, and track gift pipeline in real time.</p>
+  </div>
+  <div class="dash-wrap">
+    <div class="dash-bar">
+      <div class="dash-dots"><span></span><span></span><span></span></div>
+      <div class="dash-tabs-bar">
+        <button class="dash-tab-btn active" onclick="switchDashTab(this)">Overview</button>
+        <button class="dash-tab-btn" onclick="switchDashTab(this)">Donors</button>
+        <button class="dash-tab-btn" onclick="switchDashTab(this)">Agents</button>
+        <button class="dash-tab-btn" onclick="switchDashTab(this)">Gifts</button>
+        <button class="dash-tab-btn" onclick="switchDashTab(this)">Reports</button>
+      </div>
+      <div class="dash-search">🔍&nbsp; Search donors, agents, or gifts...</div>
+    </div>
+    <div class="dash-body">
+      <div class="dash-sidebar">
+        <div class="dash-section-label">Navigation</div>
+        <button class="dash-nav-btn active" onclick="switchDashNav(this)"><span class="dash-nav-icon">📊</span>Dashboard</button>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">🤖</span>Agent Console</button>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">👥</span>Donor Portfolios</button>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">💼</span>Gift Pipeline</button>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">📄</span>Gift Agreements</button>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">📅</span>Pledges</button>
+        <div class="dash-section-label">Campaigns</div>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">🎯</span>Active Campaigns</button>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">📈</span>Analytics</button>
+        <div class="dash-section-label">Settings</div>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">⚙️</span>Agent Config</button>
+        <button class="dash-nav-btn" onclick="switchDashNav(this)"><span class="dash-nav-icon">🔗</span>Integrations</button>
+      </div>
+      <div class="dash-main">
+        <div class="metrics-row">
+          <div class="m-tile"><div class="m-label">Total Raised (MTD)</div><span class="m-val">$231K</span><div class="m-chg">↑ 34% vs last month</div></div>
+          <div class="m-tile"><div class="m-label">Active Donors</div><span class="m-val">3,263</span><div class="m-chg">↑ 218 this month</div></div>
+          <div class="m-tile"><div class="m-label">Open Pledges</div><span class="m-val">$1.8M</span><div class="m-chg">↑ 12% pipeline growth</div></div>
+          <div class="m-tile"><div class="m-label">Retention Rate</div><span class="m-val">96.2%</span><div class="m-chg">↑ +8pts YoY</div></div>
+        </div>
+        <div class="dash-two">
+          <div class="dash-panel">
+            <div class="panel-title">Live Agent Activity</div>
+            <div class="activity-list" id="activity-list">
+              <div class="act-item">
+                <div class="act-badge" style="background:rgba(42,140,126,0.18);color:#48a99d;">VEO</div>
+                <div class="act-body"><div class="act-name">Gift secured — Margaret K.</div><div class="act-detail">$5,000 · 3-yr pledge · Annual Fund</div></div>
+                <div class="act-amt" style="color:#4ade80;">+$5,000</div>
+              </div>
+              <div class="act-item">
+                <div class="act-badge" style="background:rgba(204,109,82,0.18);color:#cc6d52;">VSO</div>
+                <div class="act-body"><div class="act-name">Impact report — 847 donors</div><div class="act-detail">98.3% delivered · 42% open rate</div></div>
+                <div class="act-amt" style="color:rgba(255,255,255,0.4);">—</div>
+              </div>
+              <div class="act-item">
+                <div class="act-badge" style="background:rgba(90,109,168,0.18);color:#7a8fd4;">VPGO</div>
+                <div class="act-body"><div class="act-name">Bequest conversation — Robert H.</div><div class="act-detail">Est. $120K estate gift · PGFO briefed</div></div>
+                <div class="act-amt" style="color:#7a8fd4;">Legacy</div>
+              </div>
+              <div class="act-item">
+                <div class="act-badge" style="background:rgba(194,133,58,0.18);color:#c2853a;">VCO</div>
+                <div class="act-body"><div class="act-name">Giving Tuesday — 6 hrs left</div><div class="act-detail">$47,200 raised · 234 donors · 78% of goal</div></div>
+                <div class="act-amt" style="color:#f97316;">78%</div>
+              </div>
+            </div>
+          </div>
+          <div class="dash-panel">
+            <div class="panel-title">Engagement Funnel — VEO Portfolio</div>
+            <div class="funnel-rows">
+              <div class="f-row"><div class="f-lbl">Prospects</div><div class="f-track"><div class="f-bar" style="width:100%;background:rgba(42,140,126,0.35);">1,000</div></div></div>
+              <div class="f-row"><div class="f-lbl">Opted In</div><div class="f-track"><div class="f-bar" style="width:74%;background:rgba(42,140,126,0.45);">740</div></div></div>
+              <div class="f-row"><div class="f-lbl">Engaged</div><div class="f-track"><div class="f-bar" style="width:52%;background:rgba(42,140,126,0.58);">520</div></div></div>
+              <div class="f-row"><div class="f-lbl">Solicited</div><div class="f-track"><div class="f-bar" style="width:31%;background:rgba(42,140,126,0.74);">310</div></div></div>
+              <div class="f-row"><div class="f-lbl">Gifted</div><div class="f-track"><div class="f-bar" style="width:20%;background:var(--teal);">200 ✓</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ RESULTS ═══ -->
+<section class="results-section section reveal">
+  <div class="s-label">Proven Results</div>
+  <h2 class="s-title">The numbers speak for themselves</h2>
+  <div class="results-grid">
+    <div class="r-block"><span class="r-big">$<span class="hi">12</span>M</span><p class="r-cap">Raised autonomously across 100+ partner organizations in the first 18 months of deployment</p></div>
+    <div class="r-block"><span class="r-big"><span class="hi">96</span>%</span><p class="r-cap">Average donor retention rate among agent-managed portfolios, up from the sector average of 43%</p></div>
+    <div class="r-block"><span class="r-big"><span class="hi">3</span>×</span><p class="r-cap">Mid-level giving revenue growth for organizations deploying multi-year pledge programs</p></div>
+    <div class="r-block"><span class="r-big"><span class="hi">97</span>%</span><p class="r-cap">Of the donor portfolio that was previously unmanaged — now receiving genuine 1:1 engagement</p></div>
+  </div>
+</section>
+
+<!-- ═══ INTEGRATIONS ═══ -->
+<section class="integrations-section section reveal">
+  <div class="s-header">
+    <div class="s-label">Integrations</div>
+    <h2 class="s-title">Connects to your existing stack</h2>
+    <p class="s-sub">Orbit integrates natively with every major nonprofit CRM, payment processor, and advancement platform — no rip-and-replace required.</p>
+  </div>
+  <div class="int-grid">
+    <div class="int-tile"><span class="int-icon">🏛️</span><div class="int-name">Salesforce NPSP</div></div>
+    <div class="int-tile"><span class="int-icon">🌿</span><div class="int-name">Raiser's Edge NXT</div></div>
+    <div class="int-tile"><span class="int-icon">💎</span><div class="int-name">Ellucian CRM</div></div>
+    <div class="int-tile"><span class="int-icon">🎓</span><div class="int-name">Advancement Suite</div></div>
+    <div class="int-tile"><span class="int-icon">📊</span><div class="int-name">DonorSearch AI</div></div>
+    <div class="int-tile"><span class="int-icon">💳</span><div class="int-name">Stripe / Braintree</div></div>
+    <div class="int-tile"><span class="int-icon">📧</span><div class="int-name">Mailchimp / Iterable</div></div>
+    <div class="int-tile"><span class="int-icon">💬</span><div class="int-name">Twilio SMS</div></div>
+    <div class="int-tile"><span class="int-icon">🤖</span><div class="int-name">FundMiner AI</div></div>
+    <div class="int-tile"><span class="int-icon">📝</span><div class="int-name">DocuSign</div></div>
+    <div class="int-tile"><span class="int-icon">✍️</span><div class="int-name">Note Robotics</div></div>
+    <div class="int-tile"><span class="int-icon">🔌</span><div class="int-name">REST API / Zapier</div></div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section class="pricing-section section reveal">
+  <div class="s-header">
+    <div class="s-label">Pricing</div>
+    <h2 class="s-title">Invest in digital fundraising capacity</h2>
+    <p class="s-sub">Every plan includes your dedicated AI agents, onboarding, CRM integration, and ongoing optimization support from our team of former advancement professionals.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <span class="price-tier">Essentials</span>
+      <span class="price-amount">$1,200<small style="font-size:20px;font-weight:500;">/mo</small></span>
+      <span class="price-period">billed annually</span>
+      <p class="price-desc">For small-to-mid nonprofits starting their autonomous fundraising journey with one agent managing up to 500 donors.</p>
+      <ul class="price-feats">
+        <li><div class="feat-check">✓</div>1 Virtual Engagement Officer</li>
+        <li><div class="feat-check">✓</div>Up to 500 managed donors</li>
+        <li><div class="feat-check">✓</div>Unlimited Smart Gift Agreements</li>
+        <li><div class="feat-check">✓</div>Email + SMS outreach channels</li>
+        <li><div class="feat-check">✓</div>1 CRM integration</li>
+        <li><div class="feat-check">✓</div>Analytics dashboard</li>
+        <li><div class="feat-check">✓</div>Onboarding + quarterly reviews</li>
+      </ul>
+      <button class="price-btn outlined">Start Free Trial</button>
+    </div>
+    <div class="price-card featured">
+      <span class="price-tier">Growth</span>
+      <span class="price-amount">$3,800<small style="font-size:20px;font-weight:500;color:rgba(255,255,255,0.5);">/mo</small></span>
+      <span class="price-period">billed annually · most popular</span>
+      <p class="price-desc">For organizations ready to deploy the full autonomous fundraising suite and scale across their entire donor portfolio.</p>
+      <ul class="price-feats">
+        <li><div class="feat-check">✓</div>VEO + VSO + VPGO agents</li>
+        <li><div class="feat-check">✓</div>Up to 2,000 managed donors</li>
+        <li><div class="feat-check">✓</div>Unlimited Smart Gift Agreements</li>
+        <li><div class="feat-check">✓</div>All channels incl. note robotics</li>
+        <li><div class="feat-check">✓</div>Unlimited CRM integrations</li>
+        <li><div class="feat-check">✓</div>Advanced analytics + ROI reporting</li>
+        <li><div class="feat-check">✓</div>Dedicated success manager</li>
+        <li><div class="feat-check">✓</div>Monthly strategy reviews</li>
+      </ul>
+      <button class="price-btn filled">Request Demo</button>
+    </div>
+    <div class="price-card">
+      <span class="price-tier">Enterprise</span>
+      <span class="price-amount">Custom</span>
+      <span class="price-period">tailored to your organization</span>
+      <p class="price-desc">For large institutions deploying multiple agents across divisions, schools, or departments with custom integrations and compliance requirements.</p>
+      <ul class="price-feats">
+        <li><div class="feat-check">✓</div>Unlimited AI agents + personas</li>
+        <li><div class="feat-check">✓</div>Unlimited donor portfolios</li>
+        <li><div class="feat-check">✓</div>Multi-department orchestration</li>
+        <li><div class="feat-check">✓</div>White-labeled agent personas</li>
+        <li><div class="feat-check">✓</div>SOC 2 Type II + TX-RAMP certified</li>
+        <li><div class="feat-check">✓</div>Custom data pipelines</li>
+        <li><div class="feat-check">✓</div>Dedicated implementation team</li>
+        <li><div class="feat-check">✓</div>SLA + priority support</li>
+      </ul>
+      <button class="price-btn outlined">Contact Sales</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section reveal">
+  <div class="s-label" style="color:rgba(255,255,255,0.6);">Get Started</div>
+  <h2 class="s-title">97% of your donors deserve<br>personal attention. Let's give it to them.</h2>
+  <p class="s-sub">Stop leaving your unmanaged donors to mass marketing. Orbit puts a dedicated AI fundraiser in every donor relationship — starting today.</p>
+  <div class="cta-actions">
+    <a href="#" class="cta-btn-main">Schedule a Demo →</a>
+    <a href="#" class="cta-btn-ghost">See Case Studies</a>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="foot-grid">
+    <div>
+      <a href="#" class="nav-logo" style="display:inline-flex;">
+        <div class="nav-logomark"><span>O</span></div>
+        <span class="nav-wordmark" style="color:rgba(255,255,255,0.85);">Orbit</span>
+      </a>
+      <p class="foot-tagline">The autonomous fundraising intelligence layer for mission-driven organizations. Built by former advancement professionals.</p>
+    </div>
+    <div>
+      <div class="foot-col-title">Platform</div>
+      <div class="foot-links">
+        <a href="#">Virtual Engagement Officer</a>
+        <a href="#">Virtual Stewardship Officer</a>
+        <a href="#">Virtual Planned Giving Officer</a>
+        <a href="#">Virtual Campaign Officer</a>
+        <a href="#">Smart Gift Agreements</a>
+        <a href="#">Analytics &amp; Reporting</a>
+      </div>
+    </div>
+    <div>
+      <div class="foot-col-title">Resources</div>
+      <div class="foot-links">
+        <a href="#">Blog</a>
+        <a href="#">Case Studies</a>
+        <a href="#">ROI Calculator</a>
+        <a href="#">Integrations</a>
+        <a href="#">Documentation</a>
+        <a href="#">Webinars</a>
+      </div>
+    </div>
+    <div>
+      <div class="foot-col-title">Company</div>
+      <div class="foot-links">
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">AI Ethics Policy</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div class="foot-legal">© 2026 Orbit. All rights reserved.</div>
+    <div class="foot-badges">
+      <div class="foot-badge">SOC 2 Type II</div>
+      <div class="foot-badge">TX-RAMP L1</div>
+      <div class="foot-badge">Patent Pending</div>
+      <div class="foot-badge">AI Transparent</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Agent tabs ── */
+  function showAgent(id, btn) {
+    document.querySelectorAll('.agent-panel').forEach(function (el) {
+      el.classList.remove('active');
+    });
+    document.querySelectorAll('.agent-tab').forEach(function (el) {
+      el.classList.remove('active');
+    });
+    var panel = document.getElementById('panel-' + id);
+    if (panel) panel.classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+  window.showAgent = showAgent;
+
+  /* ── Dashboard tab bar ── */
+  function switchDashTab(btn) {
+    document.querySelectorAll('.dash-tab-btn').forEach(function (el) {
+      el.classList.remove('active');
+    });
+    btn.classList.add('active');
+  }
+  window.switchDashTab = switchDashTab;
+
+  /* ── Dashboard sidebar nav ── */
+  function switchDashNav(btn) {
+    document.querySelectorAll('.dash-nav-btn').forEach(function (el) {
+      el.classList.remove('active');
+    });
+    btn.classList.add('active');
+  }
+  window.switchDashNav = switchDashNav;
+
+  /* ── Scroll reveal ── */
+  var revealObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(function (el) {
+    revealObserver.observe(el);
+  });
+
+  /* ── Live activity feed ── */
+  var activities = [
+    { agent: 'VEO', bg: 'rgba(42,140,126,0.18)', color: '#48a99d', name: 'Pledge secured — Thomas W.', detail: '$2,500 · Annual Fund · 2-yr', amt: '+$2,500', amtColor: '#4ade80' },
+    { agent: 'VSO', bg: 'rgba(204,109,82,0.18)', color: '#cc6d52', name: 'Impact update — 312 donors', detail: 'Spring Report · 89% open rate', amt: '—', amtColor: 'rgba(255,255,255,0.35)' },
+    { agent: 'VPGO', bg: 'rgba(90,109,168,0.18)', color: '#7a8fd4', name: 'Legacy prospect — Patricia M.', detail: 'Propensity score: 94 · PGFO notified', amt: 'Legacy', amtColor: '#7a8fd4' },
+    { agent: 'VCO', bg: 'rgba(194,133,58,0.18)', color: '#c2853a', name: 'Matching gift — Alumni Corp', detail: '2:1 match · $15K challenge unlocked', amt: '+$15K', amtColor: '#4ade80' }
+  ];
+  var actIdx = 0;
+
+  function addActivity() {
+    var list = document.getElementById('activity-list');
+    if (!list) return;
+
+    var a = activities[actIdx % activities.length];
+    actIdx += 1;
+
+    var item = document.createElement('div');
+    item.className = 'act-item';
+    item.style.opacity = '0';
+    item.style.transform = 'translateX(-10px)';
+    item.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    item.innerHTML =
+      '<div class="act-badge" style="background:' + a.bg + ';color:' + a.color + ';">' + a.agent + '</div>' +
+      '<div class="act-body"><div class="act-name">' + a.name + '</div><div class="act-detail">' + a.detail + '</div></div>' +
+      '<div class="act-amt" style="color:' + a.amtColor + ';">' + a.amt + '</div>';
+
+    list.insertBefore(item, list.firstChild);
+
+    /* Trigger transition after paint */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        item.style.opacity = '1';
+        item.style.transform = 'none';
+      });
+    });
+
+    /* Remove oldest item if list is too long */
+    if (list.children.length > 5) {
+      var last = list.lastElementChild;
+      if (last) {
+        last.style.transition = 'opacity 0.3s ease';
+        last.style.opacity = '0';
+        setTimeout(function () {
+          if (last.parentNode === list) list.removeChild(last);
+        }, 320);
+      }
+    }
+  }
+
+  setInterval(addActivity, 4000);
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Orbit: Agent Intelligence Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+/* ════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — exact match to orbit-dashboard.html
+   ════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#f0f2f5; --surface:#ffffff; --surface-2:#f0f2f5; --surface-3:#e4e7ec;
+  --ink:#1a1d23; --ink-70:rgba(26,29,35,0.70); --ink-45:rgba(26,29,35,0.45);
+  --ink-20:rgba(26,29,35,0.20); --ink-12:rgba(26,29,35,0.12);
+  --ink-08:rgba(26,29,35,0.08); --ink-04:rgba(26,29,35,0.04);
+  --teal:#2a8c7e; --teal-hover:#1f6e63; --teal-dark:#1a5c52;
+  --teal-light:#e4f4f1; --teal-mid:#48a99d; --teal-glow:rgba(42,140,126,0.22);
+  --coral:#cc6d52; --coral-light:#faede8;
+  --amber:#c2853a; --amber-light:#fdf2e4;
+  --slate:#5a6da8; --slate-light:#edf0fa;
+  --green:#16a34a; --green-light:#dcfce7;
+  --red:#dc2626; --red-light:#fee2e2;
+  --r-xs:6px; --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:28px;
+  --sh-sm:0 1px 4px rgba(24,24,31,0.07),0 4px 14px rgba(24,24,31,0.05);
+  --sh-md:0 4px 20px rgba(24,24,31,0.09),0 1px 4px rgba(24,24,31,0.05);
+  --sh-lg:0 16px 56px rgba(24,24,31,0.12),0 4px 16px rgba(24,24,31,0.06);
+  --sidebar-w:220px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body,#root{height:100%}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+a{text-decoration:none;color:inherit}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--ink-20);border-radius:10px}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:#1a1d23;display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative;z-index:10}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.content{flex:1;overflow-y:auto;padding:24px 28px 32px;background:var(--bg)}
+
+/* ── SIDEBAR ── */
+.sidebar-logo{display:flex;align-items:center;gap:10px;height:56px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;padding:0 16px}
+.logomark{width:32px;height:32px;border-radius:9px;background:linear-gradient(145deg,var(--teal),var(--teal-mid));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px var(--teal-glow);flex-shrink:0}
+.logomark span{font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;color:white}
+.wordmark{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:rgba(255,255,255,0.92);letter-spacing:-0.3px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent}
+.sidebar-nav::-webkit-scrollbar{width:4px}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px}
+.nav-section-label{font-size:9.5px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.28);padding:14px 16px 3px;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 12px;font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.52);cursor:pointer;transition:background 0.12s,color 0.12s;margin:1px 6px;border-radius:7px;width:calc(100% - 12px);text-align:left;min-height:36px}
+.nav-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85)}
+.nav-item.active{background:rgba(42,140,126,0.16);color:#62d4cb;box-shadow:inset 2px 0 0 #2a8c7e}
+.nav-icon{font-size:15px;width:20px;text-align:center;opacity:0.55;flex-shrink:0;transition:opacity 0.12s}
+.nav-item:hover .nav-icon,.nav-item.active .nav-icon{opacity:1}
+.nav-label{font-size:12.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-badge{margin-left:auto;background:rgba(42,140,126,0.18);color:var(--teal-mid);font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;font-family:'JetBrains Mono',monospace}
+.sidebar-admin{flex-shrink:0;border-top:1px solid rgba(255,255,255,0.07);padding:4px 0}
+.sidebar-footer{padding:0 8px 10px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0}
+.org-pill{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--r-sm);background:rgba(255,255,255,0.05);cursor:pointer;transition:background 0.15s;margin-top:6px}
+.org-pill:hover{background:rgba(255,255,255,0.09)}
+.org-avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--teal-dark),var(--teal));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.org-name{font-size:11.5px;font-weight:700;color:rgba(255,255,255,0.7)}
+.org-plan{font-size:9.5px;color:rgba(255,255,255,0.3);font-family:'JetBrains Mono',monospace;margin-top:1px}
+
+/* ── TOPBAR (content-header) ── */
+.content-header{display:flex;align-items:center;gap:12px;padding:0 28px;height:56px;flex-shrink:0;background:#ffffff;border-bottom:1px solid var(--surface-3);box-shadow:0 1px 0 rgba(26,29,35,0.06)}
+.content-header-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-0.2px;flex-shrink:0}
+.icon-btn{width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;background:var(--surface-2);color:var(--ink-45);font-size:14px;cursor:pointer;border:none;transition:background 0.15s,color 0.15s}
+.icon-btn:hover{background:var(--surface-3);color:var(--ink)}
+.avatar-btn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-mid));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;cursor:pointer;font-family:'JetBrains Mono',monospace;border:none;flex-shrink:0}
+
+/* ── LIVE DOT ── */
+.live-dot{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;color:#16a34a;font-family:'JetBrains Mono',monospace}
+.live-pip{width:7px;height:7px;border-radius:50%;background:#16a34a;animation:pulse-dot 1.5s ease infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(22,163,74,0.4)}70%{opacity:0.7;box-shadow:0 0 0 5px rgba(22,163,74,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes msg-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{background:#ffffff;border-radius:var(--r-md);border:1px solid var(--surface-3);box-shadow:0 1px 3px rgba(26,29,35,0.06),0 1px 2px rgba(26,29,35,0.04);overflow:hidden}
+.card-header{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--ink-08)}
+.card-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:0.01em}
+.card-label{font-size:9.5px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--ink-45);font-family:'JetBrains Mono',monospace;margin-bottom:2px}
+.card-body{padding:20px}
+
+/* ── BUTTONS ── */
+.btn-primary{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:white;background:var(--teal);padding:8px 16px;border-radius:var(--r-sm);box-shadow:0 2px 8px var(--teal-glow);border:none;cursor:pointer;transition:background 0.18s,transform 0.15s;font-family:inherit}
+.btn-primary:hover{background:var(--teal-hover);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.55;cursor:not-allowed;transform:none}
+.btn-ghost{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-70);background:transparent;border:1px solid var(--ink-12);padding:7px 14px;border-radius:var(--r-sm);cursor:pointer;transition:all 0.15s;font-family:inherit}
+.btn-ghost:hover{background:var(--surface-2);border-color:var(--ink-20);color:var(--ink)}
+.btn-sm{padding:5px 12px !important;font-size:11.5px !important}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:22px}
+.page-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-0.5px}
+.page-sub{font-size:13px;color:var(--ink-45);margin-top:3px}
+.page-header-row{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
+.page-actions{display:flex;gap:8px;align-items:center;margin-top:14px;flex-wrap:wrap}
+
+/* ── GRID HELPERS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* ── AGENT CARDS ── */
+.agent-card{background:white;border-radius:var(--r-md);border:1.5px solid var(--surface-3);box-shadow:var(--sh-sm);overflow:hidden;cursor:pointer;transition:all 0.18s;position:relative}
+.agent-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+.agent-card-strip{height:3px}
+.agent-card-body{padding:16px 18px 14px}
+.agent-ring{width:52px;height:52px;border-radius:50%;border:3px solid;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;overflow:hidden;background:var(--surface-2);position:relative;flex-shrink:0}
+.agent-ring img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.agent-status-pip{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid white}
+.agent-callsign{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;margin-bottom:3px}
+.agent-name-lg{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-0.3px;line-height:1.1}
+.agent-role-sm{font-size:11px;color:var(--ink-45);margin-top:2px;margin-bottom:10px}
+.agent-bio-preview{font-size:11.5px;color:var(--ink-70);line-height:1.65;margin-bottom:10px}
+.agent-metrics-mini{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--surface-3);border-top:1px solid var(--surface-3);margin-top:auto}
+.amm-cell{background:white;padding:10px 14px;text-align:center}
+.amm-val{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:var(--ink)}
+.amm-lbl{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--ink-45);margin-top:1px;text-transform:uppercase;letter-spacing:0.06em}
+.agent-card-footer{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--surface-2);border-top:1px solid var(--surface-3)}
+.channel-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;border:1px solid;font-family:'JetBrains Mono',monospace;letter-spacing:0.04em}
+
+/* ── PILL TABS (matching dashboard internal tab style) ── */
+.pill-tabs{display:flex;gap:4px;background:var(--surface-2);border-radius:9px;padding:4px;width:fit-content;margin-bottom:16px}
+.pill-tab{padding:6px 14px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:0.03em;transition:all 0.15s;color:var(--ink-45);background:transparent;white-space:nowrap}
+.pill-tab.pt-active{background:white;color:var(--ink);box-shadow:var(--sh-sm)}
+
+/* ── UNDERLINE TABS (matching dashboard section tabs) ── */
+.under-tabs{display:flex;gap:2px;border-bottom:1px solid var(--ink-08);margin-bottom:20px;overflow-x:auto}
+.under-tabs::-webkit-scrollbar{display:none}
+.under-tab{padding:9px 16px;font-size:12px;font-weight:600;color:var(--ink-45);border:none;background:transparent;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap;font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;margin-bottom:-1px}
+.under-tab:hover{color:var(--ink-70)}
+
+/* ── CHAT UI (ChatGPT parity) ── */
+.chat-shell{display:flex;flex-direction:column;background:white;border-radius:var(--r-md);border:1px solid var(--surface-3);box-shadow:var(--sh-sm);overflow:hidden}
+.chat-header{padding:12px 18px;border-bottom:1px solid var(--ink-08);display:flex;align-items:center;gap:12px;flex-shrink:0;background:white}
+.chat-header-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid;overflow:hidden;flex-shrink:0}
+.chat-header-avatar img{width:100%;height:100%;object-fit:cover}
+.chat-agent-name{font-size:13.5px;font-weight:700;color:var(--ink)}
+.chat-agent-status{font-size:10px;color:var(--green);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.chat-messages{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:18px}
+.msg-row{display:flex;gap:10px;max-width:88%;animation:msg-in 0.2s ease}
+.msg-row.user-row{align-self:flex-end;flex-direction:row-reverse}
+.msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;align-self:flex-end;border:1.5px solid var(--ink-08)}
+.msg-avatar img{width:100%;height:100%;object-fit:cover}
+.msg-bubble{padding:11px 15px;font-size:13px;line-height:1.7}
+.agent-bubble{background:var(--surface-2);border:1px solid var(--ink-08);border-radius:14px 14px 14px 3px;color:var(--ink)}
+.user-bubble{background:var(--teal);color:white;border-radius:14px 14px 3px 14px}
+.msg-time{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--ink-20);margin-top:4px;line-height:1}
+.user-row .msg-time{text-align:right}
+.typing-wrap{display:flex;gap:10px;max-width:80%;animation:msg-in 0.2s ease}
+.typing-bubble{padding:11px 15px;background:var(--surface-2);border:1px solid var(--ink-08);border-radius:14px 14px 14px 3px;display:flex;gap:4px;align-items:center}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--ink-45);animation:tdot 1.2s ease infinite}
+.tdot:nth-child(2){animation-delay:0.2s}
+.tdot:nth-child(3){animation-delay:0.4s}
+@keyframes tdot{0%,80%,100%{opacity:0.3;transform:scale(0.85)}40%{opacity:1;transform:scale(1)}}
+.chat-footer{border-top:1px solid var(--ink-08);background:white;flex-shrink:0}
+.chat-tools-row{padding:8px 14px 0;display:flex;gap:5px;flex-wrap:wrap}
+.chat-tool{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--ink-12);background:transparent;color:var(--ink-45);cursor:pointer;transition:all 0.12s;font-family:'JetBrains Mono',monospace;font-weight:600}
+.chat-tool:hover{background:var(--teal-light);border-color:rgba(42,140,126,0.3);color:var(--teal)}
+.chat-tool.ct-active{background:var(--teal-light);border-color:rgba(42,140,126,0.35);color:var(--teal);font-weight:700}
+.chat-input-row{padding:10px 14px 12px;display:flex;gap:8px;align-items:flex-end}
+.chat-textarea{flex:1;border:1.5px solid var(--ink-12);border-radius:var(--r-md);padding:9px 13px;font-size:13px;color:var(--ink);resize:none;line-height:1.55;max-height:140px;background:white;transition:border-color 0.15s}
+.chat-textarea::placeholder{color:var(--ink-20)}
+.chat-textarea:focus{outline:none;border-color:var(--teal)}
+.chat-send{width:36px;height:36px;border-radius:var(--r-sm);background:var(--teal);color:white;font-size:17px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:all 0.15s;flex-shrink:0;font-weight:700;line-height:1}
+.chat-send:hover{background:var(--teal-hover);transform:scale(1.04)}
+.chat-send:disabled{background:var(--ink-12);cursor:not-allowed;transform:none;color:var(--ink-45)}
+.voice-btn{width:36px;height:36px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--ink-12);color:var(--ink-45);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;flex-shrink:0}
+.voice-btn:hover{background:var(--surface-3);color:var(--ink)}
+.voice-btn.recording{background:var(--coral-light);border-color:var(--coral);color:var(--coral);animation:pulse-dot 0.8s ease infinite}
+
+/* ── PERSONALITY / SLIDERS ── */
+.trait-row{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.trait-lbl{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--ink-45);width:90px;flex-shrink:0;text-transform:capitalize}
+.trait-slider{flex:1;-webkit-appearance:none;height:5px;border-radius:3px;outline:none;cursor:pointer}
+.trait-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.18);cursor:pointer}
+.trait-num{width:26px;text-align:right;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--ink);font-weight:700;flex-shrink:0}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed var(--ink-12);border-radius:var(--r-md);padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.18s;position:relative}
+.upload-zone:hover,.upload-zone.dz-over{border-color:var(--teal);background:var(--teal-light)}
+.upload-zone-icon{font-size:28px;margin-bottom:8px}
+.upload-zone-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.upload-zone-sub{font-size:11.5px;color:var(--ink-45)}
+.analysis-box{background:var(--teal-light);border:1px solid rgba(42,140,126,0.2);border-radius:var(--r-md);padding:14px 16px;margin-top:14px}
+.analysis-lbl{font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.analysis-text{font-size:12px;color:var(--ink-70);line-height:1.75}
+
+/* ── MEMORY CHIPS ── */
+.memory-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:20px;font-size:11px;border:1px solid;margin:3px}
+.mem-cat{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:1px 5px;border-radius:10px}
+.mem-del{color:var(--ink-20);cursor:pointer;font-size:14px;line-height:1;transition:color 0.12s;margin-left:2px}
+.mem-del:hover{color:var(--coral)}
+
+/* ── DONOR QUEUE ROWS ── */
+.dq-row{display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--ink-04);cursor:pointer;transition:background 0.12s}
+.dq-row:hover{background:var(--surface-2)}
+.dq-initials{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;border:2px solid}
+.dq-name{font-size:12.5px;font-weight:700;color:var(--ink)}
+.dq-meta{font-size:10.5px;color:var(--ink-45);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.score-wrap{display:flex;align-items:center;gap:6px;min-width:70px}
+.score-bar{height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden;flex:1}
+.score-fill{height:100%;border-radius:2px;transition:width 0.5s}
+.score-num{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--ink-45);min-width:22px;text-align:right}
+
+/* ── LOG STREAM ── */
+.log-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--ink-04)}
+.log-row:last-child{border:none}
+.log-ts{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-20);min-width:54px;flex-shrink:0;margin-top:2px}
+.log-txt{font-size:12px;color:var(--ink-70);line-height:1.55}
+.log-txt strong{color:var(--ink);font-weight:700}
+
+/* ── SMS THREADS ── */
+.sms-bubble{max-width:76%;padding:9px 13px;font-size:12.5px;line-height:1.55;border-radius:14px}
+.sms-out{align-self:flex-end;background:var(--teal);color:white;border-radius:14px 14px 3px 14px}
+.sms-in{align-self:flex-start;background:var(--surface-2);border:1px solid var(--ink-08);color:var(--ink);border-radius:14px 14px 14px 3px}
+.sms-ts{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--ink-20);margin-top:3px}
+
+/* ── AVATAR OPTIONS ── */
+.avatar-opt{border-radius:var(--r-md);border:2px solid var(--surface-3);overflow:hidden;cursor:pointer;aspect-ratio:1;background:var(--surface-2);display:flex;align-items:center;justify-content:center;transition:all 0.18s;position:relative}
+.avatar-opt:hover{border-color:var(--ink-20);transform:scale(1.02)}
+.avatar-opt.av-sel{border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,140,126,0.15)}
+.avatar-opt img{width:100%;height:100%;object-fit:cover}
+.av-badge{position:absolute;top:6px;right:6px;background:var(--teal);color:white;border-radius:20px;padding:2px 7px;font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700}
+
+/* ── STAGE BADGE ── */
+.stage-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:0.03em;white-space:nowrap}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--ink-08);margin:16px 0}
+.section-lbl{font-size:9.5px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--ink-45);font-family:'JetBrains Mono',monospace;margin-bottom:8px}
+.shimmer{background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r-sm)}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── TOAST ── */
+.toast-stack{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999}
+.toast{background:white;border:1px solid var(--ink-08);border-radius:var(--r-md);padding:11px 15px;font-size:12.5px;color:var(--ink);display:flex;align-items:center;gap:8px;box-shadow:var(--sh-md);animation:msg-in 0.2s ease}
+.toast-accent{width:3px;min-height:28px;border-radius:2px;flex-shrink:0}
+
+/* ── AGENT DETAIL HERO ── */
+.agent-hero{padding:20px 28px;display:flex;align-items:center;gap:18px;border-bottom:1px solid var(--ink-08);background:white;flex-shrink:0}
+.agent-hero-meta{flex:1}
+.agent-hero-stats{display:flex;gap:28px}
+.hero-stat-val{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
+.hero-stat-lbl{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--ink-45);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback,useMemo}=React;
+
+/* ── Anthropic API ── */
+const ORBIT_WRITING_GUARD=`\n\nCRITICAL WRITING RULES - follow these without exception:\n- Never use em dashes (—) or en dashes (–) anywhere in your response. Replace them with commas, periods, or rewrite the sentence.\n- Never use hyphens as punctuation dashes (e.g. " - "). Hyphens are only acceptable inside compound words (e.g. "follow-up", "well-known").\n- Write in natural, flowing prose. Vary sentence structure. Do not default to lists or bullets unless explicitly asked.\n- Avoid starting sentences with "I" back to back. Avoid robotic sentence patterns.\n- Sound like a thoughtful human professional, not a language model.`;
+
+async function callClaude(system,user,maxTokens=700){
+  const guardedSystem=system+ORBIT_WRITING_GUARD;
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system:guardedSystem,messages:[{role:'user',content:user}]})
+  });
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error?.message||'API error');
+  return d.content?.[0]?.text||'';
+}
+
+/* ── TOAST ── */
+let _toast=null;
+function ToastProvider({children}){
+  const [toasts,setToasts]=useState([]);
+  _toast=(msg,type='success',icon='✓')=>{
+    const id=Date.now();
+    setToasts(p=>[...p,{id,msg,type,icon}]);
+    setTimeout(()=>setToasts(p=>p.filter(t=>t.id!==id)),3600);
+  };
+  const colors={success:'var(--teal)',error:'var(--coral)',info:'var(--slate)',warning:'var(--amber)'};
+  return(<>
+    {children}
+    <div className="toast-stack">
+      {toasts.map(t=>(
+        <div key={t.id} className="toast">
+          <div className="toast-accent" style={{background:colors[t.type]||colors.success}}/>
+          <span>{t.icon}</span>
+          <span>{t.msg}</span>
+        </div>
+      ))}
+    </div>
+  </>);
+}
+const addToast=(m,t,i)=>_toast&&_toast(m,t,i);
+
+/* ── AGENT DATA ── */
+const INIT_AGENTS={
+  VEO:{
+    key:'VEO',name:'Aria',fullName:'Aria Chen',title:'Virtual Engagement Officer',
+    callsign:'VEO · ARIA',color:'var(--teal)',colorHex:'#2a8c7e',bg:'var(--teal-light)',
+    avatarEmoji:'🌿',avatarUrl:null,
+    bio:"Aria is Orbit's relationship architect. She studies donor psychology, identifies the precise moment a prospect is ready to deepen their commitment, and crafts cultivation journeys that feel personal, never automated. Warm, strategic, and she remembers everything.",
+    voice:"Warm, strategic, and unhurried. Speaks like a trusted advisor, never pitching, always listening first. Surfaces insights the officer hasn't noticed.",
+    traits:{warmth:82,directness:68,formality:54,urgency:45,empathy:88,precision:76},
+    memory:[
+      {id:'m1',text:'Focus: major gift cultivation $25K+',cat:'role'},
+      {id:'m2',text:"Fiscal year ends June 30",cat:'context'},
+      {id:'m3',text:'Officers prefer briefings of max 3 action items',cat:'preference'},
+      {id:'m4',text:'Use "advancement" not "fundraising" in donor copy',cat:'style'},
+    ],
+    donors:1847,actions:4821,gifted:312,rate:'16.9%',queue:23,
+    channels:['Email','SMS','Phone'],
+    systemPrompt:'You are Aria Chen, Orbit\'s Virtual Engagement Officer (VEO) for {university}. You are warm, strategic, and relationship-focused. You help gift officers cultivate major donors through personalized moves-management journeys. You surface insights about donor psychology and timing. You draft outreach in the officer\'s voice, personal, never corporate. You remember every detail shared in this conversation. Never use generic fundraising clichés.',
+    sms:[{donor:'Margaret K.',msgs:[
+      {out:false,text:"Hi Margaret, Sarah from Greenfield here. Wanted to personally thank you for your recent campus visit. The scholarship students were asking about you!",time:'9:14am'},
+      {out:true,text:"That is so wonderful to hear. I really enjoyed my time there.",time:'9:22am'},
+      {out:false,text:"Which is exactly why I want to invite you to our Founders Dinner in April, very intimate, just 18 people. Would that interest you?",time:'9:25am'},
+    ]},{donor:'James P.',msgs:[
+      {out:false,text:"James, your gift last year funded a summer research fellowship. The student is presenting in June. Wanted you to know.",time:'Yesterday'},
+      {out:true,text:"Wow, that is amazing. Which student?",time:'Yesterday'},
+    ]}],
+    dq:[
+      {name:'Margaret K.',stage:'Major Gift Cultivation',score:87,last:'$12,500'},
+      {name:'James P.',stage:'Engaged Prospect',score:74,last:'$2,000'},
+      {name:'Diana W.',stage:'Discovery',score:68,last:'First gift'},
+      {name:'Frank O.',stage:'Solicitation Ready',score:91,last:'$8,000'},
+    ],
+    logs:[
+      {time:'9:32am',text:'<strong>Email sent</strong> to Margaret K., Founders Dinner invitation. Open probability: 84%'},
+      {time:'9:15am',text:'<strong>SMS thread</strong> opened with James P. Impact story shared. Stage signal: advance'},
+      {time:'8:47am',text:'<strong>AI reasoning</strong>, Diana W. flagged as major gift prospect. Recommend discovery call'},
+      {time:'8:10am',text:'<strong>24 donors</strong> scored for morning queue. Avg readiness score: 73'},
+    ],
+    avatarStyleChips:['Professional','Warm','Strategic'],
+    paused:false,
+  },
+  VSO:{
+    key:'VSO',name:'Marcus',fullName:'Marcus Rivera',title:'Virtual Stewardship Officer',
+    callsign:'VSO · MARCUS',color:'var(--coral)',colorHex:'#cc6d52',bg:'var(--coral-light)',
+    avatarEmoji:'♥',avatarUrl:null,
+    bio:"Marcus is the keeper of donor relationships. He believes retention is the most undervalued metric in fundraising. He tracks every gift anniversary, every impact moment, every emotional signal, and never lets a donor feel forgotten.",
+    voice:"Deeply warm and genuinely grateful. Leads with impact, avoids generic thank-yous, makes every donor feel like the most important person in the room.",
+    traits:{warmth:95,directness:52,formality:41,urgency:38,empathy:97,precision:71},
+    memory:[
+      {id:'m1',text:'Track all gift anniversaries, 30-day advance notice',cat:'workflow'},
+      {id:'m2',text:'Stewardship reports sent quarterly to donors $1K+',cat:'policy'},
+      {id:'m3',text:'Patricia M. responds to personal notes, not mass emails',cat:'donor'},
+      {id:'m4',text:'Lead with impact stories over statistics',cat:'style'},
+    ],
+    donors:3263,actions:12440,gifted:null,rate:'96.2%',queue:47,
+    channels:['Email','SMS','Note'],
+    systemPrompt:'You are Marcus Rivera, Orbit\'s Virtual Stewardship Officer (VSO) for {university}. You are warm, empathetic, and genuinely grateful. Your focus is making donors feel valued, heard, and connected to their impact. You write stewardship that feels like it came from a real person. You notice emotional signals and advise on how to respond. Never be generic or transactional.',
+    sms:[{donor:'Patricia M.',msgs:[
+      {out:false,text:"Patricia, eighteen years. Your gifts have touched more lives than you probably know. I wanted to say thank you personally.",time:'10:02am'},
+      {out:true,text:"You made me cry at my desk! Thank you for saying that.",time:'10:18am'},
+      {out:false,text:"Every word is true. Would you be open to hearing one specific student story?",time:'10:21am'},
+      {out:true,text:"Absolutely, please send it along",time:'10:23am'},
+    ]}],
+    dq:[
+      {name:'Patricia M.',stage:'18-Year Loyal Donor',score:94,last:'$500/yr'},
+      {name:'Sandra L.',stage:'Post-Gift Stewardship',score:81,last:'$3,200'},
+      {name:'847 donors',stage:'Mass Impact Report',score:null,last:'Annual Fund'},
+      {name:'Thomas W.',stage:'Lapse Risk (11mo)',score:48,last:'$1,000'},
+    ],
+    logs:[
+      {time:'10:23am',text:'<strong>SMS reply</strong> from Patricia M. Sentiment: very positive. Stage: advance to major gift track'},
+      {time:'10:02am',text:'<strong>Anniversary message</strong> sent to Patricia M., 18-year milestone'},
+      {time:'9:44am',text:'<strong>Churn risk</strong>, Thomas W. 11 months since last gift. Re-engagement sequence initiated'},
+      {time:'9:01am',text:'<strong>Impact report</strong> queued for 847 donors, Spring Fund close'},
+    ],
+    avatarStyleChips:['Warm','Empathetic','Approachable'],
+    paused:false,
+  },
+  VPGO:{
+    key:'VPGO',name:'Eleanor',fullName:'Eleanor Voss',title:'Virtual Planned Giving Officer',
+    callsign:'VPGO · ELEANOR',color:'var(--slate)',colorHex:'#5a6da8',bg:'var(--slate-light)',
+    avatarEmoji:'🌊',avatarUrl:null,
+    bio:"Eleanor specializes in conversations most officers avoid, legacy, mortality, and the meaning of a life's work. She is patient, deeply knowledgeable about gift vehicles, and understands that planned giving is about values, not dollars.",
+    voice:"Measured, patient, and profound. Eleanor never rushes. She speaks of legacy like it is sacred, because to the donors she serves, it is.",
+    traits:{warmth:79,directness:61,formality:73,urgency:22,empathy:91,precision:89},
+    memory:[
+      {id:'m1',text:'Contact cap: max 2 outreach touches per 30 days per donor',cat:'compliance'},
+      {id:'m2',text:'CGA rates updated quarterly, verify before any illustration',cat:'policy'},
+      {id:'m3',text:'Robert H. expressed interest in estate planning, high priority',cat:'donor'},
+      {id:'m4',text:'Never say "death" - use "estate plan" or "legacy gift"',cat:'style'},
+    ],
+    donors:127,actions:892,gifted:4,rate:'$480K pipeline',queue:8,
+    channels:['Email','Phone'],
+    systemPrompt:'You are Eleanor Voss, Orbit\'s Virtual Planned Giving Officer (VPGO) for {university}. You are patient, wise, and deeply knowledgeable about estate planning, bequests, charitable gift annuities, DAFs, and legacy giving. You speak with reverence about estate decisions. You never pressure. You help officers prepare for meaningful, difficult conversations. You are fluent in gift vehicles but explain them plainly.',
+    sms:[{donor:'Robert H.',msgs:[
+      {out:false,text:"Robert, it was a true honor speaking with you. I have been reflecting on our conversation about the endowment.",time:'Tue 2:14pm'},
+      {out:true,text:"Of course. Actually been thinking about this for my estate plan.",time:'Tue 3:22pm'},
+      {out:false,text:"That means a great deal. A bequest is a profound decision, I would love to walk through what that could look like, on your timeline entirely.",time:'Tue 3:31pm'},
+    ]}],
+    dq:[
+      {name:'Robert H.',stage:'Bequest Prospect',score:91,last:'$5K/yr (22 yrs)'},
+      {name:'Patricia L.',stage:'CGA Candidate',score:84,last:'$15,000'},
+      {name:'Grace M.',stage:'Legacy Society Confirmed',score:96,last:'Bequest intent'},
+      {name:'William T.',stage:'DAF Holder',score:78,last:'$8,500'},
+    ],
+    logs:[
+      {time:'2:31pm',text:'<strong>Phone brief</strong> generated for Robert H., estate planning. 6 talking points prepared'},
+      {time:'11:15am',text:'<strong>CGA illustration</strong> created for Patricia L., $200K, age 74. Rate: 6.4%'},
+      {time:'9:00am',text:'<strong>VPGO queue:</strong> 8 donors. Contact frequency check: all within 30-day cap ✓'},
+    ],
+    avatarStyleChips:['Distinguished','Wise','Authoritative'],
+    paused:false,
+  },
+  VCO:{
+    key:'VCO',name:'Dev',fullName:'Dev Patel',title:'Virtual Campaign Officer',
+    callsign:'VCO · DEV',color:'var(--amber)',colorHex:'#c2853a',bg:'var(--amber-light)',
+    avatarEmoji:'⚡',avatarUrl:null,
+    bio:"Dev lives in the data. He runs campaigns like a war room, tracking real-time response rates, A/B testing subject lines, adjusting sends based on signal. Energetic, numbers-obsessed, and genuinely delighted by a well-optimized campaign.",
+    voice:"Fast, direct, data-driven. Dev cuts to what matters, the numbers, the window, the action. Keeps campaigns on track and flags risks early.",
+    traits:{warmth:64,directness:91,formality:38,urgency:88,empathy:62,precision:94},
+    memory:[
+      {id:'m1',text:'Spring Annual Fund goal: $300K, deadline April 30',cat:'campaign'},
+      {id:'m2',text:'SMS outperforms email 2.3x on day-of-giving response',cat:'insight'},
+      {id:'m3',text:'Max 3 sends per donor per campaign cycle',cat:'policy'},
+      {id:'m4',text:'Elena V. responds only to SMS, email address bounces',cat:'donor'},
+    ],
+    donors:3263,actions:9340,gifted:234,rate:'78% of goal',queue:312,
+    channels:['Email','SMS'],
+    systemPrompt:'You are Dev Patel, Orbit\'s Virtual Campaign Officer (VCO) for {university}. You are energetic, data-driven, and campaign-focused. You optimize for results, response rates, conversion, timing windows. You think in segments, A/B tests, and thermometers. You communicate with urgency when warranted and flag risks before they become problems.',
+    sms:[{donor:'Elena V.',msgs:[
+      {out:false,text:"Elena, Spring Fund closes in 12 days. Your gift last year funded 3 scholarships. Join 847 donors who've already given. Even $50 moves the needle.",time:'8:14am'},
+      {out:true,text:"How much has been raised so far?",time:'8:31am'},
+      {out:false,text:"$234K of $300K, 78% there. Match program active through April 15.",time:'8:33am'},
+      {out:true,text:"Ok fine. $100 coming.",time:'8:35am'},
+    ]}],
+    dq:[
+      {name:'Elena V.',stage:'SMS Convert',score:79,last:'$250'},
+      {name:'312 lapsed donors',stage:'Re-engagement Blast',score:null,last:'13mo+ lapsed'},
+      {name:'Thomas R.',stage:'Upgrade Ask',score:83,last:'$500 → target $1K'},
+      {name:'Carol F.',stage:'First-Time Ask',score:71,last:'No prior gift'},
+    ],
+    logs:[
+      {time:'8:35am',text:'<strong>Gift secured</strong> from Elena V., $100 via SMS. Campaign: Spring Fund'},
+      {time:'8:14am',text:'<strong>SMS blast</strong>, 312 lapsed donors. Day 2 of 3-touch re-engagement'},
+      {time:'7:55am',text:'<strong>A/B result:</strong> Subject B wins, 34.2% vs 28.1% open rate'},
+      {time:'7:30am',text:'<strong>Campaign:</strong> $234K / $300K (78%). 12 days remaining'},
+    ],
+    avatarStyleChips:['Energetic','Confident','Modern professional'],
+    paused:false,
+  },
+};
+
+/* ── AGENT AVATAR DISPLAY ── */
+function AgentAvatar({agent,size=52,showPip=true}){
+  const s={width:size,height:size,borderRadius:'50%',border:`3px solid ${agent.colorHex}`,
+    display:'flex',alignItems:'center',justifyContent:'center',fontSize:size*0.4,
+    background:'var(--surface-2)',overflow:'hidden',flexShrink:0,position:'relative'};
+  return(
+    <div style={s}>
+      {agent.avatarUrl
+        ?<img src={agent.avatarUrl} alt={agent.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+        :<span>{agent.avatarEmoji}</span>}
+      {showPip&&<div className="agent-status-pip"/>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   CHAT COMPONENT, ChatGPT-style with tool modes
+   + voice input + full conversation history
+═══════════════════════════════════════════════════ */
+function AgentChat({agent,onUpdateAgent}){
+  const uni=window.__orbitTenant?.name||'Greenfield University';
+  const [msgs,setMsgs]=useState([{
+    role:'agent',
+    text:`Hi, I'm ${agent.name}. I have full context on your portfolio, today's queue, and all the memories you've shared with me. What would you like to work on?`,
+    time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+  }]);
+  const [input,setInput]=useState('');
+  const [loading,setLoading]=useState(false);
+  const [activeTool,setActiveTool]=useState(null);
+  const [isRecording,setIsRecording]=useState(false);
+  const [speechSupport]=useState(()=>'webkitSpeechRecognition' in window||'SpeechRecognition' in window);
+  const recogRef=useRef(null);
+  const endRef=useRef(null);
+  const taRef=useRef(null);
+
+  useEffect(()=>endRef.current?.scrollIntoView({behavior:'smooth'}),[msgs,loading]);
+
+  // Auto-grow textarea
+  useEffect(()=>{
+    if(taRef.current){
+      taRef.current.style.height='auto';
+      taRef.current.style.height=Math.min(taRef.current.scrollHeight,140)+'px';
+    }
+  },[input]);
+
+  const buildMemoryCtx=()=>agent.memory.map(m=>`• ${m.text}`).join('\n');
+  const buildTraitCtx=()=>Object.entries(agent.traits).map(([k,v])=>`${k}: ${v}/100`).join(', ');
+
+  function buildSystem(){
+    let sys=agent.systemPrompt.replace('{university}',uni);
+    sys+=`\n\nYour personality: ${buildTraitCtx()}.`;
+    sys+=`\n\nKnown context:\n${buildMemoryCtx()}`;
+    if(agent.voice) sys+=`\n\nYour voice: ${agent.voice}`;
+    const toolInstructions={
+      draft:`\n\nMode: DRAFT OUTREACH. Write in the officer's voice. Always include: subject line, opening paragraph, specific detail about this donor/situation, clear ask or next step. No generic openers.`,
+      sms:`\n\nMode: SMS DRAFT. Under 160 chars unless asked for more. Specific, warm, action-oriented. Never corporate.`,
+      analyze:`\n\nMode: DONOR ANALYSIS. Be data-driven. Surface signals. Give specific, actionable observations. Structure as: Key signals, Readiness assessment, Recommended next action.`,
+      brief:`\n\nMode: PRE-CALL BRIEF. Structure: Relationship context | Last gift | Current signals | 3 talking points | One thing to avoid. Concise, scannable.`,
+      train:`\n\nMode: PERSONALITY TRAINING. Discuss your own communication style, what you've learned, how you'd approach different situations. Help the officer understand how you think.`,
+    };
+    if(activeTool && toolInstructions[activeTool]) sys+=toolInstructions[activeTool];
+    return sys;
+  }
+
+  async function send(text=null){
+    const msg=(text||input).trim();
+    if(!msg||loading)return;
+    const userMsg={role:'user',text:msg,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})};
+    setMsgs(p=>[...p,userMsg]);
+    setInput('');
+    setLoading(true);
+    try{
+      // Build full convo history for context
+      const history=msgs.slice(-10).map(m=>({
+        role:m.role==='agent'?'assistant':'user',
+        content:m.text
+      }));
+      const historyText=history.map(h=>`${h.role==='assistant'?agent.name:'Officer'}: ${h.content}`).join('\n');
+      const fullPrompt=historyText+`\nOfficer: ${msg}`;
+      const resp=await callClaude(buildSystem(),fullPrompt,900);
+      setMsgs(p=>[...p,{role:'agent',text:resp,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}]);
+    }catch(e){
+      setMsgs(p=>[...p,{role:'agent',text:"Connection error, please check your API key in the dashboard settings.",time:'—'}]);
+    }
+    setLoading(false);
+  }
+
+  function toggleVoice(){
+    if(!speechSupport){addToast('Speech not supported in this browser','warning','🎤');return;}
+    if(isRecording){recogRef.current?.stop();setIsRecording(false);return;}
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    const r=new SR();
+    r.continuous=false;r.interimResults=false;r.lang='en-US';
+    r.onresult=e=>{
+      const t=e.results[0][0].transcript;
+      setInput(prev=>prev?prev+' '+t:t);
+      setIsRecording(false);
+    };
+    r.onerror=()=>{setIsRecording(false);addToast('Voice input failed','error','🎤');};
+    r.onend=()=>setIsRecording(false);
+    r.start();
+    recogRef.current=r;
+    setIsRecording(true);
+    addToast('Listening…','info','🎤');
+  }
+
+  const TOOLS=[
+    {id:'draft',label:'✍️ Draft email'},
+    {id:'sms',label:'💬 Write SMS'},
+    {id:'analyze',label:'🔍 Analyze'},
+    {id:'brief',label:'📋 Pre-call brief'},
+    {id:'train',label:'🧠 Explain yourself'},
+  ];
+
+  return(
+    <div className="chat-shell" style={{height:'540px'}}>
+      {/* Header */}
+      <div className="chat-header">
+        <div className="chat-header-avatar" style={{border:`2px solid ${agent.colorHex}`,background:agent.bg}}>
+          {agent.avatarUrl
+            ?<img src={agent.avatarUrl} alt={agent.name}/>
+            :<span style={{fontSize:16}}>{agent.avatarEmoji}</span>}
+        </div>
+        <div style={{flex:1}}>
+          <div className="chat-agent-name">
+            {agent.name}
+            <span style={{fontFamily:'JetBrains Mono',fontSize:9,fontWeight:400,color:'var(--ink-45)',marginLeft:8}}>{agent.callsign}</span>
+          </div>
+          <div className="chat-agent-status">● Online · {agent.donors.toLocaleString()} donors in portfolio</div>
+        </div>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          {activeTool&&(
+            <span style={{fontSize:10,fontFamily:'JetBrains Mono',color:'var(--teal)',background:'var(--teal-light)',
+              padding:'3px 9px',borderRadius:20,border:'1px solid rgba(42,140,126,0.25)',fontWeight:700}}>
+              {TOOLS.find(t=>t.id===activeTool)?.label} MODE
+            </span>
+          )}
+          <button className="btn-ghost btn-sm" onClick={()=>{
+            setMsgs([{role:'agent',text:`Hi again! I'm ${agent.name}. What can I help you with?`,time:'Now'}]);
+            setActiveTool(null);
+          }}>↺ Clear</button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="chat-messages">
+        {msgs.map((m,i)=>(
+          <div key={i} className={'msg-row '+(m.role==='user'?'user-row':'')}>
+            {m.role==='agent'
+              ?<div className="msg-avatar" style={{border:`1.5px solid ${agent.colorHex}40`,background:agent.bg}}>
+                {agent.avatarUrl?<img src={agent.avatarUrl} alt={agent.name}/>:<span>{agent.avatarEmoji}</span>}
+               </div>
+              :<div className="msg-avatar" style={{background:'var(--teal-light)',color:'var(--teal)',fontFamily:'JetBrains Mono',fontWeight:700}}>AR</div>
+            }
+            <div>
+              <div className={m.role==='agent'?'msg-bubble agent-bubble':'msg-bubble user-bubble'}>
+                {m.text.split('\n').map((line,li,arr)=>(
+                  <span key={li}>{line}{li<arr.length-1&&<br/>}</span>
+                ))}
+              </div>
+              <div className="msg-time">{m.time}</div>
+            </div>
+          </div>
+        ))}
+        {loading&&(
+          <div className="typing-wrap">
+            <div className="msg-avatar" style={{border:`1.5px solid ${agent.colorHex}40`,background:agent.bg}}>
+              <span>{agent.avatarEmoji}</span>
+            </div>
+            <div className="typing-bubble">
+              <div className="tdot"/><div className="tdot"/><div className="tdot"/>
+            </div>
+          </div>
+        )}
+        <div ref={endRef}/>
+      </div>
+
+      {/* Footer */}
+      <div className="chat-footer">
+        <div className="chat-tools-row">
+          {TOOLS.map(t=>(
+            <button key={t.id} className={'chat-tool '+(activeTool===t.id?'ct-active':'')}
+              onClick={()=>setActiveTool(activeTool===t.id?null:t.id)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div className="chat-input-row">
+          <button className={'voice-btn '+(isRecording?'recording':'')} onClick={toggleVoice}
+            title={speechSupport?'Voice input':'Speech not supported'}>
+            {isRecording?'⏹':'🎤'}
+          </button>
+          <textarea ref={taRef} className="chat-textarea" rows={1}
+            value={input} onChange={e=>setInput(e.target.value)}
+            onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}}
+            placeholder={activeTool
+              ?`${agent.name} is in ${TOOLS.find(t=>t.id===activeTool)?.label} mode, describe what you need…`
+              :`Message ${agent.name}… (Enter to send · Shift+Enter for new line)`}/>
+          <button className="chat-send" onClick={()=>send()} disabled={!input.trim()||loading}>
+            {loading?<span style={{fontSize:12,animation:'spin 1s linear infinite',display:'inline-block'}}>⟳</span>:'↑'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   PERSONALITY TRAINER, upload + slider + style prompts
+═══════════════════════════════════════════════════ */
+function PersonalityTrainer({agent,onUpdate}){
+  const [traits,setTraits]=useState({...agent.traits});
+  const [voice,setVoice]=useState(agent.voice||'');
+  const [sysPrompt,setSysPrompt]=useState(agent.systemPrompt||'');
+  const [analyzing,setAnalyzing]=useState(false);
+  const [analysis,setAnalysis]=useState(null);
+  const [fileName,setFileName]=useState(null);
+  const [dragOver,setDragOver]=useState(false);
+  const [saving,setSaving]=useState(false);
+  const [promptTab,setPromptTab]=useState('voice'); // voice | system | quickstyle
+  const fileRef=useRef(null);
+
+  const traitColor=k=>({
+    warmth:'#cc6d52',directness:'#2a8c7e',formality:'#5a6da8',
+    urgency:'#c2853a',empathy:'#cc6d52',precision:'#2a8c7e'
+  }[k]||'#2a8c7e');
+
+  async function analyzeFile(file){
+    setAnalyzing(true);setAnalysis(null);setFileName(file.name);
+    let textContent='';
+    try{textContent=await file.text();}catch(e){textContent='[binary file, analyzing name/type only]';}
+    const preview=textContent.slice(0,4000);
+    try{
+      const result=await callClaude(
+        `You are a communication style analyst for AI fundraising agents. You analyze writing samples and return a structured personality profile. Always return exactly this format:
+
+TONE ANALYSIS: [2-3 sentences describing the overall tone]
+
+TRAIT SCORES (0-100):
+warmth: [number]
+directness: [number]  
+formality: [number]
+urgency: [number]
+empathy: [number]
+precision: [number]
+
+VOICE DESCRIPTION: [2-3 sentences describing how the agent should communicate, written as instructions]
+
+KEY PATTERNS: [3 bullet points of specific communication patterns observed]`,
+        `Analyze this writing sample and extract the communication personality for ${agent.name} (${agent.title}).\n\nSAMPLE FROM: ${file.name}\n\n${preview}`,
+        800
+      );
+      setAnalysis(result);
+      // Parse trait scores
+      const tNames=['warmth','directness','formality','urgency','empathy','precision'];
+      const newT={...traits};
+      tNames.forEach(t=>{
+        const m=result.match(new RegExp(t+'[:\\s]+(\\d+)','i'));
+        if(m)newT[t]=Math.min(100,Math.max(0,parseInt(m[1])));
+      });
+      setTraits(newT);
+      // Extract voice description
+      const voiceM=result.match(/VOICE DESCRIPTION:\s*([^\n]+(?:\n(?!KEY)[^\n]+)*)/i);
+      if(voiceM)setVoice(voiceM[1].trim());
+      addToast(`${agent.name}'s personality learned from ${file.name}`,'success','🧠');
+    }catch(e){
+      setAnalysis('Analysis failed, check API connection or try a text file.');
+      addToast('Analysis failed','error','✗');
+    }
+    setAnalyzing(false);
+  }
+
+  async function applyQuickStyle(style){
+    setAnalyzing(true);
+    try{
+      const r=await callClaude(
+        `You calibrate AI fundraising agent personalities. Given a style instruction, adjust trait scores and write a new voice description. Return the same format as a personality analysis.`,
+        `Agent: ${agent.name} (${agent.title})\nCurrent traits: ${JSON.stringify(traits)}\nCurrent voice: ${voice}\n\nStyle instruction: "${style}"\n\nAdjust traits and rewrite the voice description accordingly.`,
+        500
+      );
+      setAnalysis(r);
+      const tNames=['warmth','directness','formality','urgency','empathy','precision'];
+      const newT={...traits};
+      tNames.forEach(t=>{const m=r.match(new RegExp(t+'[:\\s]+(\\d+)','i'));if(m)newT[t]=Math.min(100,parseInt(m[1]));});
+      setTraits(newT);
+      const voiceM=r.match(/VOICE DESCRIPTION:\s*([^\n]+(?:\n(?!KEY)[^\n]+)*)/i);
+      if(voiceM)setVoice(voiceM[1].trim());
+      addToast('Style applied','success','🧠');
+    }catch(e){addToast('Failed','error','✗');}
+    setAnalyzing(false);
+  }
+
+  async function save(){
+    setSaving(true);
+    await new Promise(r=>setTimeout(r,400));
+    onUpdate({...agent,traits,voice,systemPrompt:sysPrompt});
+    setSaving(false);
+    addToast(`${agent.name}'s personality saved`,'success','✓');
+  }
+
+  const QUICK_STYLES=[
+    'More empathetic and emotionally attuned',
+    'More direct and data-driven',
+    'Warmer and more conversational',
+    'More formal and precise',
+    'Less urgent, more patient and long-horizon',
+    'More strategic, less transactional',
+    'Concise, no fluff, executive-level',
+    'Nurturing and mentor-like',
+  ];
+
+  return(
+    <div className="grid-2" style={{gap:16}}>
+      {/* Left: Sliders + voice/system prompt */}
+      <div style={{display:'flex',flexDirection:'column',gap:14}}>
+        <div className="card">
+          <div className="card-header">
+            <div>
+              <div className="card-label">Personality Calibration</div>
+              <div className="card-title">Trait Sliders, {agent.name}</div>
+            </div>
+            <button className="btn-primary btn-sm" onClick={save} disabled={saving}>
+              {saving?'Saving…':'Save Changes'}
+            </button>
+          </div>
+          <div className="card-body">
+            {Object.entries(traits).map(([k,v])=>(
+              <div key={k} className="trait-row">
+                <span className="trait-lbl">{k}</span>
+                <input type="range" min={0} max={100} value={v} className="trait-slider"
+                  onChange={e=>setTraits(p=>({...p,[k]:parseInt(e.target.value)}))}
+                  ref={el=>{if(el){el.style.background=`linear-gradient(to right,${traitColor(k)} ${v}%,var(--surface-3) ${v}%)`;el.style.setProperty('--thumb-color',traitColor(k));}}}
+                  onInput={e=>{e.target.style.background=`linear-gradient(to right,${traitColor(k)} ${e.target.value}%,var(--surface-3) ${e.target.value}%)`;}}
+                  style={{'WebkitAppearance':'none',background:`linear-gradient(to right,${traitColor(k)} ${v}%,var(--surface-3) ${v}%)`}}
+                />
+                <span className="trait-num">{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Voice/System Prompt editor */}
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Prompt Programming</div>
+            <div className="pill-tabs" style={{margin:0}}>
+              {[['voice','Voice'],['system','System Prompt'],['quickstyle','Quick Styles']].map(([id,lbl])=>(
+                <button key={id} className={'pill-tab '+(promptTab===id?'pt-active':'')} onClick={()=>setPromptTab(id)}>{lbl}</button>
+              ))}
+            </div>
+          </div>
+          <div className="card-body">
+            {promptTab==='voice'&&(
+              <>
+                <div className="section-lbl" style={{marginBottom:6}}>How {agent.name} should sound</div>
+                <textarea value={voice} onChange={e=>setVoice(e.target.value)} rows={4}
+                  style={{width:'100%',border:'1.5px solid var(--ink-12)',borderRadius:'var(--r-sm)',
+                    padding:'9px 12px',fontSize:12.5,color:'var(--ink)',resize:'vertical',lineHeight:1.65}}
+                  placeholder={`Describe ${agent.name}'s communication voice and tone…`}/>
+                <div style={{fontSize:11,color:'var(--ink-45)',marginTop:6}}>This shapes every message {agent.name} generates or sends</div>
+              </>
+            )}
+            {promptTab==='system'&&(
+              <>
+                <div className="section-lbl" style={{marginBottom:6}}>System Prompt, Full Instructions</div>
+                <textarea value={sysPrompt} onChange={e=>setSysPrompt(e.target.value)} rows={8}
+                  style={{width:'100%',border:'1.5px solid var(--ink-12)',borderRadius:'var(--r-sm)',
+                    padding:'9px 12px',fontSize:12,color:'var(--ink)',resize:'vertical',lineHeight:1.65,fontFamily:'JetBrains Mono'}}
+                  placeholder={`Full instructions for ${agent.name}…`}/>
+                <div style={{fontSize:11,color:'var(--ink-45)',marginTop:6}}>Use {'{university}'} as placeholder for institution name</div>
+              </>
+            )}
+            {promptTab==='quickstyle'&&(
+              <>
+                <div className="section-lbl" style={{marginBottom:10}}>Click to apply a style direction</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:7}}>
+                  {QUICK_STYLES.map(s=>(
+                    <button key={s} onClick={()=>applyQuickStyle(s)} disabled={analyzing}
+                      style={{fontSize:11.5,padding:'5px 12px',borderRadius:20,border:'1px solid var(--ink-12)',
+                        background:'white',color:'var(--ink-70)',cursor:'pointer',transition:'all 0.12s'}}
+                      onMouseEnter={e=>{e.target.style.background='var(--teal-light)';e.target.style.borderColor='rgba(42,140,126,0.3)';e.target.style.color='var(--teal)'}}
+                      onMouseLeave={e=>{e.target.style.background='white';e.target.style.borderColor='var(--ink-12)';e.target.style.color='var(--ink-70)'}}>
+                      {analyzing?'…':s}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right: Upload + analysis result */}
+      <div style={{display:'flex',flexDirection:'column',gap:14}}>
+        <div className="card">
+          <div className="card-header">
+            <div>
+              <div className="card-label">Content Training</div>
+              <div className="card-title">Upload writing samples to learn personality</div>
+            </div>
+          </div>
+          <div className="card-body">
+            <div className={'upload-zone '+(dragOver?'dz-over':'')}
+              onDragOver={e=>{e.preventDefault();setDragOver(true)}}
+              onDragLeave={()=>setDragOver(false)}
+              onDrop={e=>{e.preventDefault();setDragOver(false);const f=e.dataTransfer.files[0];if(f)analyzeFile(f);}}
+              onClick={()=>fileRef.current?.click()}>
+              <input ref={fileRef} type="file" accept=".txt,.md,.csv,.doc,.docx,.pdf,.rtf"
+                style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(f)analyzeFile(f);}}/>
+              <div className="upload-zone-icon">{analyzing?'⏳':fileName?'📄':'📎'}</div>
+              <div className="upload-zone-title">
+                {analyzing?`Analyzing ${fileName||'file'}…`:fileName||'Drop a writing sample here'}
+              </div>
+              <div className="upload-zone-sub">
+                {analyzing
+                  ?`Learning ${agent.name}'s communication style…`
+                  :'Emails, call transcripts, donor letters, notes · .txt .md .docx .pdf'}
+              </div>
+              {analyzing&&(
+                <div style={{marginTop:12,display:'flex',justifyContent:'center',gap:5}}>
+                  {[0,1,2,3,4].map(i=>(
+                    <div key={i} style={{width:7,height:7,borderRadius:'50%',background:'var(--teal)',
+                      animation:`pulse-dot 1s ease ${i*0.12}s infinite`}}/>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {analysis&&(
+              <div className="analysis-box">
+                <div className="analysis-lbl">🧠 AI Personality Analysis</div>
+                <div className="analysis-text">{analysis.slice(0,700)}{analysis.length>700?'…':''}</div>
+                <button className="btn-ghost btn-sm" style={{marginTop:10}}
+                  onClick={()=>setAnalysis(null)}>Dismiss</button>
+              </div>
+            )}
+
+            {!analysis&&!analyzing&&(
+              <div style={{marginTop:16}}>
+                <div className="section-lbl" style={{marginBottom:8}}>What to upload</div>
+                {[
+                  ['📧','Emails written by or to this officer'],
+                  ['📞','Call transcripts or meeting notes'],
+                  ['📝','Donor letters and acknowledgments'],
+                  ['📊','Campaign reports or briefings'],
+                ].map(([icon,label])=>(
+                  <div key={label} style={{display:'flex',gap:8,alignItems:'center',padding:'6px 0',borderBottom:'1px solid var(--ink-04)'}}>
+                    <span style={{fontSize:14}}>{icon}</span>
+                    <span style={{fontSize:12,color:'var(--ink-70)'}}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Personality summary preview */}
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Current Personality Preview</div>
+          </div>
+          <div className="card-body" style={{padding:'14px 20px'}}>
+            <div style={{fontSize:12,color:'var(--ink-70)',lineHeight:1.75,fontStyle:'italic',marginBottom:12}}>
+              "{voice||agent.voice||'No voice description set.'}"
+            </div>
+            <div className="divider"/>
+            {Object.entries(traits).map(([k,v])=>(
+              <div key={k} style={{display:'flex',alignItems:'center',gap:8,marginBottom:7}}>
+                <span style={{fontSize:10,fontFamily:'JetBrains Mono',color:'var(--ink-45)',width:75,flexShrink:0,textTransform:'capitalize'}}>{k}</span>
+                <div className="score-bar" style={{flex:1}}>
+                  <div className="score-fill" style={{width:v+'%',background:traitColor(k)}}/>
+                </div>
+                <span className="score-num">{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   MEMORY VAULT
+═══════════════════════════════════════════════════ */
+function MemoryVault({agent,onUpdate}){
+  const [memories,setMemories]=useState([...agent.memory]);
+  const [newMem,setNewMem]=useState('');
+  const [newCat,setNewCat]=useState('context');
+  const [extractText,setExtractText]=useState('');
+  const [extracting,setExtracting]=useState(false);
+  const CATS={
+    role:{label:'Role',color:'var(--teal)',bg:'var(--teal-light)'},
+    context:{label:'Context',color:'var(--slate)',bg:'var(--slate-light)'},
+    donor:{label:'Donor',color:'var(--coral)',bg:'var(--coral-light)'},
+    policy:{label:'Policy',color:'var(--amber)',bg:'var(--amber-light)'},
+    style:{label:'Style',color:'var(--ink-45)',bg:'var(--surface-2)'},
+    preference:{label:'Pref',color:'var(--teal)',bg:'var(--teal-light)'},
+    workflow:{label:'Workflow',color:'var(--amber)',bg:'var(--amber-light)'},
+    compliance:{label:'Compliance',color:'var(--coral)',bg:'var(--coral-light)'},
+    campaign:{label:'Campaign',color:'var(--slate)',bg:'var(--slate-light)'},
+    insight:{label:'Insight',color:'var(--teal)',bg:'var(--teal-light)'},
+  };
+
+  function syncUpdate(updated){setMemories(updated);onUpdate({...agent,memory:updated});}
+
+  function addMem(){
+    if(!newMem.trim())return;
+    syncUpdate([...memories,{id:'m'+Date.now(),text:newMem.trim(),cat:newCat}]);
+    setNewMem('');
+    addToast('Memory saved','success','💾');
+  }
+
+  async function extractMems(){
+    if(!extractText.trim())return;
+    setExtracting(true);
+    try{
+      const r=await callClaude(
+        `You extract key facts and context from text into atomic memories for an AI fundraising agent. Return a JSON array only: [{"text":"concise fact","cat":"role|context|donor|policy|style|preference|workflow|compliance|campaign|insight"}]. No preamble, no markdown fences.`,
+        `Extract memories for ${agent.name} (${agent.title}):\n\n${extractText}`,
+        500
+      );
+      const clean=r.replace(/```json|```/g,'').trim();
+      const parsed=JSON.parse(clean);
+      const newMems=parsed.map((m,i)=>({id:'m'+Date.now()+i,text:m.text,cat:m.cat||'context'}));
+      const updated=[...memories,...newMems];
+      syncUpdate(updated);
+      setExtractText('');
+      addToast(`${newMems.length} memories extracted`,'success','🧠');
+    }catch(e){addToast('Extraction failed, check API connection','error','✗');}
+    setExtracting(false);
+  }
+
+  return(
+    <div className="grid-2">
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <div className="card-label">Memory Vault</div>
+            <div className="card-title">{agent.name}'s Persistent Context</div>
+          </div>
+          <span style={{fontSize:10,fontFamily:'JetBrains Mono',color:'var(--ink-45)',background:'var(--surface-2)',
+            padding:'3px 8px',borderRadius:20,border:'1px solid var(--ink-12)'}}>{memories.length} memories</span>
+        </div>
+        <div className="card-body">
+          <div style={{display:'flex',flexWrap:'wrap',marginBottom:16,minHeight:80}}>
+            {memories.length===0&&<div style={{fontSize:12,color:'var(--ink-45)',padding:'10px 0'}}>No memories yet, add some below</div>}
+            {memories.map(m=>{
+              const c=CATS[m.cat]||CATS.context;
+              return(
+                <div key={m.id} className="memory-chip" style={{borderColor:c.color+'33',background:c.bg}}>
+                  <span className="mem-cat" style={{color:c.color,background:c.color+'20'}}>{c.label}</span>
+                  <span style={{fontSize:11,color:'var(--ink-70)'}}>{m.text}</span>
+                  <span className="mem-del" onClick={()=>syncUpdate(memories.filter(x=>x.id!==m.id))}>×</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="divider"/>
+          <div className="section-lbl">Add a memory manually</div>
+          <div style={{display:'flex',gap:7,marginTop:7}}>
+            <input value={newMem} onChange={e=>setNewMem(e.target.value)}
+              onKeyDown={e=>e.key==='Enter'&&addMem()}
+              placeholder={`What should ${agent.name} always remember?`}
+              style={{flex:1,border:'1px solid var(--ink-12)',borderRadius:'var(--r-sm)',padding:'7px 11px',fontSize:12,color:'var(--ink)'}}/>
+            <select value={newCat} onChange={e=>setNewCat(e.target.value)}
+              style={{border:'1px solid var(--ink-12)',borderRadius:'var(--r-sm)',padding:'7px 10px',
+                fontSize:11,fontFamily:'JetBrains Mono',color:'var(--ink-45)',background:'white',cursor:'pointer'}}>
+              {Object.entries(CATS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
+            </select>
+            <button className="btn-primary btn-sm" onClick={addMem}>Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <div className="card-label">AI Memory Extraction</div>
+            <div className="card-title">Paste text → AI extracts facts</div>
+          </div>
+        </div>
+        <div className="card-body">
+          <textarea value={extractText} onChange={e=>setExtractText(e.target.value)} rows={9}
+            style={{width:'100%',border:'1.5px solid var(--ink-12)',borderRadius:'var(--r-sm)',
+              padding:'10px 13px',fontSize:12.5,color:'var(--ink)',resize:'vertical',lineHeight:1.65,
+              background:'var(--surface-2)'}}
+            placeholder={'Paste meeting notes, call transcripts, donor emails, or briefings…\n\nAI will extract individual atomic facts and add them to '+agent.name+"'s memory automatically."}/>
+          <div style={{marginTop:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:11,color:'var(--ink-45)'}}>Each fact becomes a searchable memory</span>
+            <button className="btn-primary" onClick={extractMems} disabled={extracting||!extractText.trim()}>
+              {extracting?'Extracting…':'🧠 Extract Memories'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   AVATAR STUDIO
+═══════════════════════════════════════════════════ */
+function AvatarStudio({agent,onUpdate}){
+  const [chips,setChips]=useState(agent.avatarStyleChips||[]);
+  const [custom,setCustom]=useState('');
+  const [generating,setGenerating]=useState(false);
+  const [generated,setGenerated]=useState([]);
+  const [selected,setSelected]=useState(agent.avatarUrl);
+
+  const ALL_CHIPS=['Professional','Warm','Approachable','Authoritative','Confident',
+    'Scholarly','Energetic','Calm','Thoughtful','Strategic','Empathetic','Decisive',
+    'University setting','Office background','Neutral background','Outdoor campus',
+    'Business casual','Formal attire','Smart casual','Creative professional'];
+
+  async function generate(){
+    setGenerating(true);
+    const promptStr=`Portrait of ${agent.fullName}, ${agent.title} at a university. ${chips.join(', ')}${custom?', '+custom:''}. Professional headshot, warm natural lighting, high detail.`;
+    try{
+      const resp=await fetch('https://api.ideogram.ai/generate',{
+        method:'POST',
+        headers:{'Api-Key':window.__orbitConfig?.ideogramKey||'','Content-Type':'application/json'},
+        body:JSON.stringify({image_request:{model:'V_2',prompt:promptStr,aspect_ratio:'ASPECT_1_1',style_type:'REALISTIC',negative_prompt:'cartoon,watermark,text,deformed',num_images:3}})
+      });
+      if(!resp.ok)throw new Error('API error');
+      const d=await resp.json();
+      const urls=(d.data||[]).map(i=>i.url).filter(Boolean);
+      setGenerated(urls.length?urls:['demo','demo','demo']);
+      addToast(urls.length?`${urls.length} avatars generated`:'Demo mode, add IDEOGRAM_API_KEY for real generation','success','🎨');
+    }catch(e){
+      setGenerated(['demo','demo','demo']);
+      addToast('Demo mode, configure IDEOGRAM_API_KEY in env vars','info','🎨');
+    }
+    setGenerating(false);
+  }
+
+  function applyAvatar(url){
+    if(url==='demo'){addToast('Configure IDEOGRAM_API_KEY for real avatar generation','info','🎨');return;}
+    setSelected(url);
+    onUpdate({...agent,avatarUrl:url});
+    addToast(`Avatar applied for ${agent.name}`,'success','✓');
+  }
+
+  function clearAvatar(){
+    setSelected(null);
+    onUpdate({...agent,avatarUrl:null});
+    addToast('Avatar reset to default','info','↺');
+  }
+
+  return(
+    <div className="grid-2">
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <div className="card-label">Avatar Studio</div>
+            <div className="card-title">Generate {agent.name}'s Visual Identity</div>
+          </div>
+          <div className="live-dot"><div className="live-pip"/>Ideogram AI</div>
+        </div>
+        <div className="card-body">
+          {/* Current preview */}
+          <div style={{display:'flex',alignItems:'center',gap:14,padding:'12px 14px',
+            background:'var(--surface-2)',borderRadius:'var(--r-md)',marginBottom:18,border:'1px solid var(--ink-08)'}}>
+            <AgentAvatar agent={{...agent,avatarUrl:selected}} size={56} showPip={false}/>
+            <div>
+              <div style={{fontFamily:'Outfit',fontSize:14,fontWeight:700,color:'var(--ink)'}}>{agent.fullName}</div>
+              <div style={{fontSize:11,color:'var(--ink-45)'}}>{agent.title}</div>
+              <div style={{display:'flex',gap:6,marginTop:6}}>
+                {selected
+                  ?<button className="btn-ghost btn-sm" onClick={clearAvatar}>↺ Reset</button>
+                  :<span style={{fontSize:10,fontFamily:'JetBrains Mono',color:'var(--ink-45)'}}>Using default avatar</span>}
+              </div>
+            </div>
+          </div>
+          {/* Style chips */}
+          <div className="section-lbl" style={{marginBottom:8}}>Personality traits to visualize</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:5,marginBottom:14}}>
+            {ALL_CHIPS.map(c=>{
+              const sel=chips.includes(c);
+              return(
+                <button key={c} onClick={()=>setChips(p=>sel?p.filter(x=>x!==c):[...p,c])}
+                  style={{fontSize:11,padding:'4px 10px',borderRadius:20,border:'1px solid '+(sel?'rgba(42,140,126,0.35)':'var(--ink-12)'),
+                    background:sel?'var(--teal-light)':'white',color:sel?'var(--teal)':'var(--ink-70)',cursor:'pointer',
+                    fontWeight:sel?700:400,transition:'all 0.12s'}}>
+                  {c}
+                </button>
+              );
+            })}
+          </div>
+          <input value={custom} onChange={e=>setCustom(e.target.value)} placeholder="Additional details (clothing, background, expression…)"
+            style={{width:'100%',border:'1px solid var(--ink-12)',borderRadius:'var(--r-sm)',padding:'8px 11px',fontSize:12,color:'var(--ink)',marginBottom:12}}/>
+          <button className="btn-primary" style={{width:'100%',justifyContent:'center'}}
+            onClick={generate} disabled={generating}>
+            {generating
+              ?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⟳</span>&nbsp;Generating…</>
+              :'🎨 Generate 3 Avatar Options'}
+          </button>
+          <div style={{fontSize:10,color:'var(--ink-20)',fontFamily:'JetBrains Mono',marginTop:6,textAlign:'center'}}>
+            Requires IDEOGRAM_API_KEY environment variable
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">Generated Avatars</div>
+          {generated.length>0&&<button className="btn-ghost btn-sm" onClick={generate} disabled={generating}>Regenerate</button>}
+        </div>
+        <div className="card-body">
+          {generated.length===0&&!generating&&(
+            <div style={{textAlign:'center',padding:'48px 20px'}}>
+              <div style={{fontSize:48,marginBottom:12}}>{agent.avatarEmoji}</div>
+              <div style={{fontSize:13,fontWeight:600,color:'var(--ink)',marginBottom:6}}>No avatars generated yet</div>
+              <div style={{fontSize:12,color:'var(--ink-45)'}}>Select traits and click Generate to create {agent.name}'s visual identity</div>
+            </div>
+          )}
+          {generating&&(
+            <div style={{textAlign:'center',padding:'48px 20px'}}>
+              <div style={{fontSize:36,marginBottom:12,display:'inline-block',animation:'spin 2s linear infinite'}}>⟳</div>
+              <div style={{fontSize:13,fontWeight:600,color:'var(--ink)'}}>Creating {agent.name}'s avatar…</div>
+              <div style={{fontSize:11,color:'var(--ink-45)',marginTop:4}}>This typically takes 10–20 seconds</div>
+            </div>
+          )}
+          {generated.length>0&&!generating&&(
+            <div className="grid-3" style={{gap:10}}>
+              {generated.map((url,i)=>(
+                <div key={i} className={'avatar-opt '+(selected===url?'av-sel':'')} onClick={()=>applyAvatar(url)}>
+                  {url==='demo'
+                    ?<div style={{textAlign:'center',padding:8}}>
+                      <div style={{fontSize:42,marginBottom:6}}>{agent.avatarEmoji}</div>
+                      <div style={{fontSize:8,color:'var(--ink-45)',fontFamily:'JetBrains Mono'}}>DEMO ONLY</div>
+                     </div>
+                    :<img src={url} alt={`Option ${i+1}`}/>}
+                  {selected===url&&<div className="av-badge">✓ Active</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          {generated.length>0&&!generating&&(
+            <div style={{fontSize:11,color:'var(--ink-45)',marginTop:10,textAlign:'center'}}>
+              Click any avatar to apply it to {agent.name}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   SMS PANEL
+═══════════════════════════════════════════════════ */
+function SMSPanel({agent}){
+  const [threadIdx,setThreadIdx]=useState(0);
+  const [threads,setThreads]=useState(agent.sms);
+  const [reply,setReply]=useState('');
+  const [aiSuggestion,setAiSuggestion]=useState('');
+  const [generating,setGenerating]=useState(false);
+  const endRef=useRef(null);
+  const thread=threads[threadIdx];
+  useEffect(()=>endRef.current?.scrollIntoView({behavior:'smooth'}),[threadIdx,threads]);
+
+  async function genAIReply(){
+    if(!thread)return;
+    setGenerating(true);setAiSuggestion('');
+    const lastMsg=thread.msgs.filter(m=>m.out).slice(-1)[0]?.text||'';
+    try{
+      const r=await callClaude(
+        agent.systemPrompt.replace('{university}',window.__orbitTenant?.name||'Greenfield University')+'\n\nWrite a concise, natural SMS reply. Under 160 characters. No quotes. No preamble.',
+        `Donor: ${thread.donor}\nLast donor message: "${lastMsg}"\nRecent exchange: ${thread.msgs.slice(-4).map(m=>(m.out?'Donor':'Us')+': '+m.text).join(' | ')}\n\nWrite next reply.`,
+        120
+      );
+      setAiSuggestion(r.trim().replace(/^["']/,'').replace(/["']$/,''));
+    }catch(e){setAiSuggestion('Connection error');}
+    setGenerating(false);
+  }
+
+  function sendMsg(txt){
+    const t=txt||reply;
+    if(!t.trim())return;
+    setThreads(prev=>prev.map((th,i)=>i===threadIdx
+      ?{...th,msgs:[...th.msgs,{out:false,text:t.trim(),time:'Just now'}]}:th));
+    setReply('');setAiSuggestion('');
+    addToast(`SMS sent to ${thread.donor}`,'success','💬');
+  }
+
+  return(
+    <div style={{display:'grid',gridTemplateColumns:'200px 1fr',gap:14,minHeight:400}}>
+      {/* Thread list */}
+      <div className="card" style={{overflow:'hidden'}}>
+        <div className="card-header" style={{padding:'12px 14px'}}>
+          <div className="card-title" style={{fontSize:11}}>Active Threads</div>
+        </div>
+        <div>
+          {threads.map((t,i)=>(
+            <div key={i} onClick={()=>setThreadIdx(i)} style={{
+              padding:'10px 14px',borderBottom:'1px solid var(--ink-04)',cursor:'pointer',
+              background:threadIdx===i?agent.bg:'transparent',transition:'background 0.12s'}}>
+              <div style={{width:30,height:30,borderRadius:'50%',background:agent.bg,
+                display:'flex',alignItems:'center',justifyContent:'center',
+                fontSize:10.5,fontWeight:700,color:agent.colorHex,fontFamily:'JetBrains Mono',
+                marginBottom:5,border:`1.5px solid ${agent.colorHex}40`}}>
+                {t.donor.split(' ').map(n=>n[0]).join('')}
+              </div>
+              <div style={{fontSize:12,fontWeight:700,color:threadIdx===i?agent.colorHex:'var(--ink)'}}>{t.donor}</div>
+              <div style={{fontSize:10,color:'var(--ink-45)',marginTop:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                {t.msgs.slice(-1)[0]?.text.slice(0,28)}…
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Thread */}
+      {thread&&(
+        <div className="card" style={{display:'flex',flexDirection:'column',overflow:'hidden'}}>
+          <div className="card-header">
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <div style={{width:34,height:34,borderRadius:'50%',background:agent.bg,border:`2px solid ${agent.colorHex}40`,
+                display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,
+                color:agent.colorHex,fontFamily:'JetBrains Mono'}}>
+                {thread.donor.split(' ').map(n=>n[0]).join('')}
+              </div>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:'var(--ink)'}}>{thread.donor}</div>
+                <div style={{fontSize:10,color:'var(--ink-45)',fontFamily:'JetBrains Mono'}}>{agent.callsign}</div>
+              </div>
+            </div>
+            <button className="btn-ghost btn-sm" onClick={genAIReply} disabled={generating}>
+              {generating?'…':'🧠 AI Reply'}
+            </button>
+          </div>
+          <div style={{flex:1,overflow:'y:auto',padding:'14px 16px',display:'flex',flexDirection:'column',gap:7,maxHeight:260,overflowY:'auto'}}>
+            {thread.msgs.map((m,i)=>(
+              <div key={i} style={{alignSelf:m.out?'flex-end':'flex-start',maxWidth:'76%'}}>
+                <div className={'sms-bubble '+(m.out?'sms-out':'sms-in')}>{m.text}</div>
+                <div className="sms-ts" style={{textAlign:m.out?'right':'left'}}>{m.time}</div>
+              </div>
+            ))}
+            <div ref={endRef}/>
+          </div>
+          {aiSuggestion&&(
+            <div style={{padding:'8px 14px',background:'var(--teal-light)',borderTop:'1px solid rgba(42,140,126,0.15)',
+              display:'flex',gap:8,alignItems:'center'}}>
+              <span style={{fontSize:9,fontFamily:'JetBrains Mono',fontWeight:700,color:'var(--teal)',flexShrink:0}}>AI DRAFT</span>
+              <span style={{fontSize:12.5,color:'var(--ink)',flex:1}}>{aiSuggestion}</span>
+              <button className="btn-primary btn-sm" onClick={()=>sendMsg(aiSuggestion)}>Use</button>
+              <button className="btn-ghost btn-sm" onClick={()=>setAiSuggestion('')}>✕</button>
+            </div>
+          )}
+          <div style={{padding:'10px 14px',borderTop:'1px solid var(--ink-08)',display:'flex',gap:8,flexShrink:0}}>
+            <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={2}
+              onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}}
+              placeholder="Reply…"
+              style={{flex:1,border:'1.5px solid var(--ink-12)',borderRadius:'var(--r-sm)',
+                padding:'8px 11px',fontSize:12.5,resize:'none',color:'var(--ink)'}}/>
+            <button className="btn-primary" style={{alignSelf:'flex-end',padding:'8px 16px'}} onClick={()=>sendMsg()}>Send</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   AGENT DETAIL, full drill-down with all tabs
+═══════════════════════════════════════════════════ */
+function AgentDetail({agent,allAgents,onUpdate}){
+  const [tab,setTab]=useState('chat');
+  const tabStyle=id=>({
+    padding:'7px 16px',border:'none',
+    borderBottom:tab===id?`2px solid ${agent.colorHex}`:'2px solid transparent',
+    background:'transparent',fontSize:12,
+    fontWeight:tab===id?700:500,
+    color:tab===id?agent.colorHex:'var(--ink-45)',
+    cursor:'pointer',marginBottom:-1,
+    fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.04em',
+    whiteSpace:'nowrap',transition:'color 0.15s',
+  });
+  const TABS=[
+    ['chat','💬 Chat'],
+    ['sms','📱 SMS'],
+    ['queue','👥 Donor Queue'],
+    ['personality','🧠 Personality'],
+    ['memory','💾 Memory'],
+    ['avatar','🎨 Avatar Studio'],
+    ['log','📋 Activity Log'],
+  ];
+
+  return(
+    <div>
+      {/* Hero */}
+      <div className="agent-hero" style={{borderBottom:`3px solid ${agent.colorHex}18`}}>
+        <AgentAvatar agent={agent} size={64}/>
+        <div className="agent-hero-meta">
+          <div style={{fontFamily:'JetBrains Mono',fontSize:9,fontWeight:700,letterSpacing:'0.10em',
+            textTransform:'uppercase',color:agent.colorHex,marginBottom:3}}>{agent.callsign}</div>
+          <div style={{fontFamily:'Outfit',fontSize:22,fontWeight:800,color:'var(--ink)',letterSpacing:'-0.5px',lineHeight:1}}>{agent.name}</div>
+          <div style={{fontSize:12,color:'var(--ink-45)',marginTop:3}}>{agent.title}</div>
+          <div style={{display:'flex',gap:5,marginTop:8}}>
+            {agent.channels.map(c=>(
+              <span key={c} className="channel-pill" style={{color:agent.colorHex,borderColor:`${agent.colorHex}40`,background:`${agent.colorHex}10`}}>
+                {c==='Email'?'✉️':c==='SMS'?'💬':c==='Phone'?'📞':'📝'}&nbsp;{c}
+              </span>
+            ))}
+            <span style={{display:'flex',alignItems:'center',gap:5,fontSize:10,fontFamily:'JetBrains Mono',
+              color:'var(--green)',marginLeft:6}}>
+              <div style={{width:6,height:6,borderRadius:'50%',background:'var(--green)',animation:'pulse-dot 2s ease infinite'}}/>
+              ACTIVE
+            </span>
+          </div>
+        </div>
+        <div className="agent-hero-stats">
+          {[
+            {v:agent.donors.toLocaleString(),l:'Donors'},
+            {v:agent.actions.toLocaleString(),l:'Actions'},
+            {v:agent.queue,l:'Queue'},
+            {v:agent.rate,l:'Performance'},
+          ].map(s=>(
+            <div key={s.l} style={{textAlign:'center'}}>
+              <div className="hero-stat-val" style={{color:agent.colorHex}}>{s.v}</div>
+              <div className="hero-stat-lbl">{s.l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{display:'flex',gap:2,borderBottom:'1px solid var(--ink-08)',
+        background:'white',padding:'0 28px',overflow:'x:auto',overflowX:'auto'}}>
+        {TABS.map(([id,lbl])=>(
+          <button key={id} style={tabStyle(id)} onClick={()=>setTab(id)}>{lbl}</button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div style={{padding:'24px 28px',display:'flex',flexDirection:'column',gap:16}}>
+        {tab==='chat'&&(
+          <div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:16}}>
+            <AgentChat agent={agent} onUpdateAgent={onUpdate}/>
+            <div style={{display:'flex',flexDirection:'column',gap:14}}>
+              <div className="card">
+                <div className="card-header"><div className="card-title">About {agent.name}</div></div>
+                <div className="card-body">
+                  <div style={{fontSize:12.5,color:'var(--ink-70)',lineHeight:1.75,marginBottom:12}}>{agent.bio}</div>
+                  <div className="divider"/>
+                  <div className="section-lbl">Voice</div>
+                  <div style={{fontSize:12,color:'var(--ink-45)',lineHeight:1.7,fontStyle:'italic'}}>{agent.voice}</div>
+                  <div className="divider"/>
+                  <div className="section-lbl">Personality</div>
+                  {Object.entries(agent.traits).map(([k,v])=>(
+                    <div key={k} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                      <span style={{fontSize:10,fontFamily:'JetBrains Mono',color:'var(--ink-45)',width:70,textTransform:'capitalize'}}>{k}</span>
+                      <div className="score-bar" style={{flex:1}}>
+                        <div className="score-fill" style={{width:v+'%',background:agent.colorHex}}/>
+                      </div>
+                      <span className="score-num">{v}</span>
+                    </div>
+                  ))}
+                  <div className="divider"/>
+                  <div className="section-lbl" style={{marginBottom:8}}>Top Memories</div>
+                  {agent.memory.slice(0,3).map(m=>(
+                    <div key={m.id} style={{fontSize:11.5,color:'var(--ink-70)',padding:'4px 0',borderBottom:'1px solid var(--ink-04)'}}>
+                      · {m.text}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab==='sms'&&<SMSPanel agent={agent}/>}
+
+        {tab==='queue'&&(
+          <div className="card">
+            <div className="card-header">
+              <div>
+                <div className="card-label">Priority Queue</div>
+                <div className="card-title">Today · {agent.queue} donors pending · Sorted by readiness score</div>
+              </div>
+              <button className="btn-primary btn-sm">🧠 Run AI Reasoning</button>
+            </div>
+            <div>
+              {agent.dq.map((d,i)=>(
+                <div key={i} className="dq-row">
+                  <div className="dq-initials" style={{background:agent.bg,color:agent.colorHex,borderColor:`${agent.colorHex}40`}}>
+                    {d.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div className="dq-name">{d.name}</div>
+                    <div className="dq-meta">{d.stage} · Last: {d.last}</div>
+                  </div>
+                  {d.score!==null&&(
+                    <div className="score-wrap" style={{width:90}}>
+                      <div className="score-bar">
+                        <div className="score-fill" style={{width:d.score+'%',background:d.score>=80?'var(--teal)':d.score>=60?'var(--amber)':'var(--coral)'}}/>
+                      </div>
+                      <span className="score-num">{d.score}</span>
+                    </div>
+                  )}
+                  <div style={{display:'flex',gap:6,marginLeft:8}}>
+                    <button className="btn-ghost btn-sm">Brief</button>
+                    <button className="btn-primary btn-sm">Draft</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab==='personality'&&<PersonalityTrainer agent={agent} onUpdate={onUpdate}/>}
+        {tab==='memory'&&<MemoryVault agent={agent} onUpdate={onUpdate}/>}
+        {tab==='avatar'&&<AvatarStudio agent={agent} onUpdate={onUpdate}/>}
+
+        {tab==='log'&&(
+          <div className="card">
+            <div className="card-header">
+              <div>
+                <div className="card-label">Live Activity</div>
+                <div className="card-title">{agent.name}'s Actions, Today</div>
+              </div>
+              <div className="live-dot"><div className="live-pip"/>Live</div>
+            </div>
+            <div className="card-body">
+              {agent.logs.map((l,i)=>(
+                <div key={i} className="log-row">
+                  <span className="log-ts">{l.time}</span>
+                  <span className="log-txt" dangerouslySetInnerHTML={{__html:l.text}}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   DASHBOARD, 4-up cards + cross-agent intelligence
+═══════════════════════════════════════════════════ */
+function Dashboard({agents,onSelect}){
+  const [crossInsight,setCrossInsight]=useState('');
+  const [crossLoading,setCrossLoading]=useState(false);
+
+  async function genCross(){
+    setCrossLoading(true);setCrossInsight('');
+    const summary=Object.values(agents).map(a=>`${a.name} (${a.key}): ${a.donors} donors managed, ${a.actions} actions taken, queue: ${a.queue}, performance: ${a.rate}`).join('\n');
+    try{
+      const r=await callClaude(
+        `You are the Orbit cross-agent intelligence layer for ${window.__orbitTenant?.name||'a university advancement office'}. You analyze patterns across VEO (engagement), VSO (stewardship), VPGO (planned giving), and VCO (campaigns). Surface strategic insights for VP of Advancement. Be specific, data-driven, and actionable. Write 3 labeled insights.`,
+        `Agent status today:\n${summary}\n\nSurface the 3 most important strategic insights or recommended interventions right now.`,
+        600
+      );
+      setCrossInsight(r);
+    }catch(e){setCrossInsight('Unable to generate, check API connection.');}
+    setCrossLoading(false);
+  }
+
+  return(
+    <div>
+      <div className="page-header">
+        <div className="page-header-row">
+          <div>
+            <div className="page-title">Agent Intelligence Center</div>
+            <div className="page-sub">Your 4 Orbit agents, click any card to train, converse, and configure</div>
+          </div>
+          <div style={{display:'flex',gap:8,alignItems:'center'}}>
+            <div className="live-dot"><div className="live-pip"/>4 agents active</div>
+            <a href="orbit-dashboard.html" className="btn-ghost">← Main Dashboard</a>
+          </div>
+        </div>
+      </div>
+
+      {/* 4-up grid */}
+      <div className="grid-4" style={{marginBottom:20}}>
+        {Object.values(agents).map(a=>(
+          <div key={a.key} className="agent-card" onClick={()=>onSelect(a.key)}>
+            <div className="agent-card-strip" style={{background:a.colorHex}}/>
+            <div className="agent-card-body">
+              <AgentAvatar agent={a} size={52}/>
+              <div className="agent-callsign" style={{color:a.colorHex}}>{a.callsign}</div>
+              <div className="agent-name-lg">{a.name}</div>
+              <div className="agent-role-sm">{a.fullName} · {a.title}</div>
+              <div className="agent-bio-preview">{a.bio.slice(0,95)}…</div>
+              <div className="channel-chips" style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                {a.channels.map(c=>(
+                  <span key={c} className="channel-pill" style={{color:a.colorHex,borderColor:`${a.colorHex}40`,background:`${a.colorHex}10`}}>
+                    {c==='Email'?'✉️':c==='SMS'?'💬':c==='Phone'?'📞':'📝'}&nbsp;{c}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="agent-metrics-mini">
+              <div className="amm-cell">
+                <div className="amm-val" style={{color:a.colorHex}}>{a.donors.toLocaleString()}</div>
+                <div className="amm-lbl">Donors</div>
+              </div>
+              <div className="amm-cell">
+                <div className="amm-val">{a.queue}</div>
+                <div className="amm-lbl">Queue</div>
+              </div>
+            </div>
+            <div className="agent-card-footer">
+              <span style={{fontSize:10,fontFamily:'JetBrains Mono',color:'var(--ink-45)',display:'flex',alignItems:'center',gap:5}}>
+                <div style={{width:6,height:6,borderRadius:'50%',background:'var(--green)',animation:'pulse-dot 2s ease infinite'}}/>
+                {a.rate}
+              </span>
+              <span style={{fontSize:11.5,fontWeight:700,color:a.colorHex}}>Open ↗</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Cross-agent intelligence */}
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <div className="card-label">Cross-Agent Intelligence</div>
+            <div className="card-title">Platform-Wide Strategic Insights</div>
+          </div>
+          <button className="btn-primary" onClick={genCross} disabled={crossLoading}>
+            {crossLoading?'Analyzing…':'🧠 Generate Insights'}
+          </button>
+        </div>
+        <div className="card-body">
+          {!crossInsight&&!crossLoading&&(
+            <div style={{textAlign:'center',padding:'32px 0',color:'var(--ink-45)'}}>
+              <div style={{fontSize:36,marginBottom:10}}>🧠</div>
+              <div style={{fontSize:13,fontWeight:600,color:'var(--ink)',marginBottom:6}}>Ask your agent network what matters most right now</div>
+              <div style={{fontSize:12}}>Analyzes patterns across all 4 agents and surfaces strategic recommendations for advancement leadership</div>
+            </div>
+          )}
+          {crossLoading&&(
+            <div style={{textAlign:'center',padding:'32px 0'}}>
+              <div style={{display:'flex',justifyContent:'center',gap:6,marginBottom:12}}>
+                {[0,1,2,3,4].map(i=>(
+                  <div key={i} style={{width:8,height:8,borderRadius:'50%',background:'var(--teal)',
+                    animation:`pulse-dot 1.2s ease ${i*0.14}s infinite`}}/>
+                ))}
+              </div>
+              <div style={{fontSize:12,color:'var(--ink-45)',fontFamily:'JetBrains Mono'}}>Analyzing all agents…</div>
+            </div>
+          )}
+          {crossInsight&&!crossLoading&&(
+            <div>
+              <div style={{fontSize:13,color:'var(--ink-70)',lineHeight:1.85,whiteSpace:'pre-wrap'}}>{crossInsight}</div>
+              <div style={{marginTop:14,display:'flex',gap:8}}>
+                <button className="btn-ghost btn-sm" onClick={genCross}>↺ Regenerate</button>
+                <button className="btn-ghost btn-sm">Export as PDF</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   ROOT APP
+═══════════════════════════════════════════════════ */
+function App(){
+  const [agents,setAgents]=useState(INIT_AGENTS);
+  const [activeKey,setActiveKey]=useState(null);
+
+  function updateAgent(a){setAgents(p=>({...p,[a.key]:a}));}
+  const active=activeKey?agents[activeKey]:null;
+
+  const NAV_AGENTS=[
+    {key:'VEO',icon:'✦',label:'Aria'},
+    {key:'VSO',icon:'♥',label:'Marcus'},
+    {key:'VPGO',icon:'◈',label:'Eleanor'},
+    {key:'VCO',icon:'⚡',label:'Dev'},
+  ];
+
+  return(
+    <ToastProvider>
+      <div className="app">
+        {/* Sidebar */}
+        <div className="sidebar">
+          <div className="sidebar-logo">
+            <div className="logomark"><span>O</span></div>
+            <span className="wordmark">Orbit</span>
+          </div>
+          <div className="sidebar-nav">
+            <div className="nav-section-label">Agent Hub</div>
+            <button className={'nav-item '+(activeKey===null?'active':'')} onClick={()=>setActiveKey(null)}>
+              <span className="nav-icon">🤖</span>
+              <span className="nav-label">All Agents</span>
+            </button>
+            <div className="nav-section-label" style={{marginTop:4}}>Agents</div>
+            {NAV_AGENTS.map(n=>(
+              <button key={n.key} className={'nav-item '+(activeKey===n.key?'active':'')} onClick={()=>setActiveKey(n.key)}>
+                <span className="nav-icon" style={{fontSize:13}}>{n.icon}</span>
+                <span className="nav-label">{n.label} <span style={{opacity:0.45,fontSize:10}}>({n.key})</span></span>
+                <span className="nav-badge">{agents[n.key].queue}</span>
+              </button>
+            ))}
+          </div>
+          <div className="sidebar-admin">
+            <a href="orbit-dashboard.html" className="nav-item">
+              <span className="nav-icon">🏠</span>
+              <span className="nav-label">Main Dashboard</span>
+            </a>
+          </div>
+          <div className="sidebar-footer">
+            <div className="org-pill">
+              <div className="org-avatar">GU</div>
+              <div>
+                <div className="org-name">Greenfield Univ.</div>
+                <div className="org-plan">Agent Hub · v2.1.0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main */}
+        <div className="main">
+          <div className="content-header">
+            {active?(
+              <button onClick={()=>setActiveKey(null)} className="btn-ghost btn-sm" style={{gap:4}}>
+                ← All Agents
+              </button>
+            ):null}
+            <span className="content-header-title">
+              {active?`${active.name}, ${active.title}`:'Agent Intelligence Center'}
+            </span>
+            <div style={{flex:1}}/>
+            <div className="live-dot" style={{marginRight:12}}><div className="live-pip"/>All agents active</div>
+            <button className="icon-btn">🔔</button>
+            <div className="avatar-btn" style={{marginLeft:4}}>AR</div>
+          </div>
+          <div className="content">
+            {active
+              ?<AgentDetail agent={active} allAgents={agents} onUpdate={updateAgent}/>
+              :<Dashboard agents={agents} onSelect={setActiveKey}/>}
+          </div>
+        </div>
+      </div>
+    </ToastProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

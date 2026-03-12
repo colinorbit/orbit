@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Orbit Membership — Virtual Membership Officer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.8.0/Recharts.js"></script>
+<style>
+  :root {
+    --navy:        #0d1b2e;
+    --navy-mid:    #132640;
+    --navy-light:  #1e3a5f;
+    --navy-border: #2a4a6e;
+    --gold:        #c9973a;
+    --gold-light:  #e8b84b;
+    --gold-pale:   rgba(201,151,58,0.12);
+    --gold-glow:   rgba(201,151,58,0.25);
+    --teal:        #2dd4bf;
+    --teal-dim:    rgba(45,212,191,0.15);
+    --rose:        #f87171;
+    --rose-dim:    rgba(248,113,113,0.12);
+    --emerald:     #34d399;
+    --emerald-dim: rgba(52,211,153,0.12);
+    --sky:         #60a5fa;
+    --sky-dim:     rgba(96,165,250,0.12);
+    --ink:         #f0f4ff;
+    --ink-70:      rgba(240,244,255,0.70);
+    --ink-45:      rgba(240,244,255,0.45);
+    --ink-20:      rgba(240,244,255,0.20);
+    --ink-08:      rgba(240,244,255,0.08);
+    --surface:     rgba(255,255,255,0.04);
+    --surface-2:   rgba(255,255,255,0.07);
+    --surface-3:   rgba(255,255,255,0.10);
+    --radius:      12px;
+    --radius-lg:   18px;
+    --shadow:      0 4px 24px rgba(0,0,0,0.4);
+    --shadow-lg:   0 12px 48px rgba(0,0,0,0.5);
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body:    'DM Sans', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+  body {
+    font-family: var(--font-body);
+    background: var(--navy);
+    color: var(--ink);
+    height: 100%;
+    overflow: hidden;
+  }
+  #root { height: 100%; display: flex; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--navy-border); border-radius: 4px; }
+  button { font-family: var(--font-body); cursor: pointer; }
+  input, select, textarea { font-family: var(--font-body); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--ink-08);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .card-gold {
+    background: var(--gold-pale);
+    border: 1px solid var(--gold-glow);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 2px 7px; border-radius: 4px; text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+  .btn-gold {
+    background: var(--gold); color: var(--navy); border: none;
+    padding: 9px 20px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-ghost {
+    background: transparent; color: var(--ink-70);
+    border: 1px solid var(--navy-border);
+    padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .pulsedot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 0 rgba(52,211,153,0.4);
+    animation: pulse 2s infinite;
+    display: inline-block;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(52,211,153,0); }
+    100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+  }
+  /* Toast */
+  .toast-container {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .toast {
+    padding: 12px 16px; border-radius: 10px; font-size: 12px; font-weight: 600;
+    color: white; pointer-events: all; display: flex; align-items: center; gap: 8px;
+    animation: fadeIn 0.3s ease; box-shadow: var(--shadow);
+    min-width: 260px; max-width: 340px;
+  }
+  /* Sidebar nav */
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; border-radius: 9px; margin-bottom: 2px;
+    font-size: 12px; font-weight: 500; color: var(--ink-70);
+    cursor: pointer; transition: all 0.15s; border: none; background: transparent;
+    width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--surface-2); color: var(--ink); }
+  .nav-item.active { background: var(--gold-pale); color: var(--gold); font-weight: 700; border: 1px solid var(--gold-glow); }
+  .nav-section {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-20); padding: 14px 14px 5px; font-family: var(--font-mono);
+  }
+  /* Stat tiles */
+  .stat-tile {
+    background: var(--surface); border: 1px solid var(--ink-08);
+    border-radius: var(--radius); padding: 18px 16px;
+    transition: border-color 0.2s;
+  }
+  .stat-tile:hover { border-color: var(--gold-glow); }
+  .stat-val {
+    font-size: 28px; font-weight: 700; font-family: var(--font-mono);
+    line-height: 1; margin-bottom: 6px;
+  }
+  .stat-label { font-size: 11px; font-weight: 600; color: var(--ink-45); }
+  .stat-sub { font-size: 10px; color: var(--ink-20); margin-top: 4px; }
+  /* Progress bar */
+  .progress-track {
+    height: 6px; background: var(--ink-08); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 3px; transition: width 0.6s ease;
+  }
+  /* Member row */
+  .member-row {
+    display: grid; gap: 12px; align-items: center;
+    padding: 12px 16px; border-bottom: 1px solid var(--ink-08);
+    transition: background 0.15s; cursor: pointer;
+  }
+  .member-row:hover { background: var(--surface-2); }
+  .member-row:last-child { border-bottom: none; }
+  /* Avatar */
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; flex-shrink: 0;
+    font-family: var(--font-mono);
+  }
+  /* AI response area */
+  .ai-response {
+    font-size: 13px; line-height: 1.8; color: var(--ink-70);
+    white-space: pre-wrap; font-family: Georgia, serif;
+    padding: 18px; background: var(--surface);
+    border: 1px solid var(--navy-border); border-radius: var(--radius);
+  }
+  /* Tab bar */
+  .tab-bar {
+    display: flex; gap: 2px; border-bottom: 1px solid var(--ink-08);
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    padding: 9px 16px; border: none; background: transparent;
+    font-size: 12px; font-weight: 500; color: var(--ink-45);
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.15s; font-family: var(--font-body);
+  }
+  .tab-btn.active {
+    color: var(--gold); font-weight: 700;
+    border-bottom-color: var(--gold);
+  }
+  .tab-btn:hover { color: var(--ink-70); }
+  /* Score ring */
+  .score-ring {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800; font-family: var(--font-mono);
+    border: 3px solid;
+  }
+  /* Persona chip */
+  .persona-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+/* ── RECHARTS GUARD ── */
+const { LineChart, Line, BarChart, Bar, AreaChart, Area,
+        XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+        PieChart, Pie, Cell, Legend } = (typeof Recharts !== 'undefined' ? Recharts : {});
+
+/* ══════════════════════════════════════════════════════
+   CLAUDE API
+══════════════════════════════════════════════════════ */
+async function callClaude(system, user, maxTokens = 600) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: user }],
+    }),
+  });
+  if (!res.ok) throw new Error('API ' + res.status);
+  const data = await res.json();
+  return data.content?.[0]?.text || '';
+}
+
+/* ══════════════════════════════════════════════════════
+   DEMO DATA
+══════════════════════════════════════════════════════ */
+const ORG_PROFILES = {
+  alumni: {
+    name: 'Greenfield University Alumni Association',
+    short: 'GUAA',
+    type: 'alumni',
+    totalMembers: 8420,
+    paidMembers: 3847,
+    dues: [
+      { id: 'young_alumni', label: 'Young Alumni (0–5 yrs)', price: 35, color: '#34d399' },
+      { id: 'standard',     label: 'Standard Alumni',        price: 75, color: '#60a5fa' },
+      { id: 'life',         label: 'Life Membership',        price: 1200, color: '#c9973a' },
+      { id: 'couple',       label: 'Alumni Couple',          price: 120, color: '#a78bfa' },
+    ],
+    renewalRate: 71,
+    firstYearRate: 58,
+    avgEngagementScore: 42,
+  },
+  association: {
+    name: 'National Healthcare Professionals Association',
+    short: 'NHPA',
+    type: 'association',
+    totalMembers: 14200,
+    paidMembers: 11650,
+    dues: [
+      { id: 'student',      label: 'Student/Resident',       price: 45,  color: '#34d399' },
+      { id: 'early_career', label: 'Early Career (<5 yrs)',  price: 195, color: '#60a5fa' },
+      { id: 'standard',     label: 'Active Member',          price: 395, color: '#c9973a' },
+      { id: 'fellow',       label: 'Fellow',                 price: 595, color: '#f87171' },
+      { id: 'corporate',    label: 'Corporate Partner',      price: 2500,color: '#a78bfa' },
+    ],
+    renewalRate: 84,
+    firstYearRate: 68,
+    avgEngagementScore: 61,
+  },
+};
+
+const MEMBERS = [
+  { id:'m1',  name:'Dr. Patricia Morrison', initials:'PM', classYear:1998, tier:'fellow',       score:87, status:'active',   daysToRenewal:42,  lastLogin:3,  eventsYTD:4, emailsOpened:82, employer:'Boston Medical Center',    lapseProbability:8,  color:'#c9973a' },
+  { id:'m2',  name:'James Whitfield III',   initials:'JW', classYear:2019, tier:'young_alumni', score:24, status:'at_risk',  daysToRenewal:18,  lastLogin:67, eventsYTD:0, emailsOpened:12, employer:'Morgan Stanley',            lapseProbability:71, color:'#f87171' },
+  { id:'m3',  name:'Sandra Okafor, MPH',    initials:'SO', classYear:2012, tier:'standard',     score:63, status:'active',   daysToRenewal:94,  lastLogin:8,  eventsYTD:2, emailsOpened:54, employer:'CDC Atlanta',               lapseProbability:19, color:'#60a5fa' },
+  { id:'m4',  name:'Robert Nakamura',       initials:'RN', classYear:2005, tier:'life',         score:91, status:'active',   daysToRenewal:null,lastLogin:2,  eventsYTD:7, emailsOpened:95, employer:'Nakamura Family Foundation', lapseProbability:2,  color:'#34d399' },
+  { id:'m5',  name:'Eleanor Hartman',       initials:'EH', classYear:2016, tier:'standard',     score:38, status:'at_risk',  daysToRenewal:9,   lastLogin:89, eventsYTD:0, emailsOpened:8,  employer:'Self-employed',             lapseProbability:84, color:'#f87171' },
+  { id:'m6',  name:'Marcus Thompson',       initials:'MT', classYear:2021, tier:'young_alumni', score:72, status:'active',   daysToRenewal:155, lastLogin:4,  eventsYTD:3, emailsOpened:68, employer:'Google LLC',                lapseProbability:11, color:'#a78bfa' },
+  { id:'m7',  name:'Dr. Claire Beaumont',   initials:'CB', classYear:2003, tier:'fellow',       score:55, status:'lapsed',   daysToRenewal:-47, lastLogin:180,eventsYTD:0, emailsOpened:5,  employer:'MIT Health Sciences',       lapseProbability:93, color:'#f87171' },
+  { id:'m8',  name:'Anthony Rivera',        initials:'AR', classYear:2014, tier:'standard',     score:48, status:'active',   daysToRenewal:210, lastLogin:22, eventsYTD:1, emailsOpened:34, employer:'Deloitte Consulting',       lapseProbability:27, color:'#60a5fa' },
+];
+
+const ENGAGEMENT_LADDER = [
+  { level: 'Passive',     pct: 34, desc: 'Dues paid, zero interaction', risk: 'HIGH',   color: '#f87171' },
+  { level: 'Consumer',    pct: 28, desc: 'Opens emails, reads newsletter', risk: 'MED', color: '#fbbf24' },
+  { level: 'Participant', pct: 22, desc: 'Attends events, joins discussions', risk: 'LOW', color: '#60a5fa' },
+  { level: 'Contributor', pct: 11, desc: 'Speaks, writes, mentors', risk: 'VERY LOW', color: '#34d399' },
+  { level: 'Leader',      pct: 5,  desc: 'Committee, board, chapter chair', risk: 'MINIMAL', color: '#c9973a' },
+];
+
+const RENEWAL_TIMELINE = [
+  { month: 'Jan', renewals: 312, target: 340, lapsed: 28 },
+  { month: 'Feb', renewals: 298, target: 310, lapsed: 31 },
+  { month: 'Mar', renewals: 410, target: 400, lapsed: 22 },
+  { month: 'Apr', renewals: 285, target: 290, lapsed: 38 },
+  { month: 'May', renewals: 195, target: 220, lapsed: 45 },
+  { month: 'Jun', renewals: 168, target: 180, lapsed: 52 },
+];
+
+const LAPSE_SIGNALS = [
+  { signal: 'No login in 90+ days',          weight: 28, members: 641 },
+  { signal: 'Email open rate < 10%',          weight: 22, members: 892 },
+  { signal: 'Zero events in 12 months',       weight: 18, members: 1204 },
+  { signal: 'Profile < 40% complete',         weight: 15, members: 738 },
+  { signal: 'Missed renewal last cycle',      weight: 11, members: 289 },
+  { signal: 'No peer connections',            weight: 6,  members: 1820 },
+];
+
+const COMM_SEQUENCES = [
+  { id:'welcome', name:'New Member Welcome Series', steps:7, trigger:'Join date', active:true,  sentMTD:284, openRate:68 },
+  { id:'renew90', name:'90-Day Renewal Journey',    steps:5, trigger:'90d pre-renewal', active:true,  sentMTD:512, openRate:54 },
+  { id:'lapse30', name:'30-Day Lapse Recovery',     steps:4, trigger:'Lapse detected', active:true,  sentMTD:189, openRate:31 },
+  { id:'engage',  name:'Passive Member Activation', steps:6, trigger:'Score < 30 for 60d', active:true, sentMTD:408, openRate:42 },
+  { id:'upgrade', name:'Tier Upgrade Nudge',         steps:3, trigger:'Score > 75, 3+ years', active:false, sentMTD:0, openRate:0 },
+  { id:'birthday',name:'Alumni Milestone Series',    steps:4, trigger:'Class reunion year', active:true,  sentMTD:96, openRate:71 },
+];
+
+const DUES_REVENUE = [
+  { month:'Jul', dues:38400, nondues:12200 },
+  { month:'Aug', dues:41200, nondues:14800 },
+  { month:'Sep', dues:89400, nondues:18600 },
+  { month:'Oct', dues:76200, nondues:21400 },
+  { month:'Nov', dues:52100, nondues:16900 },
+  { month:'Dec', dues:31800, nondues:13200 },
+  { month:'Jan', dues:44600, nondues:15800 },
+  { month:'Feb', dues:38200, nondues:14200 },
+  { month:'Mar', dues:62800, nondues:19600 },
+];
+
+/* ══════════════════════════════════════════════════════
+   THREE PERSONA META
+══════════════════════════════════════════════════════ */
+const PERSONAS = {
+  director: {
+    id: 'director',
+    name: 'Marlowe',
+    title: 'Director of Membership',
+    icon: '🎯',
+    color: '#c9973a',
+    dimColor: 'rgba(201,151,58,0.15)',
+    focus: 'Strategy, pipeline, revenue, board reporting',
+    voice: 'Strategic, data-driven, speaks to ROI and institutional goals. Thinks in cohorts and lifetime value.',
+  },
+  coordinator: {
+    id: 'coordinator',
+    name: 'Scout',
+    title: 'Membership Coordinator',
+    icon: '🔍',
+    color: '#34d399',
+    dimColor: 'rgba(52,211,153,0.12)',
+    focus: 'Day-to-day operations, renewals, onboarding, lapse recovery',
+    voice: 'Operational, detail-oriented, proactive about individual member situations. Knows every member by name.',
+  },
+  comms: {
+    id: 'comms',
+    name: 'Echo',
+    title: 'Membership Communications Officer',
+    icon: '📣',
+    color: '#60a5fa',
+    dimColor: 'rgba(96,165,250,0.12)',
+    focus: 'Email sequences, campaigns, messaging strategy, tone and voice',
+    voice: 'Creative, empathetic, audience-first. Writes messages that feel personal at scale. Obsessed with open rates.',
+  },
+};
+
+/* ══════════════════════════════════════════════════════
+   TOAST SYSTEM
+══════════════════════════════════════════════════════ */
+let _toastSetFn = null;
+function addToast(msg, type = 'success', icon = '✓') {
+  if (_toastSetFn) _toastSetFn(t => [...t, { id: Date.now(), msg, type, icon }].slice(-4));
+}
+function ToastStack() {
+  const [toasts, setToasts] = useState([]);
+  _toastSetFn = setToasts;
+  useEffect(() => {
+    if (!toasts.length) return;
+    const t = setTimeout(() => setToasts(ts => ts.slice(1)), 3500);
+    return () => clearTimeout(t);
+  }, [toasts]);
+  const BG = { success: '#16a34a', error: '#dc2626', warning: '#d97706', info: '#1d4ed8' };
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className="toast" style={{ background: BG[t.type] || BG.success }}>
+          <span>{t.icon}</span><span>{t.msg}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   SCORE RING
+══════════════════════════════════════════════════════ */
+function ScoreRing({ score, size = 48 }) {
+  const color = score >= 70 ? '#34d399' : score >= 40 ? '#fbbf24' : '#f87171';
+  return (
+    <div style={{ width: size, height: size, borderRadius: '50%', border: `3px solid ${color}`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: 'var(--font-mono)', fontSize: size * 0.28, fontWeight: 800, color, flexShrink: 0 }}>
+      {score}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PERSONA BADGE
+══════════════════════════════════════════════════════ */
+function PersonaBadge({ personaId, small }) {
+  const p = PERSONAS[personaId];
+  if (!p) return null;
+  return (
+    <span className="persona-chip" style={{ background: p.dimColor, color: p.color, border: `1px solid ${p.color}30`, fontSize: small ? 9 : 10 }}>
+      <span>{p.icon}</span> {small ? p.name : `${p.name} · ${p.title}`}
+    </span>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════════════ */
+const NAV = [
+  { section: 'Command Center' },
+  { id: 'overview',    icon: '⚡', label: 'Mission Control' },
+  { id: 'ai_officers', icon: '🤖', label: 'AI Officers' },
+  { section: 'Members' },
+  { id: 'members',     icon: '👥', label: 'Member Roster' },
+  { id: 'segments',    icon: '🎯', label: 'Segments & Scoring' },
+  { id: 'lapse',       icon: '⚠️',  label: 'Lapse Prevention' },
+  { section: 'Revenue' },
+  { id: 'dues',        icon: '💳', label: 'Dues & Renewals' },
+  { id: 'pipeline',    icon: '📈', label: 'Revenue Pipeline' },
+  { section: 'Engagement' },
+  { id: 'sequences',   icon: '📧', label: 'Communication Sequences' },
+  { id: 'campaigns',   icon: '🗂',  label: 'Campaigns' },
+  { id: 'events',      icon: '📅', label: 'Events & Benefits' },
+  { section: 'Intelligence' },
+  { id: 'analytics',   icon: '📊', label: 'Analytics' },
+  { id: 'benchmarks',  icon: '🏆', label: 'Industry Benchmarks' },
+  { section: 'Settings' },
+  { id: 'settings',    icon: '⚙️',  label: 'Org Settings' },
+];
+
+function Sidebar({ page, setPage, org }) {
+  return (
+    <div style={{
+      width: 230, flexShrink: 0, background: 'rgba(13,27,46,0.97)',
+      borderRight: '1px solid var(--ink-08)', display: 'flex', flexDirection: 'column',
+      height: '100vh', overflow: 'hidden',
+    }}>
+      {/* Logo */}
+      <div style={{ padding: '22px 20px 16px', borderBottom: '1px solid var(--ink-08)' }}>
+        <div style={{ fontSize: 18, fontWeight: 900, fontFamily: 'var(--font-display)', color: 'var(--gold)', letterSpacing: '-0.02em' }}>
+          Orbit<span style={{ color: 'var(--ink-45)', fontWeight: 400, fontSize: 14 }}> Membership</span>
+        </div>
+        <div style={{ fontSize: 10, color: 'var(--ink-20)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>Virtual Membership Officer</div>
+      </div>
+
+      {/* Org selector */}
+      <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--ink-08)' }}>
+        <div style={{ fontSize: 10, color: 'var(--ink-20)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Organization</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.4 }}>{org.name}</div>
+        <div style={{ fontSize: 10, color: 'var(--gold)', marginTop: 2 }}>{org.paidMembers.toLocaleString()} paid members</div>
+      </div>
+
+      {/* AI Personas always-on display */}
+      <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--ink-08)', background: 'rgba(0,0,0,0.2)' }}>
+        <div style={{ fontSize: 9, color: 'var(--ink-20)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Active Officers</div>
+        {Object.values(PERSONAS).map(p => (
+          <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+            <span className="pulsedot" style={{ background: p.color, boxShadow: `0 0 0 0 ${p.color}60` }}/>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: p.color }}>{p.name}</div>
+              <div style={{ fontSize: 9, color: 'var(--ink-20)' }}>{p.title}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Nav */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 10px' }}>
+        {NAV.map((item, i) => {
+          if (item.section) return <div key={i} className="nav-section">{item.section}</div>;
+          return (
+            <button key={item.id} className={`nav-item ${page === item.id ? 'active' : ''}`}
+              onClick={() => setPage(item.id)}>
+              <span style={{ fontSize: 14 }}>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Bottom */}
+      <div style={{ padding: '12px 14px', borderTop: '1px solid var(--ink-08)', fontSize: 10, color: 'var(--ink-20)' }}>
+        <div style={{ marginBottom: 3 }}>Orbit Membership v2.0</div>
+        <div style={{ color: 'var(--gold)', fontWeight: 600 }}>All 3 officers active ✦</div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: MISSION CONTROL (OVERVIEW)
+══════════════════════════════════════════════════════ */
+function OverviewPage({ org }) {
+  const atRisk = MEMBERS.filter(m => m.lapseProbability >= 60).length;
+  const renewingSoon = MEMBERS.filter(m => m.daysToRenewal !== null && m.daysToRenewal <= 30).length;
+  const [aiInsight, setAiInsight] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  async function getDailyBriefing() {
+    setLoading(true); setAiInsight(null);
+    try {
+      const r = await callClaude(
+        `You are three bundled AI membership officers (Director, Coordinator, Comms) for a university alumni association. Generate a sharp daily membership briefing with three labeled sections:
+
+🎯 MARLOWE (Director): 2 sentences on strategic priorities today — revenue, pipeline, or board concerns.
+🔍 SCOUT (Coordinator): 2 sentences on the most urgent member situations requiring action today.
+📣 ECHO (Comms): 2 sentences on messaging priorities — what to send, when, and why.
+
+Keep it crisp, specific, and actionable. Use the data provided.`,
+        `Org: ${org.name}
+Paid members: ${org.paidMembers.toLocaleString()} / ${org.totalMembers.toLocaleString()} total (${Math.round(org.paidMembers/org.totalMembers*100)}% conversion)
+Renewal rate: ${org.renewalRate}% (industry median 84%)
+First-year renewal rate: ${org.firstYearRate}% (industry median 63-75%)
+At-risk members (lapse probability >60%): ${atRisk}
+Renewing in next 30 days: ${renewingSoon}
+Avg engagement score: ${org.avgEngagementScore}/100`,
+        350
+      );
+      setAiInsight(r.trim());
+    } catch (e) { setAiInsight('Unable to generate — check API key.'); }
+    setLoading(false);
+  }
+
+  useEffect(() => { getDailyBriefing(); }, []);
+
+  const conversionRate = Math.round(org.paidMembers / org.totalMembers * 100);
+
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px 40px', overflow: 'auto', height: '100%' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+        <div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--ink)', marginBottom: 6 }}>
+            Mission Control
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--ink-45)' }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
+        <button onClick={getDailyBriefing} disabled={loading} className="btn-gold">
+          {loading ? '⚙️ Briefing...' : '⚡ Refresh Briefing'}
+        </button>
+      </div>
+
+      {/* KPI Row */}
+      <div className="grid-4" style={{ marginBottom: 24 }}>
+        {[
+          { label: 'Paid Members',       val: org.paidMembers.toLocaleString(), sub: `${conversionRate}% of total base`,       color: 'var(--gold)' },
+          { label: 'Renewal Rate',        val: org.renewalRate + '%',            sub: `${org.renewalRate > 84 ? '↑ Above' : '↓ Below'} 84% industry median`,  color: org.renewalRate >= 84 ? 'var(--emerald)' : 'var(--rose)' },
+          { label: 'First-Year Rate',     val: org.firstYearRate + '%',          sub: 'National median: 63–75%',               color: org.firstYearRate >= 70 ? 'var(--emerald)' : 'var(--sky)' },
+          { label: 'Avg Engagement',      val: org.avgEngagementScore + '/100',  sub: 'Across all active members',             color: 'var(--sky)' },
+        ].map(s => (
+          <div key={s.label} className="stat-tile">
+            <div className="stat-val" style={{ color: s.color }}>{s.val}</div>
+            <div className="stat-label">{s.label}</div>
+            <div className="stat-sub">{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Alert bar */}
+      {(atRisk > 0 || renewingSoon > 0) && (
+        <div style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 'var(--radius)', padding: '12px 18px', marginBottom: 20, display: 'flex', gap: 24, alignItems: 'center' }}>
+          <span style={{ fontSize: 20 }}>⚠️</span>
+          <div style={{ flex: 1, display: 'flex', gap: 32 }}>
+            {atRisk > 0 && <div><span style={{ fontWeight: 800, color: 'var(--rose)', fontSize: 14 }}>{atRisk} members</span><span style={{ fontSize: 12, color: 'var(--ink-45)', marginLeft: 6 }}>lapse probability {'>'}60% — action needed now</span></div>}
+            {renewingSoon > 0 && <div><span style={{ fontWeight: 800, color: 'var(--gold)', fontSize: 14 }}>{renewingSoon} renewals</span><span style={{ fontSize: 12, color: 'var(--ink-45)', marginLeft: 6 }}>due in next 30 days</span></div>}
+          </div>
+          <span style={{ fontSize: 11, color: 'var(--ink-20)', fontFamily: 'var(--font-mono)' }}>Scout monitoring</span>
+        </div>
+      )}
+
+      <div className="grid-2" style={{ marginBottom: 24 }}>
+        {/* AI Daily Briefing */}
+        <div className="card-gold" style={{ gridColumn: 'span 1' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)' }}>AI Daily Briefing</div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {Object.values(PERSONAS).map(p => <span key={p.id} style={{ fontSize: 14 }}>{p.icon}</span>)}
+            </div>
+          </div>
+          {loading ? (
+            <div>
+              {[60, 80, 55, 75, 40].map((w, i) => (
+                <div key={i} className="skeleton" style={{ height: 14, width: w + '%', marginBottom: 8 }} />
+              ))}
+            </div>
+          ) : aiInsight ? (
+            <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'var(--ink-70)', whiteSpace: 'pre-wrap' }}>{aiInsight}</div>
+          ) : null}
+        </div>
+
+        {/* Engagement Ladder */}
+        <div className="card">
+          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-45)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 14 }}>Engagement Ladder</div>
+          {ENGAGEMENT_LADDER.map(e => (
+            <div key={e.level} style={{ marginBottom: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: e.color }}>{e.level}</span>
+                  <span style={{ fontSize: 9, color: 'var(--ink-20)' }}>{e.desc}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 3, background: e.risk === 'HIGH' ? 'var(--rose-dim)' : 'var(--surface)', color: e.risk === 'HIGH' ? 'var(--rose)' : 'var(--ink-20)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{e.risk}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)', fontFamily: 'var(--font-mono)', minWidth: 32, textAlign: 'right' }}>{e.pct}%</span>
+                </div>
+              </div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: e.pct + '%', background: e.color }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Revenue chart + At-risk members */}
+      <div className="grid-2">
+        <div className="card">
+          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-45)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>Dues + Non-Dues Revenue</div>
+          {BarChart ? (
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={DUES_REVENUE} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="month" tick={{ fill: 'rgba(240,244,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'rgba(240,244,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => '$' + (v/1000).toFixed(0) + 'K'} />
+                <Tooltip contentStyle={{ background: '#132640', border: '1px solid #2a4a6e', borderRadius: 8, color: '#f0f4ff', fontSize: 11 }} />
+                <Bar dataKey="dues" name="Dues" fill="#c9973a" radius={[3,3,0,0]} />
+                <Bar dataKey="nondues" name="Non-Dues" fill="#1e3a5f" radius={[3,3,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-20)' }}>Chart loading...</div>}
+        </div>
+
+        {/* At-Risk Members */}
+        <div className="card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--rose)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)' }}>At-Risk Members</div>
+            <PersonaBadge personaId="coordinator" small />
+          </div>
+          {MEMBERS.filter(m => m.lapseProbability >= 50).slice(0, 4).map(m => (
+            <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--ink-08)' }}>
+              <div className="avatar" style={{ background: m.color + '20', color: m.color, fontSize: 10 }}>{m.initials}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{m.name}</div>
+                <div style={{ fontSize: 10, color: 'var(--ink-45)' }}>Last login: {m.lastLogin}d ago · {m.eventsYTD} events YTD</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--rose)', fontFamily: 'var(--font-mono)' }}>{m.lapseProbability}%</div>
+                <div style={{ fontSize: 9, color: 'var(--ink-20)' }}>lapse risk</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: AI OFFICERS CONSOLE
+══════════════════════════════════════════════════════ */
+function AIConsolePage({ org }) {
+  const [activePersona, setActivePersona] = useState('director');
+  const [query, setQuery] = useState('');
+  const [response, setResponse] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [selectedMember, setSelectedMember] = useState(MEMBERS[1]); // James (at-risk)
+
+  const QUICK_ACTIONS = {
+    director: [
+      'What is our renewal rate trend and what does it mean for annual revenue?',
+      'Which membership tier has the worst first-year retention and why?',
+      'Draft a board report summary on membership health for this quarter.',
+      'What non-dues revenue opportunities should we prioritize?',
+    ],
+    coordinator: [
+      `Generate a personalized intervention plan for ${selectedMember.name} (lapse risk: ${selectedMember.lapseProbability}%)`,
+      'Which members are renewing in the next 2 weeks and what do I know about each?',
+      'Create a win-back outreach plan for our lapsed member segment.',
+      'What does a perfect 30-60-90 day onboarding look like for a new member?',
+    ],
+    comms: [
+      `Write a renewal email for a member with ${selectedMember.daysToRenewal || 18} days left — tone: warm but urgent`,
+      'Create a 5-email welcome sequence for a new young alumni member.',
+      'Write a lapse recovery message that doesn\'t sound like nagging.',
+      'Draft an upgrade ask for a Standard member who has been engaged for 3+ years.',
+    ],
+  };
+
+  async function askOfficer(q) {
+    if (!q.trim()) return;
+    const p = PERSONAS[activePersona];
+    setLoading(true); setResponse(null);
+    setHistory(h => [...h, { persona: activePersona, query: q }]);
+    try {
+      const r = await callClaude(
+        `You are ${p.name}, ${p.title} for ${org.name}. ${p.voice}
+You have deep expertise in membership management, dues retention, alumni engagement, and association best practices.
+Answer with authority, specificity, and actionable recommendations. Be concise but complete.
+Current org data: ${org.paidMembers} paid members, ${org.renewalRate}% renewal rate, ${org.firstYearRate}% first-year renewal.`,
+        q,
+        520
+      );
+      setResponse({ persona: activePersona, text: r.trim() });
+    } catch (e) {
+      setResponse({ persona: activePersona, text: 'Unable to connect to AI — please check your API key.' });
+    }
+    setLoading(false);
+  }
+
+  const p = PERSONAS[activePersona];
+
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px', overflow: 'auto', height: '100%' }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', marginBottom: 6 }}>AI Officer Console</h1>
+        <p style={{ fontSize: 13, color: 'var(--ink-45)' }}>Three specialized officers. One unified intelligence. Ask anything about your membership.</p>
+      </div>
+
+      {/* Persona selector */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+        {Object.values(PERSONAS).map(persona => (
+          <div key={persona.id} onClick={() => setActivePersona(persona.id)} style={{
+            flex: 1, padding: '16px', borderRadius: 'var(--radius-lg)', cursor: 'pointer',
+            border: `2px solid ${activePersona === persona.id ? persona.color : 'var(--ink-08)'}`,
+            background: activePersona === persona.id ? persona.dimColor : 'var(--surface)',
+            transition: 'all 0.2s',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <span style={{ fontSize: 24 }}>{persona.icon}</span>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: activePersona === persona.id ? persona.color : 'var(--ink)', fontFamily: 'var(--font-display)' }}>{persona.name}</div>
+                <div style={{ fontSize: 10, color: 'var(--ink-45)' }}>{persona.title}</div>
+              </div>
+              {activePersona === persona.id && <span className="pulsedot" style={{ marginLeft: 'auto', background: persona.color, boxShadow: `0 0 0 0 ${persona.color}60` }} />}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--ink-45)', lineHeight: 1.5 }}>{persona.focus}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid-2" style={{ alignItems: 'start' }}>
+        {/* Left: Quick actions + input */}
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 10 }}>Quick Actions</div>
+          {QUICK_ACTIONS[activePersona].map((q, i) => (
+            <button key={i} onClick={() => { setQuery(q); askOfficer(q); }} style={{
+              width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: 8, marginBottom: 7,
+              background: 'var(--surface)', border: `1px solid var(--ink-08)`,
+              color: 'var(--ink-70)', fontSize: 12, cursor: 'pointer', lineHeight: 1.5,
+              transition: 'all 0.15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = p.color; e.currentTarget.style.color = 'var(--ink)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--ink-08)'; e.currentTarget.style.color = 'var(--ink-70)'; }}>
+              {q.length > 70 ? q.slice(0, 70) + '...' : q}
+            </button>
+          ))}
+
+          {/* Custom query */}
+          <div style={{ marginTop: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 8 }}>Ask {p.name} Directly</div>
+            <textarea value={query} onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) askOfficer(query); }}
+              placeholder={`Ask ${p.name} anything about your membership...`}
+              rows={3} style={{
+                width: '100%', padding: '12px 14px', borderRadius: 10,
+                border: `1.5px solid ${p.color}40`, background: 'var(--surface)',
+                color: 'var(--ink)', fontSize: 12, outline: 'none', resize: 'none',
+                lineHeight: 1.6, fontFamily: 'var(--font-body)',
+              }} />
+            <button onClick={() => askOfficer(query)} disabled={loading || !query.trim()}
+              className="btn-gold" style={{ marginTop: 8, background: p.color, width: '100%', padding: '10px' }}>
+              {loading ? `${p.icon} ${p.name} is thinking...` : `Ask ${p.name} →`}
+            </button>
+            <div style={{ fontSize: 10, color: 'var(--ink-20)', marginTop: 6, textAlign: 'center' }}>⌘ + Enter to submit</div>
+          </div>
+        </div>
+
+        {/* Right: Response */}
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 10 }}>Response</div>
+
+          {loading && (
+            <div className="card" style={{ padding: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <span style={{ fontSize: 24 }}>{p.icon}</span>
+                <div style={{ fontSize: 13, color: 'var(--ink-45)' }}>{p.name} is analyzing your membership data...</div>
+              </div>
+              {[90, 70, 85, 55, 75].map((w, i) => (
+                <div key={i} className="skeleton" style={{ height: 14, width: w + '%', marginBottom: 10 }} />
+              ))}
+            </div>
+          )}
+
+          {response && !loading && (
+            <div className="fade-in">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <PersonaBadge personaId={response.persona} />
+              </div>
+              <div className="ai-response">{response.text}</div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                <button className="btn-ghost" style={{ fontSize: 10, padding: '6px 12px' }}
+                  onClick={() => { navigator.clipboard?.writeText(response.text); addToast('Copied to clipboard', 'success', '📋'); }}>
+                  📋 Copy
+                </button>
+                <button className="btn-ghost" style={{ fontSize: 10, padding: '6px 12px' }}
+                  onClick={() => addToast('Saved to playbook', 'success', '💾')}>
+                  💾 Save to Playbook
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!response && !loading && (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink-20)' }}>
+              <div style={{ fontSize: 48, marginBottom: 14 }}>{p.icon}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--ink-45)', marginBottom: 8 }}>{p.name} is ready</div>
+              <div style={{ fontSize: 12, lineHeight: 1.6 }}>Select a quick action or ask a custom question to get personalized membership intelligence.</div>
+            </div>
+          )}
+
+          {/* History */}
+          {history.length > 0 && (
+            <div style={{ marginTop: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 8 }}>Session History</div>
+              {history.slice(-3).map((h, i) => {
+                const hp = PERSONAS[h.persona];
+                return (
+                  <div key={i} style={{ padding: '7px 10px', marginBottom: 5, borderRadius: 7, background: 'var(--surface)', fontSize: 11, color: 'var(--ink-45)', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <span>{hp.icon}</span>
+                    <span style={{ flex: 1 }}>{h.query.slice(0, 80)}...</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: MEMBER ROSTER
+══════════════════════════════════════════════════════ */
+function MembersPage({ org }) {
+  const [selected, setSelected] = useState(MEMBERS[0]);
+  const [memberInsight, setMemberInsight] = useState(null);
+  const [insightLoading, setInsightLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  const statusColors = { active: '#34d399', at_risk: '#fbbf24', lapsed: '#f87171' };
+
+  const filtered = MEMBERS.filter(m => {
+    const matchSearch = !search || m.name.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = filterStatus === 'all' || m.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+
+  async function getMemberInsight(member) {
+    setMemberInsight(null); setInsightLoading(true);
+    try {
+      const r = await callClaude(
+        `You are Scout, Membership Coordinator. Write a sharp 4-part member intelligence report:
+1. SITUATION SUMMARY (1 sentence on where this member stands)
+2. LAPSE RISK ANALYSIS (why they are at this risk level — be specific)
+3. RECOMMENDED NEXT ACTION (ONE specific action to take this week)
+4. COMMUNICATION SCRIPT (3-4 sentence email or message to send — write it ready to use)
+
+Be direct and specific. Use the data provided.`,
+        `Member: ${member.name}
+Class/Join Year: ${member.classYear} | Tier: ${member.tier}
+Engagement Score: ${member.score}/100 | Lapse Probability: ${member.lapseProbability}%
+Status: ${member.status} | Days to renewal: ${member.daysToRenewal || 'N/A (lapsed)'}
+Last login: ${member.lastLogin} days ago | Events YTD: ${member.eventsYTD}
+Email open rate: ${member.emailsOpened}% | Employer: ${member.employer}`,
+        380
+      );
+      setMemberInsight(r.trim());
+    } catch (e) { setMemberInsight('Unable to generate — check API.'); }
+    setInsightLoading(false);
+  }
+
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px', overflow: 'auto', height: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>Member Roster</h1>
+          <p style={{ fontSize: 13, color: 'var(--ink-45)' }}>AI-scored engagement with Scout-powered intervention recommendations</p>
+        </div>
+        <button className="btn-gold" onClick={() => addToast('Member import wizard opening...', 'info', '📤')}>+ Import Members</button>
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
+        <input value={search} onChange={e => setSearch(e.target.value)}
+          placeholder="Search members..." style={{
+            padding: '8px 14px', borderRadius: 8, border: '1px solid var(--navy-border)',
+            background: 'var(--surface)', color: 'var(--ink)', fontSize: 12, outline: 'none', width: 220,
+          }} />
+        {['all', 'active', 'at_risk', 'lapsed'].map(s => (
+          <button key={s} onClick={() => setFilterStatus(s)} style={{
+            padding: '7px 14px', borderRadius: 7, border: `1px solid ${filterStatus === s ? 'var(--gold)' : 'var(--ink-08)'}`,
+            background: filterStatus === s ? 'var(--gold-pale)' : 'transparent',
+            color: filterStatus === s ? 'var(--gold)' : 'var(--ink-45)', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+            textTransform: 'capitalize',
+          }}>{s.replace('_', ' ')}</button>
+        ))}
+      </div>
+
+      <div className="grid-2" style={{ alignItems: 'start' }}>
+        {/* Member list */}
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 60px 60px', gap: 12, padding: '10px 16px', background: 'var(--surface-2)', borderBottom: '1px solid var(--ink-08)', fontSize: 10, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: 'var(--font-mono)' }}>
+            <div>Member</div><div>Tier / Status</div><div>Score</div><div>Lapse%</div>
+          </div>
+          {filtered.map(m => (
+            <div key={m.id} className="member-row" style={{ gridTemplateColumns: '2fr 1fr 60px 60px', background: selected?.id === m.id ? 'var(--surface-2)' : 'transparent' }}
+              onClick={() => { setSelected(m); getMemberInsight(m); }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="avatar" style={{ background: m.color + '20', color: m.color }}>{m.initials}</div>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{m.name}</div>
+                  <div style={{ fontSize: 10, color: 'var(--ink-45)' }}>{m.classYear} · {m.employer}</div>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', textTransform: 'capitalize' }}>{m.tier.replace('_', ' ')}</div>
+                <span className="badge" style={{ background: (statusColors[m.status] || '#888') + '20', color: statusColors[m.status] || '#888', marginTop: 3, display: 'inline-block' }}>{m.status.replace('_', ' ')}</span>
+              </div>
+              <ScoreRing score={m.score} size={38} />
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 800, color: m.lapseProbability >= 60 ? 'var(--rose)' : m.lapseProbability >= 30 ? 'var(--gold)' : 'var(--emerald)' }}>
+                {m.lapseProbability}%
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Member detail */}
+        {selected && (
+          <div>
+            <div className="card" style={{ marginBottom: 12 }}>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 16 }}>
+                <div className="avatar" style={{ background: selected.color + '20', color: selected.color, width: 50, height: 50, fontSize: 14 }}>{selected.initials}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink)', fontFamily: 'var(--font-display)', marginBottom: 4 }}>{selected.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--ink-45)' }}>{selected.employer} · Class of {selected.classYear}</div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <span className="badge" style={{ background: 'var(--gold-pale)', color: 'var(--gold)', border: '1px solid var(--gold-glow)', textTransform: 'capitalize' }}>{selected.tier.replace('_', ' ')}</span>
+                    <span className="badge" style={{ background: (statusColors[selected.status] + '20'), color: statusColors[selected.status], textTransform: 'capitalize' }}>{selected.status.replace('_', ' ')}</span>
+                  </div>
+                </div>
+                <ScoreRing score={selected.score} size={52} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {[
+                  { l: 'Lapse Risk', v: selected.lapseProbability + '%', c: selected.lapseProbability >= 60 ? 'var(--rose)' : selected.lapseProbability >= 30 ? 'var(--gold)' : 'var(--emerald)' },
+                  { l: 'Last Login', v: selected.lastLogin + 'd ago', c: selected.lastLogin > 60 ? 'var(--rose)' : 'var(--ink)' },
+                  { l: 'Events YTD', v: selected.eventsYTD.toString(), c: selected.eventsYTD === 0 ? 'var(--rose)' : 'var(--emerald)' },
+                  { l: 'Email Opens', v: selected.emailsOpened + '%', c: selected.emailsOpened < 20 ? 'var(--rose)' : 'var(--sky)' },
+                  { l: 'Renewal In', v: selected.daysToRenewal ? selected.daysToRenewal + 'd' : 'Lapsed', c: !selected.daysToRenewal ? 'var(--rose)' : selected.daysToRenewal <= 30 ? 'var(--gold)' : 'var(--ink)' },
+                  { l: 'Engagement', v: selected.score + '/100', c: selected.score >= 70 ? 'var(--emerald)' : selected.score >= 40 ? 'var(--gold)' : 'var(--rose)' },
+                ].map(s => (
+                  <div key={s.l} style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '10px' }}>
+                    <div style={{ fontSize: 9, color: 'var(--ink-20)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: 'var(--font-mono)' }}>{s.l}</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: s.c, fontFamily: 'var(--font-mono)', marginTop: 3 }}>{s.v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Scout insight */}
+            <div className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <PersonaBadge personaId="coordinator" />
+                <button onClick={() => getMemberInsight(selected)} disabled={insightLoading} className="btn-ghost" style={{ fontSize: 10, padding: '5px 10px' }}>
+                  {insightLoading ? '...' : '↺ Refresh'}
+                </button>
+              </div>
+              {insightLoading ? (
+                <div>{[80, 65, 90, 55, 75].map((w, i) => <div key={i} className="skeleton" style={{ height: 12, width: w + '%', marginBottom: 8 }} />)}</div>
+              ) : memberInsight ? (
+                <div style={{ fontSize: 12, lineHeight: 1.75, color: 'var(--ink-70)', whiteSpace: 'pre-wrap' }}>{memberInsight}</div>
+              ) : (
+                <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--ink-20)', padding: '16px 0' }}>Click a member to generate Scout's intelligence report</div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: LAPSE PREVENTION
+══════════════════════════════════════════════════════ */
+function LapsePage({ org }) {
+  const [tab, setTab] = useState('radar');
+  const [selectedSignal, setSelectedSignal] = useState(LAPSE_SIGNALS[0]);
+  const [intervention, setIntervention] = useState(null);
+  const [intLoading, setIntLoading] = useState(false);
+  const atRiskMembers = MEMBERS.filter(m => m.lapseProbability >= 50);
+
+  async function buildInterventionPlan(signal) {
+    setIntervention(null); setIntLoading(true);
+    try {
+      const r = await callClaude(
+        `You are Scout, Membership Coordinator. Build a specific intervention plan for members showing this lapse signal. Include:
+1. WHY this signal matters (1 sentence, data-backed)
+2. IMMEDIATE ACTION (what to do in the next 48 hours)  
+3. EMAIL SUBJECT LINE (A/B test: write 2 options)
+4. MESSAGE BODY (4–5 sentences — warm, value-forward, not guilt-based)
+5. ESCALATION (if no response in 7 days, what next?)
+
+Be specific, warm, and results-oriented.`,
+        `Signal: "${signal.signal}"
+Affected members: ${signal.members.toLocaleString()}
+Weight in lapse model: ${signal.weight}%
+Org: ${org.name} (${org.type} association)`,
+        420
+      );
+      setIntervention(r.trim());
+    } catch (e) { setIntervention('Unable to generate — check API.'); }
+    setIntLoading(false);
+  }
+
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px', overflow: 'auto', height: '100%' }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', marginBottom: 6 }}>Lapse Prevention Radar</h1>
+        <p style={{ fontSize: 13, color: 'var(--ink-45)' }}>Predictive lapse scoring powered by 6 behavioral signals — act before members drift away</p>
+      </div>
+
+      {/* Impact stat */}
+      <div style={{ background: 'linear-gradient(135deg, rgba(248,113,113,0.08) 0%, rgba(201,151,58,0.08) 100%)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 'var(--radius-lg)', padding: '18px 24px', marginBottom: 24, display: 'flex', gap: 40, alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--rose)', fontFamily: 'var(--font-mono)' }}>52%</div>
+          <div style={{ fontSize: 11, color: 'var(--ink-45)', marginTop: 2 }}>of non-renewals cite lack of engagement as primary reason</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--gold)', fontFamily: 'var(--font-mono)' }}>{org.totalMembers - org.paidMembers}</div>
+          <div style={{ fontSize: 11, color: 'var(--ink-45)', marginTop: 2 }}>members currently unpaid (lapsed or never converted)</div>
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 12, color: 'var(--ink-70)', lineHeight: 1.6 }}>
+            <strong style={{ color: 'var(--ink)' }}>The Scout Difference:</strong> Instead of date-triggered reminders, Scout monitors 6 behavioral signals continuously and intervenes when a member shows drift — weeks before renewal deadline. Industry first-year renewal averages 63%. Our target: 85%+.
+          </div>
+        </div>
+      </div>
+
+      <div className="tab-bar">
+        <button className={`tab-btn ${tab === 'radar' ? 'active' : ''}`} onClick={() => setTab('radar')}>Signal Radar</button>
+        <button className={`tab-btn ${tab === 'queue' ? 'active' : ''}`} onClick={() => setTab('queue')}>Intervention Queue</button>
+        <button className={`tab-btn ${tab === 'playbook' ? 'active' : ''}`} onClick={() => setTab('playbook')}>Recovery Playbook</button>
+      </div>
+
+      {tab === 'radar' && (
+        <div className="grid-2" style={{ alignItems: 'start' }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 12 }}>6 Lapse Signals — Click to Build Intervention</div>
+            {LAPSE_SIGNALS.map((s, i) => (
+              <div key={i} onClick={() => { setSelectedSignal(s); buildInterventionPlan(s); }} style={{
+                padding: '13px 16px', borderRadius: 10, marginBottom: 8, cursor: 'pointer',
+                border: `1.5px solid ${selectedSignal?.signal === s.signal ? 'var(--gold)' : 'var(--ink-08)'}`,
+                background: selectedSignal?.signal === s.signal ? 'var(--gold-pale)' : 'var(--surface)',
+                transition: 'all 0.15s',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>{s.signal}</div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--rose)', fontFamily: 'var(--font-mono)' }}>{s.members.toLocaleString()}</div>
+                    <div style={{ fontSize: 9, color: 'var(--ink-20)' }}>affected</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="progress-track" style={{ flex: 1 }}>
+                    <div className="progress-fill" style={{ width: s.weight * 3.5 + '%', background: `hsl(${360 - s.weight * 3}, 80%, 60%)` }} />
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-45)', fontFamily: 'var(--font-mono)', minWidth: 40 }}>{s.weight}% wt.</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 12 }}>Scout Intervention Plan</div>
+            {intLoading ? (
+              <div className="card">{[80, 60, 90, 55].map((w, i) => <div key={i} className="skeleton" style={{ height: 13, width: w + '%', marginBottom: 10 }} />)}</div>
+            ) : intervention ? (
+              <div className="fade-in">
+                <div className="ai-response">{intervention}</div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                  <button className="btn-gold" style={{ flex: 1, padding: '9px' }} onClick={() => addToast('Campaign created for ' + selectedSignal?.members + ' members', 'success', '🚀')}>
+                    Launch Campaign →
+                  </button>
+                  <button className="btn-ghost" style={{ padding: '9px 14px' }} onClick={() => addToast('Saved to playbook', 'success', '💾')}>Save</button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink-20)' }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
+                <div style={{ fontSize: 13, color: 'var(--ink-45)' }}>Select a lapse signal to generate Scout's intervention plan</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === 'queue' && (
+        <div>
+          <div style={{ marginBottom: 12, fontSize: 12, color: 'var(--ink-45)' }}>
+            {atRiskMembers.length} members require personal intervention this week
+          </div>
+          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr 1fr 1fr 1fr', gap: 12, padding: '10px 16px', background: 'var(--surface-2)', borderBottom: '1px solid var(--ink-08)', fontSize: 10, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: 'var(--font-mono)' }}>
+              <div>Member</div><div>Lapse Risk</div><div>Days Silent</div><div>Renewal</div><div>Action</div>
+            </div>
+            {atRiskMembers.map(m => (
+              <div key={m.id} className="member-row" style={{ gridTemplateColumns: '2.5fr 1fr 1fr 1fr 1fr' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="avatar" style={{ background: m.color + '20', color: m.color }}>{m.initials}</div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{m.name}</div>
+                    <div style={{ fontSize: 10, color: 'var(--ink-45)' }}>{m.tier.replace('_', ' ')} · {m.classYear}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--rose)', fontFamily: 'var(--font-mono)' }}>{m.lapseProbability}%</div>
+                <div style={{ fontSize: 12, color: m.lastLogin > 60 ? 'var(--rose)' : 'var(--gold)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{m.lastLogin}d</div>
+                <div style={{ fontSize: 11, color: m.daysToRenewal ? (m.daysToRenewal < 20 ? 'var(--rose)' : 'var(--ink-45)') : 'var(--rose)' }}>
+                  {m.daysToRenewal ? m.daysToRenewal + 'd' : 'LAPSED'}
+                </div>
+                <button onClick={() => addToast('Intervention queued for ' + m.name, 'success', '📧')} className="btn-gold" style={{ padding: '5px 10px', fontSize: 10 }}>
+                  Intervene
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === 'playbook' && (
+        <div className="grid-2">
+          {[
+            { title: '30-Day Pre-Renewal', trigger: '30 days before expiry', actions: ['Email: Value reminder + renewal link', 'SMS (if opted-in): Quick nudge', 'Personalized benefit highlight'], rate: '74%', label: 'renewal rate when all 3 sent' },
+            { title: 'First-Year Activation', trigger: 'Member joins', actions: ['Day 1: Welcome + quick-win guide', 'Day 7: Invite to first event', 'Day 14: Connect with peer member', 'Day 30: Check-in call from Scout'], rate: '89%', label: '2nd-year renewal when fully activated' },
+            { title: 'Silent Member Revival', trigger: '60+ days no login', actions: ['Email: "We noticed you haven\'t been around"', 'Highlight 3 new benefits added since join', 'Offer free webinar or event pass', 'Escalate to personal call at day 90'], rate: '38%', label: 'reactivation within 30 days' },
+            { title: 'Post-Lapse Win-Back', trigger: '30 days after lapse', actions: ['Email 1: Acknowledge the gap, no guilt', 'Email 2: What has changed / new benefits', 'Email 3: Limited-time waived fee offer', 'Final: Door always open message'], rate: '22%', label: 'win-back rate (industry avg: 11%)' },
+          ].map(p => (
+            <div key={p.title} className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--ink)', fontFamily: 'var(--font-display)', marginBottom: 4 }}>{p.title}</div>
+                  <div style={{ fontSize: 10, color: 'var(--gold)', fontWeight: 600 }}>Trigger: {p.trigger}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--emerald)', fontFamily: 'var(--font-mono)' }}>{p.rate}</div>
+                  <div style={{ fontSize: 9, color: 'var(--ink-20)' }}>{p.label}</div>
+                </div>
+              </div>
+              {p.actions.map((a, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 6, fontSize: 11, color: 'var(--ink-70)' }}>
+                  <span style={{ color: 'var(--gold)', fontWeight: 700, flexShrink: 0 }}>Step {i + 1}</span>
+                  <span>{a}</span>
+                </div>
+              ))}
+              <button onClick={() => addToast(p.title + ' sequence activated', 'success', '🚀')} className="btn-ghost" style={{ width: '100%', marginTop: 12, padding: '8px', fontSize: 11 }}>
+                Activate Sequence →
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: DUES & RENEWALS
+══════════════════════════════════════════════════════ */
+function DuesPage({ org }) {
+  const [tab, setTab] = useState('structure');
+  const [renewalEmail, setRenewalEmail] = useState(null);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [selectedTier, setSelectedTier] = useState(org.dues[1]);
+  const [tone, setTone] = useState('warm');
+
+  async function generateRenewalEmail() {
+    setRenewalEmail(null); setEmailLoading(true);
+    try {
+      const r = await callClaude(
+        `You are Echo, Membership Communications Officer for ${org.name}. Write a renewal email for the ${selectedTier.label} tier ($${selectedTier.price}/year). Tone: ${tone}.
+
+Format as:
+SUBJECT LINE: [subject]
+PREVIEW TEXT: [40-char preview]
+---
+[Email body — 3 short paragraphs. Open with impact/gratitude, middle with specific value, close with clear CTA. Never sound like an invoice. End with a genuine human sign-off.]`,
+        `Tier: ${selectedTier.label} at $${selectedTier.price}/year
+Org type: ${org.type}
+Tone: ${tone}
+Goal: Renewal within 14 days`,
+        320
+      );
+      setRenewalEmail(r.trim());
+    } catch (e) { setRenewalEmail('Unable to generate — check API.'); }
+    setEmailLoading(false);
+  }
+
+  const totalDuesRevenue = org.dues.reduce((s, t) => s + t.price, 0);
+
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px', overflow: 'auto', height: '100%' }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>Dues & Renewals</h1>
+        <p style={{ fontSize: 13, color: 'var(--ink-45)' }}>Tier structure, renewal rates, and AI-written renewal communications</p>
+      </div>
+
+      <div className="tab-bar">
+        <button className={`tab-btn ${tab === 'structure' ? 'active' : ''}`} onClick={() => setTab('structure')}>Tier Structure</button>
+        <button className={`tab-btn ${tab === 'renewals' ? 'active' : ''}`} onClick={() => setTab('renewals')}>Renewal Performance</button>
+        <button className={`tab-btn ${tab === 'emailgen' ? 'active' : ''}`} onClick={() => setTab('emailgen')}>Echo: Email Generator</button>
+        <button className={`tab-btn ${tab === 'autopilot' ? 'active' : ''}`} onClick={() => setTab('autopilot')}>Auto-Renewal Setup</button>
+      </div>
+
+      {tab === 'structure' && (
+        <div>
+          <div className="grid-4" style={{ marginBottom: 24 }}>
+            {org.dues.map(tier => (
+              <div key={tier.id} className="card" style={{ border: `1px solid ${tier.color}30`, cursor: 'pointer', transition: 'all 0.2s' }}
+                onClick={() => setSelectedTier(tier)}
+                onMouseEnter={e => e.currentTarget.style.borderColor = tier.color}
+                onMouseLeave={e => e.currentTarget.style.borderColor = tier.color + '30'}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: tier.color, marginBottom: 10 }} />
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-45)', marginBottom: 4 }}>{tier.label}</div>
+                <div style={{ fontSize: 26, fontWeight: 800, color: tier.color, fontFamily: 'var(--font-mono)', marginBottom: 2 }}>${tier.price}</div>
+                <div style={{ fontSize: 10, color: 'var(--ink-20)' }}>per year</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Renewal rate by tier */}
+          <div className="card">
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-45)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>Renewal Rate by Tier</div>
+            {org.dues.map(tier => {
+              const rate = tier.id === 'life' ? 100 : tier.id === 'young_alumni' || tier.id === 'student' ? 58 : tier.id === 'fellow' || tier.id === 'corporate' ? 91 : 74;
+              const target = 85;
+              return (
+                <div key={tier.id} style={{ marginBottom: 14 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'center' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{tier.label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 10, color: 'var(--ink-20)' }}>Target: {target}%</span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: rate >= target ? 'var(--emerald)' : rate >= 70 ? 'var(--gold)' : 'var(--rose)', fontFamily: 'var(--font-mono)' }}>{rate}%</span>
+                    </div>
+                  </div>
+                  <div style={{ position: 'relative', height: 8, background: 'var(--ink-08)', borderRadius: 4, overflow: 'visible' }}>
+                    <div style={{ position: 'absolute', left: target + '%', top: -3, bottom: -3, width: 2, background: 'var(--ink-20)', borderRadius: 1, zIndex: 1 }} />
+                    <div className="progress-fill" style={{ width: rate + '%', background: rate >= target ? 'var(--emerald)' : rate >= 70 ? 'var(--gold)' : 'var(--rose)', height: '100%' }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {tab === 'renewals' && (
+        <div>
+          <div className="grid-4" style={{ marginBottom: 20 }}>
+            {[
+              { l: 'Overall Renewal', v: org.renewalRate + '%', color: org.renewalRate >= 84 ? 'var(--emerald)' : 'var(--gold)', sub: 'Industry: 84%' },
+              { l: 'First-Year Renewal', v: org.firstYearRate + '%', color: org.firstYearRate >= 70 ? 'var(--emerald)' : 'var(--rose)', sub: 'Industry: 63–75%' },
+              { l: 'Renewals Due (30d)', v: '47', color: 'var(--gold)', sub: '$' + (47 * 85).toLocaleString() + ' at stake' },
+              { l: 'Auto-Renew Enrolled', v: '31%', color: 'var(--sky)', sub: 'Target: 60%' },
+            ].map(s => (
+              <div key={s.l} className="stat-tile">
+                <div className="stat-val" style={{ color: s.color }}>{s.v}</div>
+                <div className="stat-label">{s.l}</div>
+                <div className="stat-sub">{s.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {BarChart && (
+            <div className="card">
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-45)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>Renewals vs Target — Last 6 Months</div>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={RENEWAL_TIMELINE} margin={{ top: 0, right: 0, left: -15, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="month" tick={{ fill: 'rgba(240,244,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'rgba(240,244,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ background: '#132640', border: '1px solid #2a4a6e', borderRadius: 8, color: '#f0f4ff', fontSize: 11 }} />
+                  <Bar dataKey="renewals" name="Renewed" fill="#c9973a" radius={[4,4,0,0]} />
+                  <Bar dataKey="lapsed" name="Lapsed" fill="rgba(248,113,113,0.6)" radius={[4,4,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === 'emailgen' && (
+        <div className="grid-2" style={{ alignItems: 'start' }}>
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <PersonaBadge personaId="comms" />
+              <p style={{ fontSize: 12, color: 'var(--ink-45)', marginTop: 8, lineHeight: 1.6 }}>Echo writes renewal emails that feel personal, not transactional. Select a tier and tone, then generate.</p>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 8 }}>Membership Tier</div>
+              {org.dues.map(t => (
+                <div key={t.id} onClick={() => setSelectedTier(t)} style={{
+                  padding: '10px 14px', borderRadius: 8, marginBottom: 6, cursor: 'pointer',
+                  border: `1.5px solid ${selectedTier?.id === t.id ? t.color : 'var(--ink-08)'}`,
+                  background: selectedTier?.id === t.id ? t.color + '10' : 'var(--surface)',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: selectedTier?.id === t.id ? t.color : 'var(--ink)' }}>{t.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: t.color, fontFamily: 'var(--font-mono)' }}>${t.price}</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 8 }}>Tone</div>
+              <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+                {['warm', 'formal', 'urgent', 'celebratory', 'nostalgic'].map(t => (
+                  <button key={t} onClick={() => setTone(t)} style={{
+                    padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700, textTransform: 'capitalize',
+                    background: tone === t ? 'var(--gold)' : 'var(--surface-2)', color: tone === t ? 'var(--navy)' : 'var(--ink-45)',
+                  }}>{t}</button>
+                ))}
+              </div>
+            </div>
+
+            <button onClick={generateRenewalEmail} disabled={emailLoading} className="btn-gold" style={{ width: '100%', padding: '11px' }}>
+              {emailLoading ? '📣 Echo is writing...' : '📣 Generate Renewal Email'}
+            </button>
+          </div>
+
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 10 }}>Generated Email</div>
+            {emailLoading && (
+              <div className="card">{[75, 55, 90, 60, 80, 45].map((w, i) => <div key={i} className="skeleton" style={{ height: 13, width: w + '%', marginBottom: 10 }} />)}</div>
+            )}
+            {renewalEmail && !emailLoading && (
+              <div className="fade-in">
+                <div style={{ fontFamily: 'Georgia, serif', fontSize: 13, lineHeight: 1.8, color: 'var(--ink-70)', whiteSpace: 'pre-wrap', background: 'var(--surface)', border: '1px solid var(--navy-border)', borderRadius: 'var(--radius)', padding: '18px', marginBottom: 10 }}>
+                  {renewalEmail}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className="btn-gold" style={{ flex: 1, padding: '9px', fontSize: 11 }} onClick={() => addToast('Email queued for ' + selectedTier?.label + ' tier', 'success', '📧')}>
+                    Queue Campaign
+                  </button>
+                  <button className="btn-ghost" style={{ padding: '9px 14px', fontSize: 11 }} onClick={() => { navigator.clipboard?.writeText(renewalEmail); addToast('Copied!', 'success', '📋'); }}>Copy</button>
+                  <button className="btn-ghost" style={{ padding: '9px 14px', fontSize: 11 }} onClick={() => { setTone(tone); generateRenewalEmail(); }}>↺ Regen</button>
+                </div>
+              </div>
+            )}
+            {!renewalEmail && !emailLoading && (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink-20)' }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>📣</div>
+                <div style={{ fontSize: 13, color: 'var(--ink-45)', fontFamily: 'var(--font-display)' }}>Echo is ready to write</div>
+                <div style={{ fontSize: 11, marginTop: 6 }}>Select a tier and tone, then generate a renewal email that doesn't feel like a bill.</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === 'autopilot' && (
+        <div className="grid-2">
+          <div className="card">
+            <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--ink)', fontFamily: 'var(--font-display)', marginBottom: 4 }}>Auto-Renewal Enrollment</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-45)', marginBottom: 16, lineHeight: 1.6 }}>Auto-renewal is the single highest-impact retention lever available. Members who auto-renew have an 89% retention rate vs 71% for manual renewers.</div>
+            {[
+              { label: 'At sign-up', enrolled: 18, total: 100, desc: 'New members prompted to enable auto-renewal during join flow' },
+              { label: 'At renewal reminder', enrolled: 8, total: 100, desc: '30-day renewal email includes prominent auto-renewal opt-in' },
+              { label: 'In member portal', enrolled: 5, total: 100, desc: 'Self-serve toggle available in member dashboard anytime' },
+            ].map(r => (
+              <div key={r.label} style={{ marginBottom: 14, padding: '12px', background: 'var(--surface-2)', borderRadius: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>{r.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--gold)', fontFamily: 'var(--font-mono)' }}>{r.enrolled}%</span>
+                </div>
+                <div className="progress-track" style={{ marginBottom: 6 }}>
+                  <div className="progress-fill" style={{ width: r.enrolled + '%', background: 'var(--gold)' }} />
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--ink-20)' }}>{r.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card">
+            <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--ink)', fontFamily: 'var(--font-display)', marginBottom: 4 }}>Failed Payment Recovery</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-45)', marginBottom: 16, lineHeight: 1.6 }}>Scout's smart dunning recovers failed payments before they become lapses.</div>
+            {[
+              { day: 'Day 0', action: 'Soft fail detected → pause for 24h', rate: '22% self-resolve' },
+              { day: 'Day 1', action: 'Gentle email: card may have expired', rate: '41% recover here' },
+              { day: 'Day 3', action: 'Retry payment + update card prompt', rate: '18% additional' },
+              { day: 'Day 7', action: 'Personal email from membership team', rate: '9% additional' },
+              { day: 'Day 14', action: 'Grace period end notice + final retry', rate: 'Remaining lapse' },
+            ].map(s => (
+              <div key={s.day} style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'flex-start' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--gold)', fontFamily: 'var(--font-mono)', minWidth: 44, marginTop: 2 }}>{s.day}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', marginBottom: 2 }}>{s.action}</div>
+                  <div style={{ fontSize: 10, color: 'var(--emerald)' }}>{s.rate}</div>
+                </div>
+              </div>
+            ))}
+            <button className="btn-gold" style={{ width: '100%', marginTop: 8, padding: '9px', fontSize: 11 }} onClick={() => addToast('Smart dunning enabled', 'success', '⚡')}>
+              Enable Smart Dunning
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: COMMUNICATION SEQUENCES
+══════════════════════════════════════════════════════ */
+function SequencesPage({ org }) {
+  const [selected, setSelected] = useState(COMM_SEQUENCES[0]);
+  const [draft, setDraft] = useState(null);
+  const [draftLoading, setDraftLoading] = useState(false);
+
+  async function generateSequenceDraft(seq) {
+    setDraft(null); setDraftLoading(true);
+    try {
+      const r = await callClaude(
+        `You are Echo, Membership Communications Officer for ${org.name}. Write a complete ${seq.name} for a ${org.type} association.
+
+Format each step clearly:
+EMAIL [N] — [timing/trigger]
+Subject: [subject]
+Preview: [preheader, 40 chars]
+Body: [2-3 paragraphs, conversational and personal, never generic]
+CTA: [specific action button text]
+---
+
+Write all ${seq.steps} emails in sequence. Each should build on the previous one. Vary the tone and angle across emails. Never repeat the same value point twice.`,
+        `Sequence: ${seq.name}
+Trigger: ${seq.trigger}
+Steps: ${seq.steps}
+Org: ${org.name} (${org.type})`,
+        700
+      );
+      setDraft(r.trim());
+    } catch (e) { setDraft('Unable to generate — check API.'); }
+    setDraftLoading(false);
+  }
+
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px', overflow: 'auto', height: '100%' }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>Communication Sequences</h1>
+        <p style={{ fontSize: 13, color: 'var(--ink-45)' }}>Behavior-triggered, AI-written sequences that run 24/7 — not calendar-triggered spray-and-pray</p>
+      </div>
+
+      {/* The key differentiation callout */}
+      <div className="card-gold" style={{ marginBottom: 20, display: 'flex', gap: 20, alignItems: 'center' }}>
+        <span style={{ fontSize: 32 }}>📣</span>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--gold)', marginBottom: 4 }}>The Echo Difference: Behavior-Triggered, Not Date-Triggered</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-70)', lineHeight: 1.6 }}>
+            WildApricot, MemberClicks, and most AMS send emails on a calendar — "30 days to renewal." Echo monitors engagement behavior in real time. A member who logs in after 90 days of silence triggers a different sequence than one who just attended their third event. Same renewal date, completely different message. That is why our sequences outperform date-triggered systems by 40%+ on open rates.
+          </div>
+        </div>
+      </div>
+
+      <div className="grid-2" style={{ alignItems: 'start' }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-20)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 10 }}>Active Sequences</div>
+          {COMM_SEQUENCES.map(seq => (
+            <div key={seq.id} onClick={() => setSelected(seq)} style={{
+              padding: '14px 16px', borderRadius: 'var(--radius)', marginBottom: 8, cursor: 'pointer',
+              border: `1.5px solid ${selected?.id === seq.id ? 'var(--sky)' : 'var(--ink-08)'}`,
+              background: selected?.id === seq.id ? 'rgba(96,165,250,0.08)' : 'var(--surface)',
+              transition: 'all 0.15s',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>{seq.name}</div>
+                  <div style={{ fontSize: 10, color: 'var(--ink-45)' }}>Trigger: {seq.trigger}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 4, background: seq.active ? 'var(--emerald-dim)' : 'var(--surface-2)', color: seq.active ? 'var(--emerald)' : 'var(--ink-20)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{seq.active ? 'LIVE' : 'DRAFT'}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 16, fontSize: 11 }}>
+                <div><span style={{ color: 'var(--ink-20)' }}>Steps: </span><span style={{ color: 'var(--ink)', fontWeight: 700 }}>{seq.steps}</span></div>
+                {seq.active && (<>
+                  <div><span style={{ color: 'var(--ink-20)' }}>Sent MTD: </span><span style={{ color: 'var(--sky)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{seq.sentMTD}</span></div>
+                  <div><span style={{ color: 'var(--ink-20)' }}>Open rate: </span><span style={{ color: seq.openRate >= 50 ? 'var(--emerald)' : seq.openRate >= 30 ? 'var(--gold)' : 'var(--rose)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{seq.openRate}%</span></div>
+                </>)}
+              </div>
+            </div>
+          ))}
+          <button onClick={() => addToast('New sequence builder opened', 'info', '✨')} className="btn-ghost" style={{ width: '100%', marginTop: 4, padding: '9px', fontSize: 11 }}>
+            + Create New Sequence
+          </button>
+        </div>
+
+        <div>
+          {selected && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <PersonaBadge personaId="comms" />
+                <button onClick={() => generateSequenceDraft(selected)} disabled={draftLoading} className="btn-gold" style={{ fontSize: 11, padding: '7px 14px' }}>
+                  {draftLoading ? '✍️ Writing...' : '✍️ Generate All Emails'}
+                </button>
+              </div>
+
+              {draftLoading && (
+                <div className="card">{[90, 70, 85, 60, 80, 55, 75].map((w, i) => <div key={i} className="skeleton" style={{ height: 13, width: w + '%', marginBottom: 10 }} />)}</div>
+              )}
+
+              {draft && !draftLoading && (
+                <div className="fade-in">
+                  <div style={{ fontFamily: 'Georgia, serif', fontSize: 12, lineHeight: 1.85, color: 'var(--ink-70)', whiteSpace: 'pre-wrap', background: 'var(--surface)', border: '1px solid var(--navy-border)', borderRadius: 'var(--radius)', padding: '18px', maxHeight: 520, overflowY: 'auto', marginBottom: 10 }}>
+                    {draft}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn-gold" style={{ flex: 1, padding: '9px', fontSize: 11 }} onClick={() => addToast('Sequence saved and activated', 'success', '🚀')}>
+                      Activate Sequence
+                    </button>
+                    <button className="btn-ghost" style={{ padding: '9px 14px', fontSize: 11 }} onClick={() => { navigator.clipboard?.writeText(draft); addToast('Copied!', 'success', '📋'); }}>Copy All</button>
+                  </div>
+                </div>
+              )}
+
+              {!draft && !draftLoading && (
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink-20)' }}>
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>📧</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, color: 'var(--ink-45)', marginBottom: 6 }}>Ready to generate</div>
+                  <div style={{ fontSize: 11, lineHeight: 1.6 }}>Click "Generate All Emails" and Echo will write the complete {selected.steps}-email {selected.name} — ready to activate.</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: ANALYTICS
+══════════════════════════════════════════════════════ */
+function AnalyticsPage({ org }) {
+  const [marloweSummary, setMarloweSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
+  async function getMarloweSummary() {
+    setSummaryLoading(true); setMarloweSummary(null);
+    try {
+      const r = await callClaude(
+        `You are Marlowe, Director of Membership. Write a concise board-ready analytics summary covering:
+1. MEMBERSHIP HEALTH (1-2 sentences with key numbers)
+2. REVENUE PERFORMANCE (1-2 sentences on dues trends)
+3. KEY RISK (one specific concern with data)
+4. RECOMMENDED BOARD ACTION (one concrete recommendation)
+
+Use the data provided. Be direct and data-driven. No filler.`,
+        `Org: ${org.name}
+Paid members: ${org.paidMembers.toLocaleString()} (${Math.round(org.paidMembers/org.totalMembers*100)}% of ${org.totalMembers.toLocaleString()} total)
+Renewal rate: ${org.renewalRate}% (industry: 84%)
+First-year renewal: ${org.firstYearRate}% (industry: 63-75%)
+Avg engagement score: ${org.avgEngagementScore}/100
+At-risk members: ${MEMBERS.filter(m => m.lapseProbability >= 60).length}
+Lapsed members: ${MEMBERS.filter(m => m.status === 'lapsed').length}`,
+        280
+      );
+      setMarloweSummary(r.trim());
+    } catch (e) { setMarloweSummary('Unable to generate — check API.'); }
+    setSummaryLoading(false);
+  }
+
+  useEffect(() => { getMarloweSummary(); }, []);
+
+  const pieData = [
+    { name: 'Active', value: 65, color: '#34d399' },
+    { name: 'At Risk', value: 18, color: '#fbbf24' },
+    { name: 'Lapsed', value: 17, color: '#f87171' },
+  ];
+
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px', overflow: 'auto', height: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>Analytics</h1>
+          <p style={{ fontSize: 13, color: 'var(--ink-45)' }}>Marlowe's board-ready membership intelligence dashboard</p>
+        </div>
+        <button onClick={getMarloweSummary} disabled={summaryLoading} className="btn-gold">
+          {summaryLoading ? '🎯 Analyzing...' : '🎯 Marlowe: Board Summary'}
+        </button>
+      </div>
+
+      {/* Marlowe Board Summary */}
+      {(marloweSummary || summaryLoading) && (
+        <div className="card-gold" style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 12 }}>
+            <PersonaBadge personaId="director" />
+            <span style={{ fontSize: 11, color: 'var(--ink-20)' }}>Board Report · {new Date().toLocaleDateString()}</span>
+          </div>
+          {summaryLoading ? (
+            <div>{[85, 65, 90, 55].map((w, i) => <div key={i} className="skeleton" style={{ height: 13, width: w + '%', marginBottom: 10 }} />)}</div>
+          ) : (
+            <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'var(--ink-70)', whiteSpace: 'pre-wrap' }}>{marloweSummary}</div>
+          )}
+        </div>
+      )}
+
+      <div className="grid-4" style={{ marginBottom: 20 }}>
+        {[
+          { l: 'Total Members',    v: org.totalMembers.toLocaleString(), color: 'var(--ink)' },
+          { l: 'Paid Members',     v: org.paidMembers.toLocaleString(),  color: 'var(--gold)' },
+          { l: 'Conversion Rate',  v: Math.round(org.paidMembers/org.totalMembers*100) + '%', color: 'var(--sky)' },
+          { l: 'Est. Annual Dues', v: '$' + Math.round(org.paidMembers * 85 / 1000) + 'K', color: 'var(--emerald)' },
+        ].map(s => (
+          <div key={s.l} className="stat-tile">
+            <div className="stat-val" style={{ color: s.color }}>{s.v}</div>
+            <div className="stat-label">{s.l}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid-2">
+        {/* Status pie */}
+        <div className="card">
+          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-45)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>Member Status Distribution</div>
+          {PieChart ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={pieData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, value }) => `${name}: ${value}%`} labelLine={false}>
+                  {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ background: '#132640', border: '1px solid #2a4a6e', borderRadius: 8, color: '#f0f4ff', fontSize: 11 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : <div style={{ height: 200 }} />}
+        </div>
+
+        {/* Benchmark comparison */}
+        <div className="card">
+          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-45)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 16 }}>vs Industry Benchmarks</div>
+          {[
+            { metric: 'Overall Renewal Rate', ours: org.renewalRate, benchmark: 84, unit: '%' },
+            { metric: 'First-Year Renewal',   ours: org.firstYearRate, benchmark: 69, unit: '%' },
+            { metric: 'Avg Engagement Score', ours: org.avgEngagementScore, benchmark: 55, unit: '/100' },
+            { metric: 'Auto-Renew Enrolled',  ours: 31, benchmark: 28, unit: '%' },
+          ].map(b => (
+            <div key={b.metric} style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)' }}>{b.metric}</span>
+                <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                  <span style={{ fontSize: 10, color: 'var(--ink-20)' }}>Industry: {b.benchmark}{b.unit}</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: b.ours >= b.benchmark ? 'var(--emerald)' : 'var(--rose)', fontFamily: 'var(--font-mono)' }}>{b.ours}{b.unit}</span>
+                </div>
+              </div>
+              <div style={{ height: 6, background: 'var(--ink-08)', borderRadius: 3, overflow: 'hidden', position: 'relative' }}>
+                <div style={{ position: 'absolute', left: Math.min(b.benchmark, 100) + '%', top: 0, bottom: 0, width: 2, background: 'var(--ink-20)', zIndex: 1, transform: 'translateX(-50%)' }} />
+                <div className="progress-fill" style={{ width: Math.min(b.ours, 100) + '%', background: b.ours >= b.benchmark ? 'var(--emerald)' : 'var(--rose)' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: BENCHMARKS
+══════════════════════════════════════════════════════ */
+function BenchmarksPage({ org }) {
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px', overflow: 'auto', height: '100%' }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>Industry Benchmarks</h1>
+        <p style={{ fontSize: 13, color: 'var(--ink-45)' }}>2025 data from MGI Membership Marketing Benchmarking Report + Momentive Software Association Trends Study</p>
+      </div>
+
+      <div style={{ background: 'linear-gradient(135deg, var(--navy-light) 0%, var(--navy-mid) 100%)', border: '1px solid var(--navy-border)', borderRadius: 'var(--radius-lg)', padding: '20px 24px', marginBottom: 24 }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 10 }}>Why Most Membership Platforms Are Failing Members in 2025</div>
+        <div className="grid-3">
+          {[
+            { stat: '55%', desc: 'of associations report flat or declining retention (Sequence Consulting 2026)' },
+            { stat: '11%', desc: 'describe their value proposition as "very compelling" (MGI 2025)' },
+            { stat: '52%', desc: 'of non-renewals cite lack of engagement — not price — as their reason' },
+          ].map(s => (
+            <div key={s.stat} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 32, fontWeight: 900, color: 'var(--gold)', fontFamily: 'var(--font-mono)', marginBottom: 6 }}>{s.stat}</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-45)', lineHeight: 1.5 }}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid-2" style={{ marginBottom: 20 }}>
+        <div className="card">
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--ink)', fontFamily: 'var(--font-display)', marginBottom: 14 }}>Renewal Rate Benchmarks (All Associations)</div>
+          {[
+            { segment: 'Overall median',          rate: 84 },
+            { segment: 'First-year members',       rate: 69 },
+            { segment: 'Members 5+ years',         rate: 91 },
+            { segment: 'Young alumni (0–5 yrs)',   rate: 58 },
+            { segment: 'Life/sustaining members',  rate: 97 },
+            { segment: 'Corporate/org members',    rate: 88 },
+          ].map(r => (
+            <div key={r.segment} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <span style={{ fontSize: 11, color: 'var(--ink-70)', flex: 1 }}>{r.segment}</span>
+              <div className="progress-track" style={{ width: 120, flexShrink: 0 }}>
+                <div className="progress-fill" style={{ width: r.rate + '%', background: r.rate >= 85 ? 'var(--emerald)' : r.rate >= 70 ? 'var(--gold)' : 'var(--rose)' }} />
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink)', fontFamily: 'var(--font-mono)', minWidth: 32, textAlign: 'right' }}>{r.rate}%</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="card">
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--ink)', fontFamily: 'var(--font-display)', marginBottom: 14 }}>How Orbit Outperforms Standard AMS</div>
+          {[
+            { feature: 'Behavior-triggered sequences vs date-triggered', orbit: true,  others: false },
+            { feature: 'Predictive lapse scoring (ML signals)',          orbit: true,  others: false },
+            { feature: 'AI-written personalized communications',         orbit: true,  others: false },
+            { feature: 'Three bundled officer personas',                 orbit: true,  others: false },
+            { feature: 'Smart failed-payment dunning',                   orbit: true,  others: '50%' },
+            { feature: 'Engagement ladder tracking',                     orbit: true,  others: '25%' },
+            { feature: 'Auto-renewal with transparent opt-out',          orbit: true,  others: '60%' },
+            { feature: 'Board-ready AI analytics summaries',             orbit: true,  others: false },
+          ].map(f => (
+            <div key={f.feature} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '7px 0', borderBottom: '1px solid var(--ink-04)' }}>
+              <span style={{ fontSize: 11, color: 'var(--ink-70)', flex: 1 }}>{f.feature}</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--emerald)', minWidth: 44, textAlign: 'center' }}>✓</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: f.others === false ? 'var(--rose)' : 'var(--gold)', minWidth: 44, textAlign: 'center' }}>{f.others === false ? '✗' : f.others === true ? '✓' : f.others}</span>
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 10, color: 'var(--ink-20)' }}>
+            <span style={{ minWidth: 44, textAlign: 'center', color: 'var(--emerald)', fontWeight: 700 }}>Orbit</span>
+            <span style={{ minWidth: 44, textAlign: 'center', color: 'var(--ink-20)' }}>Others</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE: SETTINGS
+══════════════════════════════════════════════════════ */
+function SettingsPage({ org, setOrg }) {
+  const [tab, setTab] = useState('org');
+  return (
+    <div className="fade-in" style={{ padding: '28px 32px', overflow: 'auto', height: '100%' }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>Org Settings</h1>
+      </div>
+
+      <div className="tab-bar">
+        <button className={`tab-btn ${tab === 'org' ? 'active' : ''}`} onClick={() => setTab('org')}>Organization</button>
+        <button className={`tab-btn ${tab === 'model' ? 'active' : ''}`} onClick={() => setTab('model')}>Membership Model</button>
+        <button className={`tab-btn ${tab === 'officers' ? 'active' : ''}`} onClick={() => setTab('officers')}>Officer Personas</button>
+      </div>
+
+      {tab === 'org' && (
+        <div style={{ maxWidth: 480 }}>
+          <div className="card" style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-45)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 14 }}>Switch Demo Organization</div>
+            {Object.values(ORG_PROFILES).map(o => (
+              <div key={o.short} onClick={() => { setOrg(o); addToast('Switched to ' + o.name, 'success', '🏛️'); }} style={{
+                padding: '14px', borderRadius: 10, marginBottom: 8, cursor: 'pointer',
+                border: `1.5px solid ${org.short === o.short ? 'var(--gold)' : 'var(--ink-08)'}`,
+                background: org.short === o.short ? 'var(--gold-pale)' : 'var(--surface)',
+              }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: org.short === o.short ? 'var(--gold)' : 'var(--ink)', marginBottom: 4 }}>{o.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--ink-45)' }}>{o.type === 'alumni' ? '🎓 Alumni Association' : '🏛️ Professional Association'} · {o.paidMembers.toLocaleString()} paid members</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === 'model' && (
+        <div style={{ maxWidth: 560 }}>
+          <div className="card">
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--ink-45)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 14 }}>Membership Model Configuration</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-45)', marginBottom: 16, lineHeight: 1.6 }}>Currently configured for: <strong style={{ color: 'var(--gold)' }}>{org.type === 'alumni' ? 'Alumni Association (dues-optional)' : 'Professional Association (dues-required)'}</strong></div>
+            {[
+              { label: 'Model Type',          val: org.type === 'alumni' ? 'Alumni Dues (opt-in tiers)' : 'Professional Dues (required for benefits)' },
+              { label: 'Tiers Available',     val: org.dues.length + ' tiers configured' },
+              { label: 'Dues Range',          val: '$' + Math.min(...org.dues.map(d=>d.price)) + ' – $' + Math.max(...org.dues.map(d=>d.price)) + '/year' },
+              { label: 'Auto-Renewal',        val: 'Enabled (transparent opt-out)' },
+              { label: 'Grace Period',        val: '30 days post-expiry' },
+              { label: 'Failed Payment Recovery', val: 'Smart dunning (5-step)' },
+            ].map(r => (
+              <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid var(--ink-04)', fontSize: 12 }}>
+                <span style={{ color: 'var(--ink-45)' }}>{r.label}</span>
+                <span style={{ color: 'var(--ink)', fontWeight: 600 }}>{r.val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === 'officers' && (
+        <div className="grid-3">
+          {Object.values(PERSONAS).map(p => (
+            <div key={p.id} className="card" style={{ border: `1px solid ${p.color}25` }}>
+              <div style={{ fontSize: 32, marginBottom: 10 }}>{p.icon}</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: p.color, fontFamily: 'var(--font-display)', marginBottom: 4 }}>{p.name}</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-45)', marginBottom: 10 }}>{p.title}</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-70)', lineHeight: 1.65, marginBottom: 12 }}>{p.voice}</div>
+              <div style={{ fontSize: 10, color: 'var(--ink-20)', fontStyle: 'italic' }}>Focus: {p.focus}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
+                <span className="pulsedot" style={{ background: p.color, boxShadow: `0 0 0 0 ${p.color}60` }} />
+                <span style={{ fontSize: 10, color: p.color, fontWeight: 700 }}>Active 24/7</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   PLACEHOLDER PAGES
+══════════════════════════════════════════════════════ */
+function PlaceholderPage({ title, subtitle, icon }) {
+  return (
+    <div className="fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 16, padding: 40 }}>
+      <div style={{ fontSize: 64 }}>{icon}</div>
+      <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)', textAlign: 'center' }}>{title}</h2>
+      <p style={{ fontSize: 14, color: 'var(--ink-45)', textAlign: 'center', maxWidth: 400, lineHeight: 1.6 }}>{subtitle}</p>
+      <button className="btn-gold" onClick={() => addToast('Coming in next sprint!', 'info', '🚀')}>Request Early Access</button>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   APP ROOT
+══════════════════════════════════════════════════════ */
+function App() {
+  const [page, setPage] = useState('overview');
+  const [org, setOrg] = useState(ORG_PROFILES.alumni);
+
+  const PAGE_MAP = {
+    overview:    () => <OverviewPage org={org} />,
+    ai_officers: () => <AIConsolePage org={org} />,
+    members:     () => <MembersPage org={org} />,
+    segments:    () => <PlaceholderPage title="Segments & Scoring" subtitle="AI-powered member cohort builder with behavioral scoring and tier migration recommendations." icon="🎯" />,
+    lapse:       () => <LapsePage org={org} />,
+    dues:        () => <DuesPage org={org} />,
+    pipeline:    () => <PlaceholderPage title="Revenue Pipeline" subtitle="Multi-year dues forecasting, upgrade potential scoring, and non-dues revenue modeling." icon="📈" />,
+    sequences:   () => <SequencesPage org={org} />,
+    campaigns:   () => <PlaceholderPage title="Campaigns" subtitle="Multi-channel membership campaigns with A/B testing, timing optimization, and Scout/Echo co-creation." icon="🗂" />,
+    events:      () => <PlaceholderPage title="Events & Benefits" subtitle="Event-driven engagement tracking, benefit utilization analytics, and automatic ladder progression." icon="📅" />,
+    analytics:   () => <AnalyticsPage org={org} />,
+    benchmarks:  () => <BenchmarksPage org={org} />,
+    settings:    () => <SettingsPage org={org} setOrg={setOrg} />,
+  };
+
+  const PageComponent = PAGE_MAP[page] || PAGE_MAP.overview;
+
+  return (
+    <div style={{ display: 'flex', width: '100%', height: '100vh', overflow: 'hidden' }}>
+      <Sidebar page={page} setPage={setPage} org={org} />
+      <div style={{ flex: 1, overflow: 'auto', background: 'var(--navy)' }}>
+        {PageComponent()}
+      </div>
+      <ToastStack />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,665 @@
+openapi: 3.1.0
+info:
+  title: Orbit Fundraising Intelligence API
+  version: 1.0.0
+  description: |
+    Backend API for the Orbit autonomous fundraising platform.
+    Serves the dashboard frontend and orchestrates CRM sync, AI agents, and webhooks.
+
+servers:
+  - url: http://localhost:3001/api/v1
+    description: Local development
+  - url: https://api.orbitfundraising.com/api/v1
+    description: Production
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Donor:
+      type: object
+      properties:
+        id:          { type: string }
+        externalIds: { type: object, additionalProperties: { type: string } }
+        name:        { type: string }
+        email:       { type: string, format: email }
+        phone:       { type: string }
+        org:         { type: string }
+        title:       { type: string }
+        stage:       { type: string, enum: [prospect, engaged, active, major_prospect, lapsed, loyal, legacy_prospect, stewardship] }
+        assignedAgent: { type: string, enum: [VEO, VSO, VPGO, VCO] }
+        scores:
+          type: object
+          properties:
+            propensity:  { type: number }
+            engagement:  { type: number }
+            sentiment:   { type: string, enum: [rising, stable, cooling] }
+        giving:
+          type: object
+          properties:
+            lifetime:    { type: number }
+            lastAmount:  { type: number }
+            lastDate:    { type: string, format: date }
+            totalGifts:  { type: integer }
+        preferences:
+          type: object
+          properties:
+            channel:     { type: string }
+            smsOptIn:    { type: boolean }
+            emailOptOut: { type: boolean }
+            doNotContact:{ type: boolean }
+        interests:     { type: array, items: { type: string } }
+        alumniYear:    { type: integer }
+        createdAt:     { type: string, format: date-time }
+        updatedAt:     { type: string, format: date-time }
+
+    Gift:
+      type: object
+      properties:
+        id:           { type: string }
+        donorId:      { type: string }
+        amount:       { type: number }
+        date:         { type: string, format: date }
+        fund:         { type: string }
+        campaign:     { type: string }
+        appeal:       { type: string }
+        type:         { type: string, enum: [Cash, Pledge, "Recurring Gift", Stock, "In-Kind", "Matching Gift", Bequest] }
+        status:       { type: string, enum: [completed, pending, failed, refunded] }
+        acknowledged: { type: boolean }
+        receiptSent:  { type: boolean }
+
+    Pledge:
+      type: object
+      properties:
+        id:           { type: string }
+        donorId:      { type: string }
+        totalAmount:  { type: number }
+        paidAmount:   { type: number }
+        remaining:    { type: number }
+        installment:  { type: number }
+        fund:         { type: string }
+        nextDueDate:  { type: string, format: date }
+        status:       { type: string, enum: [current, overdue, at-risk, completed, cancelled] }
+        totalYears:   { type: integer }
+
+    Campaign:
+      type: object
+      properties:
+        id:           { type: string }
+        name:         { type: string }
+        status:       { type: string, enum: [draft, live, paused, completed] }
+        assignedAgent:{ type: string }
+        goal:         { type: number }
+        raised:       { type: number }
+        donorCount:   { type: integer }
+        channel:      { type: string }
+        startDate:    { type: string, format: date }
+        endDate:      { type: string, format: date }
+
+    AgentActivity:
+      type: object
+      properties:
+        id:           { type: string }
+        agent:        { type: string }
+        donorId:      { type: string }
+        donorName:    { type: string }
+        type:         { type: string }
+        title:        { type: string }
+        detail:       { type: string }
+        amount:       { type: number }
+        timestamp:    { type: string, format: date-time }
+
+    Integration:
+      type: object
+      properties:
+        id:           { type: string }
+        provider:     { type: string, enum: [salesforce, hubspot, blackbaud, stripe, docusign, twilio] }
+        status:       { type: string, enum: [connected, disconnected, error, syncing] }
+        lastSyncAt:   { type: string, format: date-time }
+        config:       { type: object }
+        syncStats:
+          type: object
+          properties:
+            recordsSynced: { type: integer }
+            errors:        { type: integer }
+            successRate:   { type: number }
+
+    SyncEvent:
+      type: object
+      properties:
+        id:        { type: string }
+        provider:  { type: string }
+        type:      { type: string }
+        status:    { type: string, enum: [ok, warn, error] }
+        message:   { type: string }
+        timestamp: { type: string, format: date-time }
+
+    ApiError:
+      type: object
+      properties:
+        error:   { type: string }
+        message: { type: string }
+        code:    { type: integer }
+
+paths:
+  # ── METRICS ──────────────────────────────────────────────────────────────────
+  /metrics/overview:
+    get:
+      summary: Overview KPI tiles
+      tags: [Metrics]
+      responses:
+        '200':
+          description: KPI snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  raisedThisMonth:    { type: number }
+                  raisedLastMonth:    { type: number }
+                  raisedTrend:        { type: number }
+                  activeDonors:       { type: integer }
+                  activeDonorsTrend:  { type: integer }
+                  openPledges:        { type: number }
+                  openPledgesTrend:   { type: number }
+                  retentionRate:      { type: number }
+                  retentionTrend:     { type: number }
+                  newDonors:          { type: integer }
+                  lapsedDonors:       { type: integer }
+
+  /metrics/revenue:
+    get:
+      summary: Monthly revenue vs goal chart data
+      tags: [Metrics]
+      parameters:
+        - name: months
+          in: query
+          schema: { type: integer, default: 9 }
+      responses:
+        '200':
+          description: Revenue timeseries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    month:  { type: string }
+                    raised: { type: number }
+                    goal:   { type: number }
+
+  /metrics/retention:
+    get:
+      summary: Retention trend data
+      tags: [Metrics]
+      responses:
+        '200':
+          description: Retention timeseries
+
+  /metrics/drill/{tile}:
+    get:
+      summary: KPI tile drill-down data
+      tags: [Metrics]
+      parameters:
+        - name: tile
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [raised, donors, pledges, retention]
+      responses:
+        '200':
+          description: Full drill-down dataset for tile
+
+  # ── DONORS ────────────────────────────────────────────────────────────────────
+  /donors:
+    get:
+      summary: List donors
+      tags: [Donors]
+      parameters:
+        - name: stage
+          in: query
+          schema: { type: string }
+        - name: agent
+          in: query
+          schema: { type: string }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: minScore
+          in: query
+          schema: { type: integer }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: Paginated donor list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:  { type: array, items: { $ref: '#/components/schemas/Donor' } }
+                  total: { type: integer }
+                  page:  { type: integer }
+                  pages: { type: integer }
+
+  /donors/{id}:
+    get:
+      summary: Get donor by ID
+      tags: [Donors]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Donor record
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Donor' }
+        '404':
+          description: Not found
+
+    patch:
+      summary: Update donor (stage, agent, preferences)
+      tags: [Donors]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Donor' }
+      responses:
+        '200':
+          description: Updated donor
+
+  /donors/{id}/gifts:
+    get:
+      summary: Get all gifts for a donor
+      tags: [Donors]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Gift list
+
+  /donors/{id}/ai-brief:
+    post:
+      summary: Generate AI donor briefing (calls Claude API)
+      tags: [Donors, AI]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purpose: { type: string, description: "e.g. 'meeting prep', 'ask strategy'" }
+      responses:
+        '200':
+          description: AI-generated briefing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  brief:   { type: string }
+                  talking_points: { type: array, items: { type: string } }
+                  ask_strategy:   { type: string }
+
+  # ── GIFTS ────────────────────────────────────────────────────────────────────
+  /gifts:
+    get:
+      summary: List gifts
+      tags: [Gifts]
+      parameters:
+        - name: donorId
+          in: query
+          schema: { type: string }
+        - name: fund
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string }
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Gift list
+
+  /pledges:
+    get:
+      summary: List open pledges
+      tags: [Gifts]
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string }
+        - name: dueBefore
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Pledge list
+
+  # ── AGENTS ────────────────────────────────────────────────────────────────────
+  /agents/{key}/queue:
+    get:
+      summary: Get agent donor queue (prioritized)
+      tags: [Agents]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema: { type: string, enum: [VEO, VSO, VPGO, VCO] }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: Prioritized donor list for agent
+
+  /agents/{key}/activity:
+    get:
+      summary: Agent activity feed
+      tags: [Agents]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema: { type: string }
+        - name: since
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Activity log
+
+  /agents/{key}/config:
+    get:
+      summary: Get agent configuration
+      tags: [Agents]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Agent config object
+
+    put:
+      summary: Save agent configuration
+      tags: [Agents]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Full agent config (persona, cadence, thresholds, channels, etc.)
+      responses:
+        '200':
+          description: Saved config
+
+  /agents/{key}/run:
+    post:
+      summary: Trigger agent action on a donor (AI reasoning + outreach)
+      tags: [Agents, AI]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                donorId: { type: string }
+                action:  { type: string, enum: [brief, compose, schedule, send] }
+      responses:
+        '200':
+          description: Agent action result with AI reasoning trace
+
+  # ── CAMPAIGNS ─────────────────────────────────────────────────────────────────
+  /campaigns:
+    get:
+      summary: List campaigns
+      tags: [Campaigns]
+      responses:
+        '200':
+          description: Campaign list
+
+    post:
+      summary: Create campaign
+      tags: [Campaigns]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Campaign' }
+      responses:
+        '201':
+          description: Created
+
+  /campaigns/{id}:
+    get:
+      summary: Get campaign
+      tags: [Campaigns]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Campaign with full stats
+
+    patch:
+      summary: Update campaign
+      tags: [Campaigns]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Campaign' }
+      responses:
+        '200':
+          description: Updated
+
+  # ── INTEGRATIONS ──────────────────────────────────────────────────────────────
+  /integrations:
+    get:
+      summary: List all integrations and their status
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Integration list with live status
+
+  /integrations/{provider}/connect:
+    post:
+      summary: Save credentials and initiate connection
+      tags: [Integrations]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Provider-specific credentials (encrypted server-side)
+      responses:
+        '200':
+          description: Connection result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:  { type: string }
+                  message: { type: string }
+                  syncId:  { type: string }
+
+  /integrations/{provider}/test:
+    post:
+      summary: Test connection with stored or submitted credentials
+      tags: [Integrations]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Test result
+
+  /integrations/{provider}/sync:
+    post:
+      summary: Force an immediate sync
+      tags: [Integrations]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '202':
+          description: Sync job queued
+
+  /integrations/{provider}/status:
+    get:
+      summary: Live sync health and recent events
+      tags: [Integrations]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Sync dashboard data
+
+  /integrations/{provider}/disconnect:
+    delete:
+      summary: Disconnect and remove stored credentials
+      tags: [Integrations]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Disconnected
+
+  # ── WEBHOOKS (inbound from CRMs) ──────────────────────────────────────────────
+  /webhooks/hubspot:
+    post:
+      summary: HubSpot webhook receiver
+      tags: [Webhooks]
+      security: []
+      responses:
+        '200': { description: Acknowledged }
+
+  /webhooks/salesforce:
+    post:
+      summary: Salesforce outbound message receiver
+      tags: [Webhooks]
+      security: []
+      responses:
+        '200': { description: Acknowledged }
+
+  /webhooks/renxt:
+    post:
+      summary: Raiser's Edge NXT SKY API webhook receiver
+      tags: [Webhooks]
+      security: []
+      responses:
+        '200': { description: Acknowledged }
+
+  /webhooks/stripe:
+    post:
+      summary: Stripe payment event receiver
+      tags: [Webhooks]
+      security: []
+      responses:
+        '200': { description: Acknowledged }
+
+  # ── AUTH ──────────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      summary: Login (returns JWT)
+      tags: [Auth]
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:    { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: JWT token pair
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:  { type: string }
+                  refreshToken: { type: string }
+                  user:         { type: object }
+
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      tags: [Auth]
+      security: []
+      responses:
+        '200':
+          description: New access token
+
+  /auth/me:
+    get:
+      summary: Get current user profile
+      tags: [Auth]
+      responses:
+        '200':
+          description: User object

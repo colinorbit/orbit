@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Orbit: Communications Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f5;color:#1a1d23;min-height:100vh}
+:root{
+  --bg:#f0f2f5;--surface:#fff;--s2:#f7f8fa;--s3:#edf0f4;
+  --ink:#1a1d23;--ink70:rgba(26,29,35,.70);--ink45:rgba(26,29,35,.45);--ink20:rgba(26,29,35,.12);
+  --teal:#2a8c7e;--tealh:#1f6e63;--teall:#e4f4f1;--tealm:#48a99d;
+  --coral:#cc6d52;--corall:#faede8;
+  --amber:#c2853a;--amberl:#fdf2e4;
+  --slate:#5a6da8;--slatel:#edf0fa;
+  --green:#16a34a;--greenl:#dcfce7;
+  --red:#dc2626;--redl:#fee2e2;
+  --purple:#7c3aed;--purplel:#ede9fe;
+  --sidebar:#1a1d23;--mono:'JetBrains Mono',monospace;
+  --radius:10px;--shadow:0 2px 8px rgba(26,29,35,.08);
+  --shadow-lg:0 8px 32px rgba(26,29,35,.12);
+  --token-teal:rgba(42,140,126,.12);--token-teal-border:rgba(42,140,126,.35);
+}
+/* Layout */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;background:var(--sidebar);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.sb-brand{padding:20px 16px 12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.sb-dot{width:28px;height:28px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.sb-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.sb-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px;font-family:var(--mono)}
+.sb-nav{flex:1;padding:10px 8px}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:14px 8px 6px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;cursor:pointer;color:rgba(255,255,255,.6);font-size:12.5px;font-weight:500;transition:all .15s;position:relative;margin-bottom:1px}
+.sb-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.sb-item.active{background:var(--teal);color:#fff;font-weight:700}
+.sb-item .badge{margin-left:auto;background:rgba(255,255,255,.15);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700}
+.sb-item.active .badge{background:rgba(255,255,255,.25)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--ink20);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
+.tb-title{font-size:15px;font-weight:700;color:var(--ink)}
+.tb-sub{font-size:12px;color:var(--ink45);margin-left:4px}
+.tb-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.content{flex:1;overflow-y:auto;padding:24px}
+.content::-webkit-scrollbar{width:5px}.content::-webkit-scrollbar-thumb{background:var(--ink20);border-radius:3px}
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--ink20);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--ink20);display:flex;align-items:center;gap:10px}
+.card-title{font-size:13px;font-weight:700;color:var(--ink)}
+.card-bd{padding:16px 18px}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:var(--tealh)}
+.btn-ghost{background:transparent;color:var(--ink70);border:1px solid var(--ink20)}.btn-ghost:hover{background:var(--s2);color:var(--ink)}
+.btn-sm{padding:5px 10px;font-size:11.5px}
+.btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:7px}
+/* Forms */
+.fl{display:block;font-size:11.5px;font-weight:600;color:var(--ink70);margin-bottom:5px}
+.fi{width:100%;padding:8px 10px;border:1px solid var(--ink20);border-radius:7px;font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border .15s}
+.fi:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,140,126,.1)}
+.fsel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a1d23' opacity='.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.fta{resize:vertical;min-height:80px;line-height:1.6}
+/* Tabs */
+.tabs{display:flex;gap:2px;background:var(--s2);border-radius:8px;padding:3px}
+.tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink70);transition:all .15s}
+.tab.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(26,29,35,.08)}
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:5px;font-size:10.5px;font-weight:700}
+.bg-teal{background:var(--teall);color:var(--teal)}
+.bg-green{background:var(--greenl);color:var(--green)}
+.bg-red{background:var(--redl);color:var(--red)}
+.bg-amber{background:var(--amberl);color:var(--amber)}
+.bg-slate{background:var(--slatel);color:var(--slate)}
+.bg-coral{background:var(--corall);color:var(--coral)}
+.bg-purple{background:var(--purplel);color:var(--purple)}
+/* Toast */
+.toast-wrap{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);pointer-events:auto;animation:slideIn .2s ease}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(26,29,35,.5);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(2px)}
+.modal{background:var(--surface);border-radius:12px;box-shadow:var(--shadow-lg);width:600px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column}
+.mh{padding:18px 20px;border-bottom:1px solid var(--ink20);display:flex;align-items:center;justify-content:space-between}
+.mh-title{font-size:15px;font-weight:700}
+.mb{padding:20px;overflow-y:auto;flex:1}
+.mf{padding:14px 20px;border-top:1px solid var(--ink20);display:flex;justify-content:flex-end;gap:8px}
+/* ════════════════════════════════════════════════════════════
+   PERSONALIZATION / TOKEN SYSTEM
+   ════════════════════════════════════════════════════════════ */
+/* Token chips (in panel) */
+.token-panel{background:var(--surface);border:1px solid var(--ink20);border-radius:var(--radius);display:flex;flex-direction:column;height:100%}
+.token-panel-hd{padding:12px 14px;border-bottom:1px solid var(--ink20)}
+.token-panel-title{font-size:12px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
+.token-search{width:100%;padding:6px 10px;border:1px solid var(--ink20);border-radius:6px;font-size:12px;font-family:inherit;outline:none;margin-top:8px;background:var(--s2)}
+.token-search:focus{border-color:var(--teal)}
+.token-cats{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.token-cat-btn{padding:3px 8px;border-radius:5px;font-size:10.5px;font-weight:600;cursor:pointer;border:1px solid var(--ink20);background:var(--s2);color:var(--ink70);transition:all .15s}
+.token-cat-btn.active{background:var(--teall);border-color:var(--teal);color:var(--teal)}
+.token-list{flex:1;overflow-y:auto;padding:8px}
+.token-list::-webkit-scrollbar{width:3px}.token-list::-webkit-scrollbar-thumb{background:var(--ink20);border-radius:2px}
+.token-group-label{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink45);padding:8px 4px 4px;display:flex;align-items:center;gap:6px}
+.token-chip{display:flex;align-items:center;gap:6px;padding:6px 9px;margin:2px 0;border-radius:7px;cursor:grab;background:var(--s2);border:1px solid transparent;font-size:11.5px;transition:all .15s;user-select:none}
+.token-chip:hover{background:var(--teall);border-color:var(--token-teal-border);color:var(--teal)}
+.token-chip:active{cursor:grabbing;transform:scale(.97)}
+.token-chip .token-code{font-family:var(--mono);font-size:10.5px;color:var(--teal);background:var(--teall);padding:1px 5px;border-radius:4px;flex-shrink:0}
+.token-chip .token-lbl{font-weight:600;color:var(--ink);font-size:11.5px}
+.token-chip .token-drag{color:var(--ink45);font-size:11px;margin-right:2px}
+.token-chip .token-preview{font-size:10.5px;color:var(--ink45);font-style:italic;margin-left:auto}
+.token-chip-custom{border-color:rgba(124,58,237,.2)}
+/* Token chips rendered INSIDE text editors */
+.token-highlight{display:inline-flex;align-items:center;gap:3px;background:var(--token-teal);border:1px solid var(--token-teal-border);color:var(--teal);border-radius:5px;padding:1px 6px;font-size:11.5px;font-weight:600;font-family:var(--mono);white-space:nowrap;vertical-align:middle;cursor:default}
+/* Drop zone highlighting */
+.drop-active{border-color:var(--teal)!important;box-shadow:0 0 0 3px rgba(42,140,126,.15)!important;background:rgba(42,140,126,.03)!important}
+/* Preview mode token rendering */
+.preview-token{background:#fff3d0;border-radius:3px;padding:0 3px;font-weight:600;color:#92400e}
+/* Custom token builder */
+.custom-token-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;padding:8px 0;border-top:1px solid var(--ink20)}
+/* SMS char counter */
+.sms-meta{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--ink45);padding:6px 10px;background:var(--s2);border-radius:6px}
+.sms-meta .warn{color:var(--amber);font-weight:600}
+.sms-meta .over{color:var(--red);font-weight:600}
+/* ════════════════════════════════════════════════════════════
+   EMAIL DESIGNER
+   ════════════════════════════════════════════════════════════ */
+.email-canvas{background:#f8f9fa;border:1px solid var(--ink20);border-radius:8px;min-height:500px}
+.email-block{border:2px solid transparent;border-radius:6px;margin:4px;transition:all .15s;position:relative;cursor:pointer}
+.email-block:hover{border-color:var(--ink20)}
+.email-block.selected{border-color:var(--teal);background:rgba(42,140,126,.03)}
+.email-block.drag-over{border-color:var(--teal);border-style:dashed;background:rgba(42,140,126,.05)}
+.block-handle{position:absolute;left:-28px;top:50%;transform:translateY(-50%);display:none;flex-direction:column;gap:3px;cursor:grab}
+.email-block:hover .block-handle{display:flex}
+.block-handle span{width:3px;height:3px;border-radius:50%;background:var(--ink45);display:block}
+.block-actions{position:absolute;top:4px;right:4px;display:none;gap:4px}
+.email-block:hover .block-actions,.email-block.selected .block-actions{display:flex}
+.block-action-btn{width:22px;height:22px;border-radius:5px;background:var(--surface);border:1px solid var(--ink20);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ink70);transition:all .1s}
+.block-action-btn:hover{background:var(--ink);color:#fff}
+.add-block-btn{margin:8px auto;display:flex;align-items:center;gap:6px;padding:6px 16px;border:1.5px dashed var(--ink20);border-radius:7px;background:transparent;color:var(--ink45);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.add-block-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teall)}
+.block-type-picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.block-type-card{padding:10px 8px;border:1px solid var(--ink20);border-radius:8px;cursor:pointer;text-align:center;transition:all .15s;background:var(--s2)}
+.block-type-card:hover{border-color:var(--teal);background:var(--teall)}
+.block-type-card .icon{font-size:18px;margin-bottom:4px}
+.block-type-card .name{font-size:10.5px;font-weight:600;color:var(--ink70)}
+/* Sequence builder */
+.seq-step{position:relative;padding-left:36px;margin-bottom:0}
+.seq-step-dot{position:absolute;left:0;top:14px;width:14px;height:14px;border-radius:50%;border:2px solid var(--teal);background:var(--surface);z-index:1}
+.seq-step-dot.done{background:var(--teal)}
+.seq-connector{position:absolute;left:6px;top:28px;width:2px;background:var(--ink20);bottom:-14px}
+.seq-step:last-child .seq-connector{display:none}
+.seq-card{background:var(--surface);border:1px solid var(--ink20);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.seq-card:hover,.seq-card.active{border-color:var(--teal);box-shadow:0 2px 8px rgba(42,140,126,.12)}
+.seq-branch{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-left:20px;margin-bottom:8px}
+.branch-card{border:1px dashed var(--ink20);border-radius:8px;padding:10px;cursor:pointer;transition:all .15s}
+.branch-card.yes{border-color:var(--green)}.branch-card.no{border-color:var(--coral)}
+.branch-card:hover{background:var(--s2)}
+/* Integrations */
+.int-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.int-card{background:var(--surface);border:1px solid var(--ink20);border-radius:8px;padding:12px;cursor:pointer;transition:all .15s}
+.int-card:hover{border-color:var(--teal);box-shadow:0 2px 8px rgba(42,140,126,.1)}
+.he-badge{background:var(--purplel);color:var(--purple);font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700}
+/* Analytics */
+.metric-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.metric-bar-fill{height:8px;border-radius:4px;background:var(--teal);transition:width .3s}
+/* Scrollbars */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(26,29,35,.12);border-radius:3px}
+</style></head><body><div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+let _toastFn = null;
+function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+  _toastFn = (msg, type='info', icon='') => {
+    const id = Date.now();
+    setToasts(p => [...p, {id, msg, type, icon}]);
+    setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3500);
+  };
+  const colors = {success:'#16a34a',error:'#dc2626',warn:'#c2853a',info:'#2a8c7e'};
+  return (
+    <React.Fragment>
+      {children}
+      <div className="toast-wrap">
+        {toasts.map(t => (
+          <div key={t.id} className="toast" style={{borderLeft:'3px solid '+(colors[t.type]||colors.info)}}>
+            {t.icon && <span>{t.icon}</span>}{t.msg}
+          </div>
+        ))}
+      </div>
+    </React.Fragment>
+  );
+}
+function toast(msg, type, icon) { _toastFn && _toastFn(msg, type, icon); }
+
+async function callClaude(system, user, maxTokens=900) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system,
+      messages:[{role:'user',content:user}]
+    })
+  });
+  const d = await r.json();
+  if (d.error) throw new Error(d.error.message);
+  return d.content[0].text;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PERSONALIZATION TOKEN SYSTEM — Master Token Registry
+// ═══════════════════════════════════════════════════════════════
+const TOKEN_CATEGORIES = [
+  { id:'all',      label:'All',         icon:'◈' },
+  { id:'donor',    label:'Donor',        icon:'👤' },
+  { id:'giving',   label:'Giving',       icon:'💳' },
+  { id:'officer',  label:'Officer',      icon:'🎓' },
+  { id:'campaign', label:'Campaign',     icon:'📣' },
+  { id:'engagement',label:'Engagement',  icon:'📊' },
+  { id:'custom',   label:'Custom',       icon:'⚙️' },
+];
+
+const MASTER_TOKENS = [
+  // Donor identity
+  { id:'t1',  cat:'donor',      tok:'{{first_name}}',         lbl:'First Name',           sample:'Sarah',           desc:'Donor first name' },
+  { id:'t2',  cat:'donor',      tok:'{{last_name}}',          lbl:'Last Name',             sample:'Mitchell',        desc:'Donor last name' },
+  { id:'t3',  cat:'donor',      tok:'{{full_name}}',          lbl:'Full Name',             sample:'Sarah Mitchell',  desc:'Full display name' },
+  { id:'t4',  cat:'donor',      tok:'{{preferred_name}}',     lbl:'Preferred Name',        sample:'Sarah',           desc:'Preferred or nickname' },
+  { id:'t5',  cat:'donor',      tok:'{{salutation}}',         lbl:'Salutation',            sample:'Dear Sarah,',     desc:'Personalized greeting line' },
+  { id:'t6',  cat:'donor',      tok:'{{class_year}}',         lbl:'Class Year',            sample:"'98",             desc:"Grad year e.g. '98" },
+  { id:'t7',  cat:'donor',      tok:'{{degree}}',             lbl:'Degree',                sample:'MBA',             desc:'Highest degree earned' },
+  { id:'t8',  cat:'donor',      tok:'{{major}}',              lbl:'Major / School',        sample:'Business',        desc:'Undergraduate major or school' },
+  { id:'t9',  cat:'donor',      tok:'{{employer}}',           lbl:'Employer',              sample:'Acme Corp',       desc:'Current employer' },
+  { id:'t10', cat:'donor',      tok:'{{city}}',               lbl:'City',                  sample:'Chicago',         desc:'Donor home city' },
+  // Giving history
+  { id:'g1',  cat:'giving',     tok:'{{last_gift_amount}}',   lbl:'Last Gift Amount',      sample:'$2,500',          desc:'Most recent gift value' },
+  { id:'g2',  cat:'giving',     tok:'{{last_gift_date}}',     lbl:'Last Gift Date',        sample:'March 3, 2025',   desc:'Date of last gift' },
+  { id:'g3',  cat:'giving',     tok:'{{last_gift_fund}}',     lbl:'Last Gift Fund',        sample:'Annual Fund',     desc:'Fund designation of last gift' },
+  { id:'g4',  cat:'giving',     tok:'{{giving_total}}',       lbl:'Lifetime Giving',       sample:'$47,250',         desc:'Cumulative lifetime giving' },
+  { id:'g5',  cat:'giving',     tok:'{{giving_years}}',       lbl:'Years of Giving',       sample:'12 years',        desc:'Number of giving years' },
+  { id:'g6',  cat:'giving',     tok:'{{consecutive_years}}',  lbl:'Consecutive Years',     sample:'7 consecutive',   desc:'Unbroken giving streak' },
+  { id:'g7',  cat:'giving',     tok:'{{society_name}}',       lbl:'Giving Society',        sample:'Founders Circle', desc:'Giving society membership' },
+  { id:'g8',  cat:'giving',     tok:'{{match_employer}}',     lbl:'Match Employer',        sample:'Acme Corp',       desc:'Employer with match program' },
+  { id:'g9',  cat:'giving',     tok:'{{match_amount}}',       lbl:'Match Amount',          sample:'$5,000',          desc:'Potential match value' },
+  { id:'g10', cat:'giving',     tok:'{{match_deadline}}',     lbl:'Match Deadline',        sample:'Dec 31, 2025',    desc:'Employer match deadline' },
+  // Officer / Agent
+  { id:'o1',  cat:'officer',    tok:'{{agent_name}}',         lbl:'Officer Name',          sample:'Jennifer Walsh',  desc:'Assigned gift officer' },
+  { id:'o2',  cat:'officer',    tok:'{{agent_title}}',        lbl:'Officer Title',         sample:'Senior Gift Officer', desc:'Officer job title' },
+  { id:'o3',  cat:'officer',    tok:'{{agent_email}}',        lbl:'Officer Email',         sample:'j.walsh@greenfield.edu', desc:'Officer email address' },
+  { id:'o4',  cat:'officer',    tok:'{{agent_phone}}',        lbl:'Officer Phone',         sample:'(617) 555-0142',  desc:'Officer direct line' },
+  { id:'o5',  cat:'officer',    tok:'{{university}}',         lbl:'Institution Name',      sample:'Greenfield University', desc:'Institution full name' },
+  { id:'o6',  cat:'officer',    tok:'{{university_short}}',   lbl:'Institution Short',     sample:'Greenfield',      desc:'Short institution name' },
+  // Campaign
+  { id:'c1',  cat:'campaign',   tok:'{{campaign_name}}',      lbl:'Campaign Name',         sample:'Forward Together 2025', desc:'Active campaign name' },
+  { id:'c2',  cat:'campaign',   tok:'{{campaign_goal}}',      lbl:'Campaign Goal',         sample:'$25,000,000',     desc:'Campaign fundraising target' },
+  { id:'c3',  cat:'campaign',   tok:'{{progress_pct}}',       lbl:'Progress Percent',      sample:'73%',             desc:'Campaign progress toward goal' },
+  { id:'c4',  cat:'campaign',   tok:'{{days_remaining}}',     lbl:'Days Remaining',        sample:'14 days',         desc:'Days until campaign close' },
+  { id:'c5',  cat:'campaign',   tok:'{{fund_name}}',          lbl:'Fund Name',             sample:'Scholarship Fund', desc:'Specific fund designation' },
+  { id:'c6',  cat:'campaign',   tok:'{{giving_url}}',         lbl:'Giving URL',            sample:'give.greenfield.edu/sarah', desc:'Personalized giving link' },
+  { id:'c7',  cat:'campaign',   tok:'{{impact_statement}}',   lbl:'Impact Statement',      sample:'Your gift supports 3 students', desc:'Personalized impact line' },
+  { id:'c8',  cat:'campaign',   tok:'{{event_name}}',         lbl:'Event Name',            sample:'Founders Day Gala', desc:'Current/upcoming event' },
+  { id:'c9',  cat:'campaign',   tok:'{{event_date}}',         lbl:'Event Date',            sample:'October 15, 2025', desc:'Event date' },
+  // Engagement signals
+  { id:'e1',  cat:'engagement', tok:'{{last_event}}',         lbl:'Last Event Attended',   sample:'Alumni Weekend',  desc:'Most recent event attended' },
+  { id:'e2',  cat:'engagement', tok:'{{engagement_score}}',   lbl:'Engagement Score',      sample:'87',              desc:'Current engagement score' },
+  { id:'e3',  cat:'engagement', tok:'{{alumni_network}}',     lbl:'Alumni Network',        sample:'Chicago Alumni',  desc:'Local alumni chapter' },
+  { id:'e4',  cat:'engagement', tok:'{{volunteer_role}}',     lbl:'Volunteer Role',        sample:'Reunion Chair',   desc:'Current volunteer role' },
+  // Compliance
+  { id:'u1',  cat:'donor',      tok:'{{unsubscribe_link}}',   lbl:'Unsubscribe URL',       sample:'[unsubscribe]',   desc:'REQUIRED: email opt-out link' },
+  { id:'u2',  cat:'donor',      tok:'{{preferences_link}}',   lbl:'Preferences URL',       sample:'[preferences]',   desc:'Communication preferences link' },
+  { id:'u3',  cat:'donor',      tok:'{{sms_stop}}',           lbl:'SMS STOP Text',         sample:'Reply STOP to opt out', desc:'REQUIRED: SMS compliance text' },
+];
+
+// Custom tokens stored in state (passed down)
+const DEFAULT_CUSTOM = [
+  { id:'cust1', cat:'custom', tok:'{{phonathon_shift}}',  lbl:'Phonathon Shift',  sample:'Tuesday 6pm',  desc:'Phonathon assignment' },
+  { id:'cust2', cat:'custom', tok:'{{giving_society_lvl}}',lbl:'Society Level',  sample:'Founders Circle', desc:'Giving society tier' },
+];
+
+// Sample donors for preview
+const PREVIEW_DONORS = [
+  { name:'Sarah Mitchell', first:'Sarah', last:'Mitchell', class:"'98", employer:'Acme Corp', lastGift:'$2,500', lastDate:'March 3, 2025', total:'$47,250', years:'12 years', streak:'7 consecutive', society:'Founders Circle', officer:'Jennifer Walsh', fund:'Annual Fund', city:'Chicago', school:'Business', score:'87' },
+  { name:'Robert Chen',    first:'Robert',last:'Chen',     class:"'05", employer:'Google',    lastGift:'$10,000',lastDate:'Jan 15, 2025',  total:'$85,000',  years:'8 years',  streak:'4 consecutive', society:'President Circle',officer:'Marcus Torres', fund:'Engineering Fund', city:'San Francisco', school:'Engineering', score:'94' },
+  { name:'Diana Park',     first:'Diana', last:'Park',     class:"'12", employer:'Deloitte',  lastGift:'$500',   lastDate:'Nov 1, 2024',   total:'$4,200',   years:'5 years',  streak:'2 consecutive', society:'Century Club',  officer:'Jennifer Walsh', fund:'Annual Fund',      city:'Atlanta',       school:'Liberal Arts', score:'62' },
+];
+
+function fillTokens(text, donor) {
+  return text
+    .replace(/{{first_name}}/g, donor.first)
+    .replace(/{{last_name}}/g, donor.last)
+    .replace(/{{full_name}}/g, donor.name)
+    .replace(/{{preferred_name}}/g, donor.first)
+    .replace(/{{salutation}}/g, 'Dear '+donor.first+',')
+    .replace(/{{class_year}}/g, donor.class)
+    .replace(/{{degree}}/g, 'MBA')
+    .replace(/{{major}}/g, donor.school)
+    .replace(/{{employer}}/g, donor.employer)
+    .replace(/{{city}}/g, donor.city)
+    .replace(/{{last_gift_amount}}/g, donor.lastGift)
+    .replace(/{{last_gift_date}}/g, donor.lastDate)
+    .replace(/{{last_gift_fund}}/g, donor.fund)
+    .replace(/{{giving_total}}/g, donor.total)
+    .replace(/{{giving_years}}/g, donor.years)
+    .replace(/{{consecutive_years}}/g, donor.streak)
+    .replace(/{{society_name}}/g, donor.society)
+    .replace(/{{match_employer}}/g, donor.employer)
+    .replace(/{{match_amount}}/g, '$5,000')
+    .replace(/{{match_deadline}}/g, 'Dec 31, 2025')
+    .replace(/{{agent_name}}/g, donor.officer)
+    .replace(/{{agent_title}}/g, 'Senior Gift Officer')
+    .replace(/{{agent_email}}/g, 'officer@greenfield.edu')
+    .replace(/{{agent_phone}}/g, '(617) 555-0142')
+    .replace(/{{university}}/g, 'Greenfield University')
+    .replace(/{{university_short}}/g, 'Greenfield')
+    .replace(/{{campaign_name}}/g, 'Forward Together 2025')
+    .replace(/{{campaign_goal}}/g, '$25,000,000')
+    .replace(/{{progress_pct}}/g, '73%')
+    .replace(/{{days_remaining}}/g, '14 days')
+    .replace(/{{fund_name}}/g, donor.fund)
+    .replace(/{{giving_url}}/g, 'give.greenfield.edu/'+donor.first.toLowerCase())
+    .replace(/{{impact_statement}}/g, 'Your gift supports 3 students pursuing their dreams')
+    .replace(/{{event_name}}/g, 'Founders Day Gala')
+    .replace(/{{event_date}}/g, 'October 15, 2025')
+    .replace(/{{last_event}}/g, 'Alumni Weekend')
+    .replace(/{{engagement_score}}/g, donor.score)
+    .replace(/{{alumni_network}}/g, donor.city+' Alumni Network')
+    .replace(/{{volunteer_role}}/g, 'Reunion Committee')
+    .replace(/{{unsubscribe_link}}/g, '[Unsubscribe]')
+    .replace(/{{preferences_link}}/g, '[Preferences]')
+    .replace(/{{sms_stop}}/g, 'Reply STOP to opt out')
+    .replace(/{{phonathon_shift}}/g, 'Tuesday 6pm')
+    .replace(/{{giving_society_lvl}}/g, donor.society);
+}
+
+// SMS character counter
+function smsStats(text, donor) {
+  const filled = fillTokens(text, donor);
+  const chars = filled.length;
+  const parts = chars <= 160 ? 1 : Math.ceil(chars / 153);
+  return { chars, parts, expanded: filled };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  useTokenInsertion — shared hook for drag-and-drop + click-to-insert
+// ═══════════════════════════════════════════════════════════════
+function useTokenInsertion(textareaRef, value, onChange) {
+  const lastCursorRef = useRef(null);
+
+  // Track cursor position whenever textarea is interacted with
+  const trackCursor = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    lastCursorRef.current = { start: el.selectionStart, end: el.selectionEnd };
+  }, [textareaRef]);
+
+  // Insert token at last known cursor position
+  const insertToken = useCallback((tokenStr) => {
+    const el = textareaRef.current;
+    if (!el) {
+      // Fallback: append to end
+      onChange(value + tokenStr);
+      return;
+    }
+    el.focus();
+    const pos = lastCursorRef.current || { start: value.length, end: value.length };
+    const before = value.slice(0, pos.start);
+    const after = value.slice(pos.end);
+    const newVal = before + tokenStr + after;
+    onChange(newVal);
+    // Restore cursor after token
+    const newPos = pos.start + tokenStr.length;
+    setTimeout(() => {
+      el.setSelectionRange(newPos, newPos);
+      lastCursorRef.current = { start: newPos, end: newPos };
+    }, 10);
+    toast('Token inserted: '+tokenStr, 'success', '✓');
+  }, [textareaRef, value, onChange]);
+
+  // Drag handlers for the drop zone (textarea)
+  const dragHandlers = {
+    onDragOver: (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      e.currentTarget.classList.add('drop-active');
+    },
+    onDragLeave: (e) => {
+      e.currentTarget.classList.remove('drop-active');
+    },
+    onDrop: (e) => {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drop-active');
+      const tokenStr = e.dataTransfer.getData('text/token');
+      if (!tokenStr) return;
+      // Compute approximate drop position from mouse coords
+      const el = textareaRef.current;
+      if (el) {
+        // Focus and place cursor at drop point (best effort for textarea)
+        el.focus();
+        // Use last cursor as insertion point on drag drop
+        insertToken(tokenStr);
+      }
+    },
+    onMouseUp: trackCursor,
+    onKeyUp: trackCursor,
+    onClick: trackCursor,
+  };
+
+  return { insertToken, dragHandlers, trackCursor };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TokenPanel — universal right-sidebar component
+// ═══════════════════════════════════════════════════════════════
+function TokenPanel({ onInsert, customTokens, onAddCustom, onDeleteCustom, compact=false }) {
+  const [search, setSearch] = useState('');
+  const [activeCat, setActiveCat] = useState('all');
+  const [showCustomForm, setShowCustomForm] = useState(false);
+  const [newTok, setNewTok] = useState({ name:'', token:'', sample:'' });
+
+  const allTokens = [...MASTER_TOKENS, ...(customTokens || [])];
+  const filtered = allTokens.filter(t => {
+    const matchCat = activeCat === 'all' || t.cat === activeCat;
+    const matchSearch = !search || t.lbl.toLowerCase().includes(search.toLowerCase()) || t.tok.includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  // Group by category for display
+  const groups = {};
+  filtered.forEach(t => {
+    if (!groups[t.cat]) groups[t.cat] = [];
+    groups[t.cat].push(t);
+  });
+  const catOrder = ['donor','giving','officer','campaign','engagement','custom'];
+  const catLabels = { donor:'Donor Identity', giving:'Giving History', officer:'Officer / Institution', campaign:'Campaign & Funds', engagement:'Engagement Signals', custom:'Custom Fields' };
+  const catIcons  = { donor:'👤', giving:'💳', officer:'🎓', campaign:'📣', engagement:'📊', custom:'⚙️' };
+
+  function handleDragStart(e, tok) {
+    e.dataTransfer.setData('text/token', tok.tok);
+    e.dataTransfer.setData('text/plain', tok.tok);
+    e.dataTransfer.effectAllowed = 'copy';
+    // Drag ghost
+    const ghost = document.createElement('div');
+    ghost.textContent = tok.tok;
+    ghost.style.cssText = 'position:fixed;top:-100px;background:#2a8c7e;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;font-family:monospace;';
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, 0, 0);
+    setTimeout(() => document.body.removeChild(ghost), 0);
+  }
+
+  function addCustomToken() {
+    if (!newTok.name || !newTok.token) { toast('Name and token required','warn','⚠️'); return; }
+    let tok = newTok.token.trim();
+    if (!tok.startsWith('{{')) tok = '{{' + tok;
+    if (!tok.endsWith('}}')) tok = tok + '}}';
+    // Remove spaces
+    tok = tok.replace(/\s+/g, '_');
+    onAddCustom({
+      id: 'cust_'+Date.now(),
+      cat: 'custom',
+      tok,
+      lbl: newTok.name,
+      sample: newTok.sample || '['+newTok.name+']',
+      desc: 'Custom field',
+    });
+    setNewTok({ name:'', token:'', sample:'' });
+    setShowCustomForm(false);
+    toast('Custom token added', 'success', '⚙️');
+  }
+
+  const showGroups = activeCat === 'all' ? catOrder.filter(k => groups[k]) : (groups[activeCat] ? [activeCat] : []);
+
+  return (
+    <div className="token-panel">
+      <div className="token-panel-hd">
+        <div className="token-panel-title">
+          <span>◈</span> Personalization Tokens
+          <span style={{marginLeft:'auto',fontSize:10,color:'var(--ink45)',fontWeight:500}}>{allTokens.length} fields</span>
+        </div>
+        <input
+          className="token-search fi"
+          placeholder="Search tokens..."
+          value={search}
+          onChange={e=>setSearch(e.target.value)}
+        />
+        {!compact && (
+          <div className="token-cats">
+            {TOKEN_CATEGORIES.map(c => (
+              <button
+                key={c.id}
+                className={'token-cat-btn'+(activeCat===c.id?' active':'')}
+                onClick={()=>setActiveCat(c.id)}
+              >{c.label}</button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="token-list">
+        {showGroups.map(catKey => (
+          <div key={catKey}>
+            <div className="token-group-label">
+              <span>{catIcons[catKey]}</span>
+              <span>{catLabels[catKey] || catKey}</span>
+              <span style={{marginLeft:'auto',color:'var(--ink45)'}}>{(groups[catKey]||[]).length}</span>
+            </div>
+            {(groups[catKey]||[]).map(tok => (
+              <div
+                key={tok.id}
+                className={'token-chip'+(tok.cat==='custom'?' token-chip-custom':'')}
+                draggable
+                onDragStart={e => handleDragStart(e, tok)}
+                onClick={() => onInsert(tok.tok)}
+                title={'Click or drag to insert. Sample: '+tok.sample}
+              >
+                <span className="token-drag">⠿</span>
+                <span className="token-lbl">{tok.lbl}</span>
+                <span className="token-code">{tok.tok.slice(2,-2)}</span>
+                {!compact && <span className="token-preview">{tok.sample}</span>}
+                {tok.cat === 'custom' && (
+                  <span
+                    style={{marginLeft:'auto',color:'var(--red)',cursor:'pointer',fontSize:11,opacity:.6}}
+                    onClick={e=>{e.stopPropagation();onDeleteCustom(tok.id)}}
+                    title="Remove custom token"
+                  >✕</span>
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div style={{textAlign:'center',color:'var(--ink45)',fontSize:12,padding:'20px 0'}}>No tokens match</div>
+        )}
+        {/* Add custom token */}
+        <div style={{borderTop:'1px solid var(--ink20)',marginTop:8,paddingTop:8}}>
+          {!showCustomForm ? (
+            <button className="btn btn-ghost btn-sm" style={{width:'100%',justifyContent:'center'}} onClick={()=>setShowCustomForm(true)}>
+              + Add Custom Token
+            </button>
+          ) : (
+            <div style={{padding:'8px 4px'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--ink)',marginBottom:8}}>New Custom Token</div>
+              <div style={{marginBottom:6}}>
+                <label className="fl">Display Name</label>
+                <input className="fi" placeholder="e.g. Phonathon Shift" value={newTok.name} onChange={e=>setNewTok(p=>({...p,name:e.target.value}))} style={{fontSize:12,padding:'5px 8px'}}/>
+              </div>
+              <div style={{marginBottom:6}}>
+                <label className="fl">Token Key</label>
+                <input className="fi" style={{fontFamily:'var(--mono)',fontSize:11,padding:'5px 8px'}} placeholder="e.g. phonathon_shift" value={newTok.token} onChange={e=>setNewTok(p=>({...p,token:e.target.value}))}/>
+              </div>
+              <div style={{marginBottom:8}}>
+                <label className="fl">Sample Value</label>
+                <input className="fi" placeholder="e.g. Tuesday 6pm" value={newTok.sample} onChange={e=>setNewTok(p=>({...p,sample:e.target.value}))} style={{fontSize:12,padding:'5px 8px'}}/>
+              </div>
+              <div style={{display:'flex',gap:6}}>
+                <button className="btn btn-primary btn-sm" style={{flex:1}} onClick={addCustomToken}>Add</button>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setShowCustomForm(false)}>Cancel</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Token highlighter — renders {{token}} as styled chips in a read-only preview div
+function TokenHighlightPreview({ text, previewMode, previewDonor, style={} }) {
+  const display = previewMode ? fillTokens(text, previewDonor) : text;
+  // Replace tokens with highlighted spans
+  const parts = display.split(/({{[^}]+}})/g);
+  return (
+    <div style={{fontFamily:'inherit',fontSize:13,lineHeight:1.7,whiteSpace:'pre-wrap',color:'var(--ink)',...style}}>
+      {previewMode
+        ? display.split('\n').map((line,i) => (
+            <div key={i} style={{minHeight:'1.4em'}}>{line || ' '}</div>
+          ))
+        : parts.map((part, i) => {
+            if (/^{{[^}]+}}$/.test(part)) {
+              return <span key={i} className="token-highlight">{part}</span>;
+            }
+            return <span key={i} style={{whiteSpace:'pre-wrap'}}>{part}</span>;
+          })
+      }
+    </div>
+  );
+}
+
+// Shared preview donor selector bar
+function PreviewDonorBar({ donors, selected, onSelect, previewMode, onToggle }) {
+  return (
+    <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'var(--s2)',borderRadius:7,marginBottom:12}}>
+      <span style={{fontSize:11.5,fontWeight:600,color:'var(--ink70)'}}>Preview as:</span>
+      <div style={{display:'flex',gap:4}}>
+        {donors.map(d => (
+          <button
+            key={d.name}
+            className={'btn btn-sm '+(selected.name===d.name?'btn-primary':'btn-ghost')}
+            onClick={()=>onSelect(d)}
+            style={{padding:'3px 10px',fontSize:11}}
+          >
+            {d.first} {d.class}
+          </button>
+        ))}
+      </div>
+      <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:6}}>
+        <span style={{fontSize:11,color:'var(--ink45)'}}>Preview mode</span>
+        <div
+          style={{width:36,height:20,background:previewMode?'var(--teal)':'var(--ink20)',borderRadius:10,cursor:'pointer',position:'relative',transition:'background .2s'}}
+          onClick={onToggle}
+        >
+          <div style={{position:'absolute',top:2,left:previewMode?16:2,width:16,height:16,background:'#fff',borderRadius:'50%',transition:'left .2s',boxShadow:'0 1px 3px rgba(0,0,0,.2)'}}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// EmailBlockItem — extracts each block to a standalone component so useTokenInsertion
+// can be called at component level (not inside .map() callback)
+function EmailBlockItem({ block, isSelected, isDragOver, onSelect, onUpdate, onMoveUp, onMoveDown, onRemove, onBlockDragStart, onBlockDragOver, onBlockDrop, previewMode, previewDonor, getRef }) {
+  const ref = getRef(block.id);
+  const { dragHandlers } = useTokenInsertion(ref, block.content, (val) => onUpdate(block.id, val));
+  return (
+    <div
+      className={'email-block'+(isSelected?' selected':'')+(isDragOver?' drag-over':'')}
+      onClick={()=>onSelect(block.id)}
+      draggable
+      onDragStart={e=>onBlockDragStart(e,block.id)}
+      onDragOver={e=>onBlockDragOver(e,block.id)}
+      onDrop={e=>onBlockDrop(e,block.id)}
+    >
+      <div className="block-handle"><span/><span/><span/></div>
+      <div className="block-actions">
+        <button className="block-action-btn" onClick={e=>{e.stopPropagation();onMoveUp(block.id)}} title="Move up">up</button>
+        <button className="block-action-btn" onClick={e=>{e.stopPropagation();onMoveDown(block.id)}} title="Move down">dn</button>
+        <button className="block-action-btn" onClick={e=>{e.stopPropagation();onRemove(block.id)}} title="Delete" style={{color:'var(--red)'}}>X</button>
+      </div>
+      <div style={{padding:'2px 4px'}}>
+        {previewMode
+          ? <TokenHighlightPreview text={block.content} previewMode={true} previewDonor={previewDonor} style={{padding:'4px 2px'}}/>
+          : (isSelected
+              ? <BlockEditor block={block} onUpdate={v=>onUpdate(block.id,v)} taRef={ref} dragHandlers={dragHandlers}/>
+              : <TokenHighlightPreview text={block.content} previewMode={false} previewDonor={previewDonor} style={{padding:'4px 2px',minHeight:32}}/>
+            )
+        }
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EMAIL DESIGNER — with block builder + token panel
+// ═══════════════════════════════════════════════════════════════
+const EMAIL_BLOCK_TYPES = [
+  {id:'header',  icon:'🏛',  lbl:'Header + Logo',    defaultContent:'{{university}}: {{campaign_name}}'},
+  {id:'salute',  icon:'👋',  lbl:'Salutation',        defaultContent:'{{salutation}}'},
+  {id:'body',    icon:'📝',  lbl:'Body Paragraph',    defaultContent:'I wanted to reach out personally to thank you for your generous support. Your gift of {{last_gift_amount}} on {{last_gift_date}} made a real difference for our students at {{university}}.'},
+  {id:'impact',  icon:'💡',  lbl:'Impact Block',      defaultContent:'{{impact_statement}}'},
+  {id:'cta',     icon:'🔗',  lbl:'Call to Action',    defaultContent:'Make your gift today: {{giving_url}}'},
+  {id:'stats',   icon:'📊',  lbl:'Stats Block',       defaultContent:'Campaign Goal: {{campaign_goal}}\nProgress: {{progress_pct}}\nDays Remaining: {{days_remaining}}'},
+  {id:'story',   icon:'📖',  lbl:'Story / Quote',     defaultContent:''},
+  {id:'divider', icon:'➖',  lbl:'Divider',           defaultContent:'---'},
+  {id:'signature',icon:'✍️', lbl:'Signature',         defaultContent:'With gratitude,\n{{agent_name}}\n{{agent_title}}\n{{university}}\n{{agent_email}} | {{agent_phone}}'},
+  {id:'footer',  icon:'🔒',  lbl:'Footer (Legal)',    defaultContent:'{{university}} | You are receiving this because of your relationship with us.\n{{unsubscribe_link}} | {{preferences_link}}'},
+];
+
+function BlockEditor({ block, onUpdate, onInsertToken, taRef, dragHandlers }) {
+  if (block.type === 'divider') return <div style={{borderTop:'2px solid var(--ink20)',margin:'12px 0'}}/>;
+  if (block.type === 'header') return (
+    <div style={{background:'var(--ink)',color:'#fff',padding:'16px 20px',borderRadius:6,marginBottom:4}}>
+      <div style={{display:'flex',alignItems:'center',gap:10}}>
+        <div style={{width:32,height:32,background:'var(--teal)',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🏛</div>
+        <textarea
+          ref={taRef} rows={1}
+          className="fi fta"
+          style={{background:'transparent',border:'none',color:'#fff',fontWeight:700,fontSize:14,resize:'none',padding:0,boxShadow:'none'}}
+          value={block.content}
+          onChange={e=>onUpdate(e.target.value)}
+          {...dragHandlers}
+        />
+      </div>
+    </div>
+  );
+  return (
+    <textarea
+      ref={taRef}
+      className="fi fta"
+      style={{fontSize:13,lineHeight:1.7,minHeight: block.type==='footer'?80:block.type==='signature'?100:120}}
+      value={block.content}
+      onChange={e=>onUpdate(e.target.value)}
+      placeholder={block.type==='story'?'Tell a student impact story...':'Enter content or drag tokens...'}
+      {...dragHandlers}
+    />
+  );
+}
+
+function EmailDesignerPage({ customTokens, onAddCustom, onDeleteCustom }) {
+  const [blocks, setBlocks] = useState([
+    {id:'b1', type:'header',    content:'Greenfield University: Forward Together 2025'},
+    {id:'b2', type:'salute',    content:'{{salutation}}'},
+    {id:'b3', type:'body',      content:'I wanted to reach out personally to thank you for your generous support over the years. Your cumulative giving of {{giving_total}} across {{giving_years}} has made a profound difference in the lives of our students.'},
+    {id:'b4', type:'impact',    content:'{{impact_statement}}'},
+    {id:'b5', type:'cta',       content:'Make your gift today: {{giving_url}}'},
+    {id:'b6', type:'signature', content:'With gratitude,\n{{agent_name}}\n{{agent_title}}\n{{university}}\n{{agent_email}} | {{agent_phone}}'},
+    {id:'b7', type:'footer',    content:'{{university}} | You receive this because of your relationship with us.\n{{unsubscribe_link}} | {{preferences_link}}'},
+  ]);
+  const [selectedBlock, setSelectedBlock] = useState('b3');
+  const [subject, setSubject] = useState('Your {{giving_years}} of generosity, {{first_name}}');
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewDonor, setPreviewDonor] = useState(PREVIEW_DONORS[0]);
+  const [showAddBlock, setShowAddBlock] = useState(false);
+  const [dragBlock, setDragBlock] = useState(null);
+  const [dragOver, setDragOver] = useState(null);
+  const [activeTab, setActiveTab] = useState('design');
+  const [fromName, setFromName] = useState('{{agent_name}}');
+  const [fromEmail, setFromEmail] = useState('{{agent_email}}');
+  const [provider, setProvider] = useState('gmail');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const subjectRef = useRef(null);
+  const blockRefs = useRef({});
+
+  // Per-block token insertion
+  const subjectInsert = useTokenInsertion(subjectRef, subject, setSubject);
+  
+  function getBlockRef(id) {
+    if (!blockRefs.current[id]) blockRefs.current[id] = React.createRef();
+    return blockRefs.current[id];
+  }
+
+  function updateBlock(id, content) {
+    setBlocks(bs => bs.map(b => b.id===id ? {...b, content} : b));
+  }
+
+  function insertTokenToSelected(tok) {
+    if (selectedBlock === 'subject') {
+      subjectInsert.insertToken(tok);
+      return;
+    }
+    const ref = blockRefs.current[selectedBlock];
+    if (ref && ref.current) {
+      const el = ref.current;
+      const block = blocks.find(b => b.id === selectedBlock);
+      if (!block) return;
+      const start = el.selectionStart ?? block.content.length;
+      const end = el.selectionEnd ?? block.content.length;
+      const before = block.content.slice(0, start);
+      const after = block.content.slice(end);
+      updateBlock(selectedBlock, before + tok + after);
+      setTimeout(() => {
+        el.focus();
+        const pos = start + tok.length;
+        el.setSelectionRange(pos, pos);
+      }, 10);
+      toast('Inserted into block', 'success', '✓');
+    } else {
+      // Fallback: append to selected block
+      const block = blocks.find(b => b.id === selectedBlock);
+      if (block) updateBlock(selectedBlock, block.content + tok);
+    }
+  }
+
+  function addBlock(type) {
+    const bt = EMAIL_BLOCK_TYPES.find(b => b.id === type);
+    const newBlock = { id:'b'+Date.now(), type, content: bt.defaultContent };
+    setBlocks(bs => [...bs, newBlock]);
+    setSelectedBlock(newBlock.id);
+    setShowAddBlock(false);
+  }
+
+  function removeBlock(id) {
+    setBlocks(bs => bs.filter(b => b.id !== id));
+    if (selectedBlock === id) setSelectedBlock(blocks.find(b=>b.id!==id)?.id || null);
+  }
+
+  function moveBlock(id, dir) {
+    setBlocks(bs => {
+      const idx = bs.findIndex(b => b.id === id);
+      if (dir === 'up' && idx === 0) return bs;
+      if (dir === 'down' && idx === bs.length-1) return bs;
+      const arr = [...bs];
+      const swap = dir==='up' ? idx-1 : idx+1;
+      [arr[idx], arr[swap]] = [arr[swap], arr[idx]];
+      return arr;
+    });
+  }
+
+  // Block drag-to-reorder
+  function onBlockDragStart(e, id) {
+    e.dataTransfer.effectAllowed = 'move';
+    setDragBlock(id);
+  }
+  function onBlockDragOver(e, id) {
+    e.preventDefault();
+    if (id !== dragBlock) setDragOver(id);
+  }
+  function onBlockDrop(e, targetId) {
+    e.preventDefault();
+    if (!dragBlock || dragBlock === targetId) { setDragBlock(null); setDragOver(null); return; }
+    setBlocks(bs => {
+      const arr = [...bs];
+      const fi = arr.findIndex(b=>b.id===dragBlock);
+      const ti = arr.findIndex(b=>b.id===targetId);
+      const [item] = arr.splice(fi,1);
+      arr.splice(ti,0,item);
+      return arr;
+    });
+    setDragBlock(null); setDragOver(null);
+  }
+
+  async function aiGenerate() {
+    if (!aiPrompt.trim()) return;
+    setAiLoading(true);
+    try {
+      const tok = [...MASTER_TOKENS, ...(customTokens||[])].map(t=>`${t.tok} = ${t.lbl}`).slice(0,20).join(', ');
+      const txt = await callClaude(
+        `You are a university fundraising copywriter. Write a personalized donor email body paragraph using these available merge tokens: ${tok}. Use tokens naturally throughout the copy. Return ONLY the email body text, no subject line or greeting.`,
+        `Context: ${aiPrompt}\nDonor: major gift prospect, last gave $2,500, 12 years of giving`,
+        600
+      );
+      const bodyBlock = blocks.find(b=>b.type==='body');
+      if (bodyBlock) updateBlock(bodyBlock.id, txt.trim());
+      toast('AI copy generated', 'success', '✨');
+    } catch(e) { toast('AI unavailable', 'error', '✗'); }
+    setAiLoading(false);
+  }
+
+  const subjectDisplay = previewMode ? fillTokens(subject, previewDonor) : subject;
+
+  return (
+    <div>
+      <PreviewDonorBar donors={PREVIEW_DONORS} selected={previewDonor} onSelect={setPreviewDonor} previewMode={previewMode} onToggle={()=>setPreviewMode(p=>!p)}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 260px',gap:16}}>
+        {/* Left: Canvas */}
+        <div>
+          {/* Settings bar */}
+          <div className="card" style={{marginBottom:12}}>
+            <div className="card-bd" style={{padding:'12px 16px'}}>
+              <div style={{display:'flex',gap:8,marginBottom:12}}>
+                <div className="tabs">
+                  {['design','settings','preview'].map(t=>(
+                    <div key={t} className={'tab'+(activeTab===t?' active':'')} onClick={()=>setActiveTab(t)} style={{textTransform:'capitalize'}}>{t}</div>
+                  ))}
+                </div>
+              </div>
+              {activeTab==='design' && (
+                <div>
+                  <label className="fl">Subject Line</label>
+                  <div style={{position:'relative'}}>
+                    <input
+                      ref={subjectRef}
+                      className="fi" value={subject}
+                      onChange={e=>setSubject(e.target.value)}
+                      onMouseUp={subjectInsert.trackCursor}
+                      onKeyUp={subjectInsert.trackCursor}
+                      onClick={()=>setSelectedBlock('subject')}
+                      placeholder="Subject line with {{tokens}}"
+                      style={{fontWeight:500,paddingRight:100}}
+                    />
+                    <div style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',fontSize:11,color:'var(--ink45)'}}>
+                      {previewMode ? fillTokens(subject,previewDonor).length : subject.length} chars
+                    </div>
+                  </div>
+                  {previewMode && (
+                    <div style={{fontSize:11.5,color:'var(--teal)',marginTop:4,fontStyle:'italic'}}>
+                      Preview: {subjectDisplay}
+                    </div>
+                  )}
+                </div>
+              )}
+              {activeTab==='settings' && (
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+                  <div><label className="fl">From Name</label><input className="fi" value={fromName} onChange={e=>setFromName(e.target.value)} style={{fontSize:12}}/></div>
+                  <div><label className="fl">From Email</label><input className="fi" value={fromEmail} onChange={e=>setFromEmail(e.target.value)} style={{fontSize:12}}/></div>
+                  <div><label className="fl">Provider</label>
+                    <select className="fi fsel" value={provider} onChange={e=>setProvider(e.target.value)} style={{fontSize:12}}>
+                      <option value="gmail">Gmail OAuth</option>
+                      <option value="outlook">Outlook / Exchange</option>
+                      <option value="sendgrid">SendGrid</option>
+                      <option value="mailchimp">Mailchimp</option>
+                      <option value="blackbaud">Blackbaud Luminate</option>
+                      <option value="acoustic">Acoustic Campaign</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              {activeTab==='preview' && (
+                <div style={{padding:'8px 0',fontSize:13,color:'var(--ink70)'}}>
+                  Full rendered preview shown in email canvas below. Toggle "Preview mode" above to switch between token view and live preview.
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Block canvas */}
+          <div className="card">
+            <div className="card-hd" style={{justifyContent:'space-between'}}>
+              <span className="card-title">Email Canvas</span>
+              <div style={{display:'flex',gap:6}}>
+                <span style={{fontSize:11,color:'var(--ink45)'}}>{blocks.length} blocks</span>
+                {previewMode && <span className="badge bg-teal">Live Preview</span>}
+              </div>
+            </div>
+            <div className="card-bd" style={{padding:16}}>
+              {/* AI generate bar */}
+              <div style={{display:'flex',gap:8,marginBottom:14,padding:10,background:'var(--teall)',borderRadius:8,border:'1px solid var(--token-teal-border)'}}>
+                <span style={{fontSize:16}}>✨</span>
+                <input className="fi" placeholder="Describe email purpose... (AI will write body copy with tokens)" value={aiPrompt} onChange={e=>setAiPrompt(e.target.value)} style={{flex:1,fontSize:12,background:'transparent',border:'none',boxShadow:'none'}} onKeyDown={e=>e.key==='Enter'&&aiGenerate()}/>
+                <button className="btn btn-primary btn-sm" onClick={aiGenerate} disabled={aiLoading} style={{flexShrink:0}}>
+                  {aiLoading ? '...' : 'Generate'}
+                </button>
+              </div>
+              {/* Blocks */}
+              <div style={{maxWidth:580,margin:'0 auto'}}>
+                {blocks.map((block) => (
+                    <EmailBlockItem
+                      key={block.id}
+                      block={block}
+                      isSelected={selectedBlock===block.id}
+                      isDragOver={dragOver===block.id}
+                      onSelect={setSelectedBlock}
+                      onUpdate={updateBlock}
+                      onMoveUp={(id)=>moveBlock(id,'up')}
+                      onMoveDown={(id)=>moveBlock(id,'down')}
+                      onRemove={removeBlock}
+                      onBlockDragStart={onBlockDragStart}
+                      onBlockDragOver={onBlockDragOver}
+                      onBlockDrop={onBlockDrop}
+                      previewMode={previewMode}
+                      previewDonor={previewDonor}
+                      getRef={getBlockRef}
+                    />
+                  )))}
+                {/* Add block */}
+                {!previewMode && (
+                  <div style={{textAlign:'center',padding:'4px 0'}}>
+                    <button className="add-block-btn" onClick={()=>setShowAddBlock(true)}>+ Add Block</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Right: Token Panel */}
+        <div style={{position:'sticky',top:0,maxHeight:'calc(100vh - 120px)',display:'flex',flexDirection:'column',gap:10}}>
+          <div style={{flex:1,minHeight:0}}>
+            <TokenPanel
+              onInsert={insertTokenToSelected}
+              customTokens={customTokens}
+              onAddCustom={onAddCustom}
+              onDeleteCustom={onDeleteCustom}
+            />
+          </div>
+          {/* Active block info */}
+          {selectedBlock && selectedBlock !== 'subject' && (
+            <div className="card" style={{padding:10,fontSize:11.5}}>
+              <div style={{fontWeight:700,color:'var(--ink)',marginBottom:4}}>Active Block</div>
+              <div style={{color:'var(--ink70)'}}>
+                {EMAIL_BLOCK_TYPES.find(b=>b.id===blocks.find(bl=>bl.id===selectedBlock)?.type)?.icon}{' '}
+                {EMAIL_BLOCK_TYPES.find(b=>b.id===blocks.find(bl=>bl.id===selectedBlock)?.type)?.lbl || 'Block'}
+              </div>
+              <div style={{color:'var(--ink45)',marginTop:3}}>Click or drag tokens above to insert at cursor</div>
+            </div>
+          )}
+          {selectedBlock === 'subject' && (
+            <div className="card" style={{padding:10,fontSize:11.5}}>
+              <div style={{fontWeight:700,color:'var(--ink)',marginBottom:4}}>Subject Line</div>
+              <div style={{color:'var(--ink45)'}}>Click tokens to insert into subject</div>
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Add block modal */}
+      {showAddBlock && (
+        <div className="overlay" onClick={()=>setShowAddBlock(false)}>
+          <div className="modal" style={{width:520}} onClick={e=>e.stopPropagation()}>
+            <div className="mh"><div className="mh-title">Add Block</div><button className="btn btn-ghost btn-sm" onClick={()=>setShowAddBlock(false)}>✕</button></div>
+            <div className="mb">
+              <div className="block-type-picker">
+                {EMAIL_BLOCK_TYPES.map(bt => (
+                  <div key={bt.id} className="block-type-card" onClick={()=>addBlock(bt.id)}>
+                    <div className="icon">{bt.icon}</div>
+                    <div className="name">{bt.lbl}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SMS DESIGNER — with token panel + expansion estimator
+// ═══════════════════════════════════════════════════════════════
+const SMS_TEMPLATES = [
+  { id:'st1', lbl:'Gift Thank You',       body:'{{salutation}} Thank you for your generous gift of {{last_gift_amount}} to {{university}}. Your support means everything. - {{agent_name}}' },
+  { id:'st2', lbl:'Lapse Recovery',       body:'Hi {{first_name}}, we miss you! It has been a while since your last gift. Your {{giving_years}} of support have made a real difference. Can we reconnect? - {{agent_name}} {{agent_phone}}' },
+  { id:'st3', lbl:'Event Invitation',     body:'{{first_name}}, you are invited to {{event_name}} on {{event_date}}. Would love to see you there! RSVP: {{giving_url}} - {{agent_name}}' },
+  { id:'st4', lbl:'Match Reminder',       body:'Hi {{first_name}}, your employer {{match_employer}} will match your gift up to {{match_amount}} -- deadline {{match_deadline}}. Submit at {{giving_url}}' },
+  { id:'st5', lbl:'Giving Day',           body:'{{first_name}}, today is Giving Day at {{university}}! {{progress_pct}} to our goal with {{days_remaining}} to go. Give now: {{giving_url}} {{sms_stop}}' },
+  { id:'st6', lbl:'Society Welcome',      body:'Congratulations {{first_name}}! Your cumulative giving has earned you membership in the {{society_name}}. We are honored. - {{agent_name}}' },
+  { id:'st7', lbl:'Ask (Soft)',           body:'Hi {{first_name}}, {{agent_name}} here. Thinking of you and hoping you might consider renewing your support to {{university}} this year. Happy to chat: {{agent_phone}}' },
+  { id:'st8', lbl:'Pledge Reminder',      body:'{{first_name}}, a friendly reminder that your pledge of {{last_gift_amount}} to {{fund_name}} has a payment scheduled. Questions? {{agent_phone}} - {{agent_name}}' },
+];
+
+function SMSDesignerPage({ customTokens, onAddCustom, onDeleteCustom }) {
+  const [body, setBody] = useState('Hi {{first_name}}, {{agent_name}} from {{university}} here. I wanted to personally thank you for your {{giving_years}} of support. Your gift of {{last_gift_amount}} continues to make a difference. Would love to connect. {{sms_stop}}');
+  const [activeTemplate, setActiveTemplate] = useState(null);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewDonor, setPreviewDonor] = useState(PREVIEW_DONORS[0]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [activeTab, setActiveTab] = useState('compose');
+  const taRef = useRef(null);
+  const { insertToken, dragHandlers } = useTokenInsertion(taRef, body, setBody);
+
+  const stats = smsStats(body, previewDonor);
+  const charLimit = 160;
+  const isOver = stats.chars > charLimit;
+
+  async function aiGenerate() {
+    if (!aiPrompt.trim()) return;
+    setAiLoading(true);
+    try {
+      const txt = await callClaude(
+        'You are a university fundraising SMS copywriter. Write a personalized donor text message under 160 characters using {{merge_tokens}} like {{first_name}}, {{last_gift_amount}}, {{agent_name}}, {{university}}, {{sms_stop}}. Return ONLY the SMS text.',
+        `Context: ${aiPrompt}`,
+        200
+      );
+      setBody(txt.trim());
+      toast('SMS copy generated', 'success', '✉️');
+    } catch(e) { toast('AI unavailable','error','✗'); }
+    setAiLoading(false);
+  }
+
+  return (
+    <div>
+      <PreviewDonorBar donors={PREVIEW_DONORS} selected={previewDonor} onSelect={setPreviewDonor} previewMode={previewMode} onToggle={()=>setPreviewMode(p=>!p)}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 260px',gap:16}}>
+        {/* Left */}
+        <div>
+          <div style={{display:'flex',gap:8,marginBottom:12}}>
+            <div className="tabs">
+              {['compose','templates','tcpa'].map(t=>(
+                <div key={t} className={'tab'+(activeTab===t?' active':'')} onClick={()=>setActiveTab(t)} style={{textTransform:'capitalize'}}>{t==='tcpa'?'TCPA / Compliance':t.charAt(0).toUpperCase()+t.slice(1)}</div>
+              ))}
+            </div>
+          </div>
+          {activeTab==='compose' && (
+            <div className="card">
+              <div className="card-hd" style={{justifyContent:'space-between'}}>
+                <span className="card-title">SMS Composer</span>
+                {previewMode && <span className="badge bg-teal">Live Preview</span>}
+              </div>
+              <div className="card-bd">
+                {/* AI generate */}
+                <div style={{display:'flex',gap:8,marginBottom:12,padding:10,background:'var(--teall)',borderRadius:8,border:'1px solid var(--token-teal-border)'}}>
+                  <span style={{fontSize:16}}>✨</span>
+                  <input className="fi" placeholder="Describe SMS purpose... (AI generates with tokens)" value={aiPrompt} onChange={e=>setAiPrompt(e.target.value)} style={{flex:1,fontSize:12,background:'transparent',border:'none',boxShadow:'none'}} onKeyDown={e=>e.key==='Enter'&&aiGenerate()}/>
+                  <button className="btn btn-primary btn-sm" onClick={aiGenerate} disabled={aiLoading}>{aiLoading?'...':'Generate'}</button>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+                  {/* Composer */}
+                  <div>
+                    <label className="fl">Message</label>
+                    {previewMode
+                      ? <div style={{border:'1px solid var(--teal)',borderRadius:7,padding:10,fontSize:13,lineHeight:1.7,background:'rgba(42,140,126,.03)',minHeight:130}}>{fillTokens(body,previewDonor)}</div>
+                      : <textarea
+                          ref={taRef} className="fi fta"
+                          style={{minHeight:130,fontFamily:'inherit',fontSize:13,lineHeight:1.7}}
+                          value={body}
+                          onChange={e=>setBody(e.target.value)}
+                          {...dragHandlers}
+                          placeholder="Compose SMS... drag or click tokens from the right panel"
+                        />
+                    }
+                    {/* Token highlights in read-only view */}
+                    {!previewMode && (
+                      <div style={{marginTop:6,padding:'6px 8px',background:'var(--s2)',borderRadius:6,fontSize:12}}>
+                        <TokenHighlightPreview text={body} previewMode={false} previewDonor={previewDonor}/>
+                      </div>
+                    )}
+                    {/* Char counter */}
+                    <div className="sms-meta" style={{marginTop:8}}>
+                      <span className={isOver?'over':stats.chars>130?'warn':''}>
+                        {previewMode ? stats.chars : body.length} / {charLimit} chars
+                      </span>
+                      <span>•</span>
+                      <span className={stats.parts>1?'warn':''}>
+                        {stats.parts} message{stats.parts>1?'s':''}
+                        {stats.parts>1?' ('+stats.parts+' credits)':''}
+                      </span>
+                      <span>•</span>
+                      <span style={{color:'var(--ink45)'}}>~{stats.chars} after expansion</span>
+                      {!body.includes('{{sms_stop}}') && <span style={{color:'var(--red)',fontWeight:600,marginLeft:'auto'}}>⚠️ Missing STOP</span>}
+                    </div>
+                  </div>
+                  {/* iPhone preview */}
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+                    <div style={{fontSize:11,fontWeight:600,color:'var(--ink45)',marginBottom:8,textTransform:'uppercase',letterSpacing:'.05em'}}>Preview</div>
+                    <div style={{width:200,background:'#1c1c1e',borderRadius:32,padding:'28px 12px 24px',boxShadow:'0 8px 32px rgba(0,0,0,.35)',position:'relative'}}>
+                      <div style={{position:'absolute',top:10,left:'50%',transform:'translateX(-50%)',width:60,height:5,background:'rgba(255,255,255,.2)',borderRadius:3}}/>
+                      <div style={{background:'#2c2c2e',borderRadius:16,padding:'8px 10px',marginBottom:8}}>
+                        <div style={{fontSize:9,color:'rgba(255,255,255,.4)',marginBottom:4,textAlign:'center'}}>
+                          {(previewDonor.first).toUpperCase()} ({{university}})
+                        </div>
+                        <div style={{background:'#3a3a3c',borderRadius:12,padding:'8px 10px',color:'#fff',fontSize:11,lineHeight:1.5}}>
+                          {previewMode ? fillTokens(body,previewDonor) : <TokenHighlightPreview text={body} previewMode={false} previewDonor={previewDonor} style={{color:'#fff',fontSize:11}}/>}
+                        </div>
+                      </div>
+                      <div style={{fontSize:8,color:'rgba(255,255,255,.25)',textAlign:'center'}}>iMessage</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {activeTab==='templates' && (
+            <div className="card">
+              <div className="card-hd"><span className="card-title">SMS Template Library</span></div>
+              <div className="card-bd" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                {SMS_TEMPLATES.map(t => (
+                  <div key={t.id} style={{border:'1px solid var(--ink20)',borderRadius:8,padding:12,cursor:'pointer',transition:'all .15s',background:activeTemplate===t.id?'var(--teall)':'var(--s2)',borderColor:activeTemplate===t.id?'var(--teal)':'var(--ink20)'}}
+                    onClick={()=>{setActiveTemplate(t.id);setBody(t.body);setActiveTab('compose');toast('Template loaded','success','✓')}}>
+                    <div style={{fontWeight:700,fontSize:12,marginBottom:6}}>{t.lbl}</div>
+                    <div style={{fontSize:11,color:'var(--ink70)',lineHeight:1.5,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical'}}>{t.body}</div>
+                    <div style={{marginTop:6,fontSize:10,color:'var(--ink45)'}}>
+                      <TokenHighlightPreview text={t.body} previewMode={false} previewDonor={previewDonor} style={{fontSize:10}}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {activeTab==='tcpa' && (
+            <div className="card">
+              <div className="card-hd"><span className="card-title">TCPA Compliance Settings</span></div>
+              <div className="card-bd">
+                {[
+                  {icon:'✅',title:'STOP keyword handler',desc:'Automatically opt out any contact who replies STOP, STOPALL, UNSUBSCRIBE, CANCEL, END, QUIT',status:'Active'},
+                  {icon:'✅',title:'Opt-in verification',desc:'Require double opt-in before first message. Consent log stored with timestamp.',status:'Active'},
+                  {icon:'✅',title:'Quiet hours enforcement',desc:'No messages sent between 9pm-8am local time. Timezone detected from area code.',status:'Active'},
+                  {icon:'⚠️',title:'STOP text in all messages',desc:'TCPA requires STOP instruction in first message per thread. Token sms_stop enforces this.',status:body.includes('{{sms_stop}}')?'Present':'MISSING: add {{sms_stop}}'},
+                  {icon:'✅',title:'Message frequency disclosure',desc:'Initial opt-in message includes msg & data rates disclaimer and frequency expectation.',status:'Active'},
+                ].map((item,i) => (
+                  <div key={i} style={{display:'flex',gap:12,padding:'10px 0',borderBottom:'1px solid var(--ink20)'}}>
+                    <span style={{fontSize:20}}>{item.icon}</span>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:12,marginBottom:2}}>{item.title}</div>
+                      <div style={{fontSize:11.5,color:'var(--ink70)',marginBottom:4}}>{item.desc}</div>
+                      <span className={'badge '+(item.status==='Active'||item.status==='Present'?'bg-green':'bg-red')}>{item.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        {/* Right: Token Panel */}
+        <TokenPanel onInsert={insertToken} customTokens={customTokens} onAddCustom={onAddCustom} onDeleteCustom={onDeleteCustom}/>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SEQUENCES — step builder with per-step token insertion
+// ═══════════════════════════════════════════════════════════════
+const SEQ_SEQUENCES = [
+  { id:'sq1', name:'Major Gift Cultivation', agent:'VEO', enrolled:47, opened:'68%', replied:'24%', converted:'6%',
+    steps:[
+      {id:'s1',type:'email',  subj:'A personal note, {{first_name}}',       body:'{{salutation}}\n\nI have been thinking about the impact your {{giving_years}} of generosity has had on our students. I would love to connect...', delay:0},
+      {id:'s2',type:'delay',  days:3,  label:'Wait 3 days'},
+      {id:'s3',type:'task',   label:'Check if opened: if yes, advance to call'},
+      {id:'s4',type:'condition', label:'Opened email?', yes:'s5', no:'s6'},
+      {id:'s5',type:'call',   label:'Call {{first_name}}: reference email, discuss impact'},
+      {id:'s6',type:'sms',    body:'Hi {{first_name}}, {{agent_name}} from {{university}}. Sent you a note, would love to connect at your convenience. {{agent_phone}}'},
+      {id:'s7',type:'delay',  days:7,  label:'Wait 7 days'},
+      {id:'s8',type:'email',  subj:'One more thought, {{first_name}}',       body:'{{salutation}}\n\nI wanted to share an update on how gifts like yours are being put to work...\n\n{{impact_statement}}\n\n{{agent_name}}'},
+    ]
+  },
+  { id:'sq2', name:'Lapse Recovery', agent:'VSO', enrolled:312, opened:'41%', replied:'9%', converted:'3%',
+    steps:[
+      {id:'s1',type:'email',  subj:'We miss you, {{first_name}}',            body:'{{salutation}}\n\nIt has been a while since we last heard from you and I wanted to reach out personally...'},
+      {id:'s2',type:'delay',  days:5,  label:'Wait 5 days'},
+      {id:'s3',type:'sms',    body:'Hi {{first_name}}, {{agent_name}} from {{university}}. Just checking in, would love to hear from you. {{sms_stop}}'},
+      {id:'s4',type:'delay',  days:7,  label:'Wait 7 days'},
+      {id:'s5',type:'email',  subj:'Last chance to renew, {{first_name}}',   body:'{{salutation}}\n\nYour {{giving_years}} of consecutive giving has made such a difference. I hope we can count on you again this year...'},
+    ]
+  },
+];
+
+const SEQ_STEP_TYPES = [
+  {id:'email',   icon:'✉️',  lbl:'Email',      color:'var(--teal)'},
+  {id:'sms',     icon:'💬',  lbl:'SMS',         color:'var(--slate)'},
+  {id:'call',    icon:'📞',  lbl:'Phone Task',  color:'var(--amber)'},
+  {id:'delay',   icon:'⏳',  lbl:'Wait',        color:'var(--ink45)'},
+  {id:'task',    icon:'✅',  lbl:'Manual Task', color:'var(--green)'},
+  {id:'condition',icon:'⑂', lbl:'Branch',      color:'var(--purple)'},
+  {id:'webhook', icon:'🔗',  lbl:'Webhook',     color:'var(--coral)'},
+];
+
+function SequenceStepEditor({ step, onChange, customTokens, onAddCustom, onDeleteCustom }) {
+  const taRef = useRef(null);
+  const field = step.type === 'email' ? (step.body||'') : (step.body||step.label||'');
+  const { insertToken, dragHandlers } = useTokenInsertion(taRef, field, (val) => {
+    if (step.type==='email') onChange({...step, body:val});
+    else onChange({...step, body:val});
+  });
+  const subjRef = useRef(null);
+  const subjInsert = useTokenInsertion(subjRef, step.subj||'', (val)=>onChange({...step,subj:val}));
+
+  if (step.type==='delay') return (
+    <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0'}}>
+      <span style={{fontSize:13,color:'var(--ink70)'}}>Wait</span>
+      <input type="number" className="fi" value={step.days||1} min={1} max={365} onChange={e=>onChange({...step,days:parseInt(e.target.value)||1})} style={{width:70,fontSize:13}}/>
+      <span style={{fontSize:13,color:'var(--ink70)'}}>days before next step</span>
+    </div>
+  );
+  if (step.type==='condition') return (
+    <div style={{padding:'10px 0'}}>
+      <label className="fl">Condition</label>
+      <select className="fi fsel" value={step.condition||'opened'} onChange={e=>onChange({...step,condition:e.target.value})} style={{fontSize:12}}>
+        <option value="opened">Email opened</option>
+        <option value="replied">Replied to email</option>
+        <option value="clicked">Clicked CTA link</option>
+        <option value="gave">Made a gift</option>
+        <option value="score_gt80">Engagement score greater than 80</option>
+        <option value="custom">Custom condition</option>
+      </select>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:8}}>
+        <div style={{border:'1px solid var(--green)',borderRadius:7,padding:8,fontSize:11.5}}>
+          <span style={{color:'var(--green)',fontWeight:700}}>YES →</span> Advance to next step
+        </div>
+        <div style={{border:'1px solid var(--coral)',borderRadius:7,padding:8,fontSize:11.5}}>
+          <span style={{color:'var(--coral)',fontWeight:700}}>NO →</span> Skip to alternate step
+        </div>
+      </div>
+    </div>
+  );
+  if (step.type==='task'||step.type==='call') return (
+    <div style={{padding:'10px 0'}}>
+      <label className="fl">{step.type==='call'?'Call Script / Notes':'Task Instructions'}</label>
+      <div style={{display:'flex',gap:8}}>
+        <textarea ref={taRef} className="fi fta" style={{fontSize:12,minHeight:80,flex:1}} value={step.label||''} onChange={e=>onChange({...step,label:e.target.value})} placeholder="Add notes or script..." {...dragHandlers}/>
+      </div>
+      <div style={{fontSize:11,color:'var(--ink45)',marginTop:4}}>Drag tokens from panel to insert donor info into task notes</div>
+    </div>
+  );
+  return (
+    <div style={{padding:'10px 0'}}>
+      {step.type==='email' && (
+        <div style={{marginBottom:8}}>
+          <label className="fl">Subject</label>
+          <div style={{display:'flex',gap:6}}>
+            <input ref={subjRef} className="fi" value={step.subj||''} onChange={e=>onChange({...step,subj:e.target.value})} onMouseUp={subjInsert.trackCursor} onKeyUp={subjInsert.trackCursor} placeholder="Subject line with {{tokens}}" style={{fontSize:12}}/>
+          </div>
+          <div style={{marginTop:3}}>
+            <TokenHighlightPreview text={step.subj||''} previewMode={false} previewDonor={PREVIEW_DONORS[0]} style={{fontSize:11,color:'var(--ink45)'}}/>
+          </div>
+        </div>
+      )}
+      <label className="fl">{step.type==='email'?'Body':'Message'}</label>
+      <textarea
+        ref={taRef} className="fi fta"
+        style={{fontSize:12,minHeight:step.type==='email'?160:90,lineHeight:1.7}}
+        value={step.type==='email'?(step.body||''):(step.body||'')}
+        onChange={e=>onChange({...step, body:e.target.value})}
+        placeholder={step.type==='sms'?'SMS message with {{tokens}}...'+'(160 chars)':'Email body with {{tokens}}...'}
+        {...dragHandlers}
+      />
+      {/* Token highlights */}
+      <div style={{marginTop:6,padding:'5px 8px',background:'var(--s2)',borderRadius:6}}>
+        <TokenHighlightPreview text={step.type==='email'?(step.body||''):(step.body||'')} previewMode={false} previewDonor={PREVIEW_DONORS[0]} style={{fontSize:11}}/>
+      </div>
+      {step.type==='sms' && (() => {
+        const s = smsStats(step.body||'', PREVIEW_DONORS[0]);
+        return <div className="sms-meta" style={{marginTop:6}}><span className={s.chars>160?'over':s.chars>130?'warn':''}>{(step.body||'').length} / 160</span><span>•</span><span>{s.parts} msg</span>{!(step.body||'').includes('{{sms_stop}}')&&<span style={{color:'var(--red)',fontWeight:600,marginLeft:'auto'}}>⚠️ Missing STOP</span>}</div>;
+      })()}
+    </div>
+  );
+}
+
+function SequencesPage({ customTokens, onAddCustom, onDeleteCustom }) {
+  const [view, setView] = useState('list');
+  const [activeSeq, setActiveSeq] = useState(null);
+  const [seqs, setSeqs] = useState(SEQ_SEQUENCES);
+  const [activeStepId, setActiveStepId] = useState(null);
+  const [showAddStep, setShowAddStep] = useState(false);
+
+  function openSeq(sq) { setActiveSeq({...sq, steps:[...sq.steps.map(s=>({...s}))]}); setView('builder'); setActiveStepId(sq.steps.find(s=>s.type==='email'||s.type==='sms')?.id||sq.steps[0]?.id); }
+
+  function updateStep(stepId, updated) {
+    setActiveSeq(sq => ({...sq, steps: sq.steps.map(s => s.id===stepId ? updated : s)}));
+  }
+
+  function addStep(type) {
+    const st = SEQ_STEP_TYPES.find(t=>t.id===type);
+    const newStep = {id:'s'+Date.now(), type, subj:'', body:'', label:st.lbl+' step', days:3};
+    setActiveSeq(sq => ({...sq, steps:[...sq.steps, newStep]}));
+    setActiveStepId(newStep.id);
+    setShowAddStep(false);
+  }
+
+  const activeStep = activeSeq?.steps.find(s=>s.id===activeStepId);
+  const stepType = SEQ_STEP_TYPES.find(t=>t.id===activeStep?.type);
+
+  if (view==='list') return (
+    <div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+        <div style={{fontSize:13,color:'var(--ink70)'}}>Automated multi-step sequences with personalized {{tokens}} at every step</div>
+        <button className="btn btn-primary" onClick={()=>{setActiveSeq({id:'sq_new',name:'New Sequence',agent:'VEO',steps:[{id:'s1',type:'email',subj:'',body:'',label:''}]});setView('builder');setActiveStepId('s1');}}>+ New Sequence</button>
+      </div>
+      <div style={{display:'grid',gap:10}}>
+        {seqs.map(sq => (
+          <div key={sq.id} className="card" style={{cursor:'pointer'}} onClick={()=>openSeq(sq)}>
+            <div className="card-bd" style={{padding:'14px 18px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:700,fontSize:14,marginBottom:4}}>{sq.name}</div>
+                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                    <span className="badge bg-slate">{sq.agent}</span>
+                    <span style={{fontSize:11.5,color:'var(--ink45)'}}>{sq.steps.length} steps</span>
+                    <span style={{fontSize:11.5,color:'var(--ink45)'}}>•</span>
+                    <span style={{fontSize:11.5,color:'var(--ink45)'}}>Enrolled: {sq.enrolled}</span>
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:16,fontSize:12}}>
+                  {[['Opened',sq.opened,'var(--teal)'],['Replied',sq.replied,'var(--slate)'],['Converted',sq.converted,'var(--green)']].map(([l,v,c])=>(
+                    <div key={l} style={{textAlign:'center'}}>
+                      <div style={{fontWeight:800,fontSize:16,color:c}}>{v}</div>
+                      <div style={{color:'var(--ink45)'}}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+                <button className="btn btn-ghost btn-sm">Edit →</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
+        <button className="btn btn-ghost btn-sm" onClick={()=>setView('list')}>← Back</button>
+        <input className="fi" value={activeSeq?.name||''} onChange={e=>setActiveSeq(sq=>({...sq,name:e.target.value}))} style={{fontSize:15,fontWeight:700,border:'none',background:'transparent',boxShadow:'none',padding:'4px 0',flex:1}}/>
+        <button className="btn btn-primary btn-sm" onClick={()=>{toast('Sequence saved','success','✓')}}>Save Sequence</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'240px 1fr 260px',gap:16,alignItems:'start'}}>
+        {/* Step timeline */}
+        <div className="card">
+          <div className="card-hd"><span className="card-title">Steps</span></div>
+          <div className="card-bd" style={{padding:12}}>
+            {activeSeq?.steps.map((step,idx) => {
+              const st = SEQ_STEP_TYPES.find(t=>t.id===step.type)||{icon:'?',lbl:'Step',color:'var(--ink45)'};
+              return (
+                <div key={step.id} className="seq-step">
+                  <div className={'seq-step-dot'+(activeStepId===step.id?' done':'')}/>
+                  {idx<(activeSeq.steps.length-1)&&<div className="seq-connector"/>}
+                  <div className={'seq-card'+(activeStepId===step.id?' active':'')} onClick={()=>setActiveStepId(step.id)}>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <span style={{fontSize:14}}>{st.icon}</span>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:11.5,fontWeight:700,color:st.color}}>{st.lbl}</div>
+                        <div style={{fontSize:10.5,color:'var(--ink45)',overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis',maxWidth:150}}>
+                          {step.subj||step.body?.slice(0,40)||step.label||'(empty)'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {!showAddStep ? (
+              <button className="add-block-btn" style={{width:'100%',marginTop:8}} onClick={()=>setShowAddStep(true)}>+ Add Step</button>
+            ) : (
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:4,marginTop:8}}>
+                {SEQ_STEP_TYPES.map(st=>(
+                  <button key={st.id} className="btn btn-ghost btn-sm" style={{justifyContent:'flex-start',gap:4,fontSize:10.5}} onClick={()=>addStep(st.id)}>
+                    <span>{st.icon}</span>{st.lbl}
+                  </button>
+                ))}
+                <button className="btn btn-ghost btn-sm" onClick={()=>setShowAddStep(false)}>Cancel</button>
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Step editor */}
+        <div className="card">
+          <div className="card-hd">
+            <span style={{fontSize:16}}>{stepType?.icon||'?'}</span>
+            <span className="card-title">{stepType?.lbl||'Step'} Editor</span>
+            {activeStep && <span className="badge bg-slate" style={{marginLeft:'auto'}}>Step {(activeSeq?.steps.findIndex(s=>s.id===activeStepId)||0)+1}</span>}
+          </div>
+          <div className="card-bd">
+            {activeStep
+              ? <SequenceStepEditor step={activeStep} onChange={s=>updateStep(activeStepId,s)} customTokens={customTokens} onAddCustom={onAddCustom} onDeleteCustom={onDeleteCustom}/>
+              : <div style={{color:'var(--ink45)',fontSize:13,textAlign:'center',padding:20}}>Select a step to edit</div>
+            }
+          </div>
+        </div>
+        {/* Token panel */}
+        <TokenPanel onInsert={(tok)=>{
+          if (!activeStep) return;
+          if (activeStep.type==='email') updateStep(activeStepId,{...activeStep,body:(activeStep.body||'')+tok});
+          else updateStep(activeStepId,{...activeStep,body:(activeStep.body||'')+tok});
+          toast('Token added to step','success','✓');
+        }} customTokens={customTokens} onAddCustom={onAddCustom} onDeleteCustom={onDeleteCustom} compact={true}/>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INTEGRATIONS HUB
+// ═══════════════════════════════════════════════════════════════
+const INTEGRATIONS = {
+  email_providers:{label:'Email Delivery',icon:'✉️',items:[
+    {id:'gmail',       name:'Gmail OAuth',           icon:'📧',badge:'OAuth 2.0',  status:'connected',  color:'#EA4335',he:false,desc:'Send emails directly from officer Gmail accounts with OAuth authentication. Appears as sent from officer personal address.'},
+    {id:'outlook',     name:'Outlook / Exchange',    icon:'📨',badge:'EWS + OAuth',status:'connected',  color:'#0078D4',he:false,desc:'Microsoft Exchange integration via EWS or modern OAuth. Supports on-premise and Office 365.'},
+    {id:'smtp',        name:'Custom SMTP',            icon:'🖥',badge:'SMTP/TLS',   status:'configured', color:'#6b7280',he:false,desc:'Send via any SMTP server with TLS encryption. Supports institutional email servers.'},
+    {id:'sendgrid',    name:'SendGrid',               icon:'✉',badge:'API v3',     status:'configured', color:'#1A82E2',he:false,desc:'High-volume transactional email. Ideal for giving day blasts and campaign sends.'},
+    {id:'mailchimp',   name:'Mailchimp',              icon:'🐒',badge:'API 3.0',   status:'available',  color:'#FFE01B',he:false,desc:'Email marketing platform with list management. Good for annual fund newsletters.'},
+    {id:'constant',    name:'Constant Contact',       icon:'📬',badge:'API v3',    status:'available',  color:'#1065C2',he:false,desc:'Email marketing with event management. Popular with alumni associations.'},
+    {id:'emma',        name:'Emma by Marigold',       icon:'💌',badge:'REST API',  status:'available',  color:'#e04b8a',he:true, desc:'Higher-ed specialist email platform. Deep SFTP and CRM sync for advancement offices.'},
+    {id:'acoustic',    name:'Acoustic Campaign',      icon:'📡',badge:'API',       status:'available',  color:'#0033A0',he:true, desc:'Enterprise email platform formerly IBM Watson Campaign. Strong segmentation.'},
+    {id:'luminate',    name:'Blackbaud Luminate',     icon:'🔵',badge:'REST',      status:'available',  color:'#009CDE',he:true, desc:'Native Blackbaud email and constituent engagement platform.'},
+    {id:'sfmc',        name:'Salesforce Marketing Cloud',icon:'☁',badge:'API',    status:'available',  color:'#00A1E0',he:false,desc:'Enterprise email automation with journey builder. Syncs with Salesforce NPSP.'},
+    {id:'pardot',      name:'Pardot / MCAE',          icon:'📋',badge:'API v5',   status:'available',  color:'#00A1E0',he:false,desc:'B2B marketing automation. Strong Salesforce ecosystem integration.'},
+  ]},
+  sms:{label:'SMS / Text',icon:'💬',items:[
+    {id:'twilio',      name:'Twilio',                 icon:'🟥',badge:'REST API',  status:'connected',  color:'#F22F46',he:false,desc:'Industry-leading SMS API. Supports short codes, toll-free, and 10DLC local numbers.'},
+    {id:'bandwidth',   name:'Bandwidth',              icon:'📶',badge:'API v2',    status:'available',  color:'#009B3A',he:false,desc:'Direct carrier connectivity. Lower cost for high-volume SMS with US numbers.'},
+    {id:'signalvine',  name:'Signal Vine',            icon:'📲',badge:'API',       status:'available',  color:'#7c3aed',he:true, desc:'Higher-ed conversational texting platform. Excellent for student and alumni engagement.'},
+    {id:'mobilecommons',name:'Mobile Commons',        icon:'📱',badge:'API',      status:'available',  color:'#16a34a',he:true, desc:'Nonprofit and higher-ed SMS platform. Strong opt-in management and compliance tools.'},
+    {id:'tatango',     name:'Tatango',                icon:'💬',badge:'API',       status:'available',  color:'#cc6d52',he:true, desc:'High-volume text messaging for nonprofits. Used by major advancement campaigns.'},
+    {id:'eztexting',   name:'EZTexting',              icon:'📨',badge:'API v2',    status:'available',  color:'#2a8c7e',he:false,desc:'Easy-to-use SMS platform. Good for smaller advancement shops getting started with texting.'},
+    {id:'thinkbroadcast',name:'ThinkBroadcast',       icon:'📢',badge:'REST',      status:'available',  color:'#5a6da8',he:true, desc:'Higher-ed focused broadcast texting. Strong TCPA compliance tools.'},
+    {id:'salesmsg',    name:'Salesmessage',           icon:'💬',badge:'API',       status:'available',  color:'#0ea5e9',he:false,desc:'Two-way SMS with CRM integrations. Good for gift officer 1:1 texting workflows.'},
+  ]},
+  direct_mail:{label:'Direct Mail',icon:'✍️',items:[
+    {id:'handwrytten', name:'Handwrytten',            icon:'✍️',badge:'Robot pen',  status:'connected',  color:'#2a8c7e',he:false,desc:'Robotic handwritten notes on real cards. $3-5/card. Most authentic physical touch. Drives 3-5x response vs. printed mail.'},
+    {id:'postgrid',    name:'PostGrid',               icon:'📮',badge:'API v2',    status:'configured', color:'#dc2626',he:false,desc:'Automated direct mail. Personalized letters, postcards, and self-mailers at scale with variable data printing.'},
+    {id:'lob',         name:'Lob',                   icon:'📬',badge:'REST API',  status:'available',  color:'#7c3aed',he:false,desc:'Developer-friendly direct mail API. Address verification + print + mail. Used by fintech and nonprofits.'},
+    {id:'pfl',         name:'Printing for Less',     icon:'🖨',badge:'API',       status:'available',  color:'#1f6e63',he:false,desc:'Full-service print and mail. University-branded materials at scale. Annual reports, campaign brochures.'},
+  ]},
+  calling:{label:'Phone / Calling',icon:'📞',items:[
+    {id:'salesloft',   name:'Salesloft',              icon:'📞',badge:'API v2',    status:'configured', color:'#0ea5e9',he:false,desc:'Sales engagement with dialer, call recording, and AI insights. Good for phonathon modernization.'},
+    {id:'outreachio',  name:'Outreach.io',            icon:'📲',badge:'API',       status:'available',  color:'#5956d6',he:false,desc:'Enterprise sales engagement platform. Sequences + dialer + analytics for gift officer outreach.'},
+    {id:'orum',        name:'Orum AI Dialer',         icon:'🤖',badge:'AI',        status:'available',  color:'#2a8c7e',he:false,desc:'AI-powered parallel dialer. Skips voicemails, detects live answers. 3-5x more live connections per hour.'},
+    {id:'phoneburner', name:'PhoneBurner',            icon:'🔥',badge:'API',       status:'available',  color:'#dc2626',he:false,desc:'Power dialer with voicemail drop and email follow-up. Phonathon-friendly.'},
+    {id:'calltools',   name:'CallTools',              icon:'☎',badge:'API',        status:'available',  color:'#92400e',he:true, desc:'Higher-ed focused calling platform. TCPA-compliant with alumni list management.'},
+  ]},
+  crm_bridge:{label:'CRM Write-Back',icon:'🔗',items:[
+    {id:'renxt',       name:'Blackbaud RE NXT',       icon:'🔵',badge:'SKY API',   status:'connected',  color:'#009CDE',he:true, desc:'Bi-directional sync with Blackbaud Raiser\'s Edge NXT. Constituent updates, gift records, contact reports synced automatically.'},
+    {id:'banner',      name:'Ellucian Banner',        icon:'🟦',badge:'REST API',  status:'configured', color:'#003087',he:true, desc:'Ellucian Banner and CRM Advance integration. Bi-directional constituent and gift data sync.'},
+    {id:'sfnpsp',      name:'Salesforce NPSP',        icon:'☁',badge:'REST API',  status:'available',  color:'#00A1E0',he:false,desc:'Salesforce Nonprofit Success Pack. Opportunity, contact, and campaign sync. Supports Fundraising.AI apps.'},
+    {id:'hubspot',     name:'HubSpot CRM',            icon:'🟠',badge:'v3 API',   status:'available',  color:'#FF7A59',he:false,desc:'HubSpot CRM sync for institutions using HubSpot for alumni engagement. Contact and deal pipeline sync.'},
+    {id:'re7',         name:"Raiser's Edge 7 Legacy", icon:'📦',badge:'SDK/CSV',  status:'available',  color:'#6b7280',he:true, desc:'Legacy RE7 integration via CSV export/import pipeline. Batch sync with field mapping.'},
+  ]},
+};
+
+function IntegrationsPage() {
+  const [activeCat, setActiveCat] = useState('email_providers');
+  const [selInt, setSelInt] = useState(null);
+  const [searchQ, setSearchQ] = useState('');
+  const allItems = Object.values(INTEGRATIONS).flatMap(c=>c.items);
+  const filtered = searchQ ? allItems.filter(i=>i.name.toLowerCase().includes(searchQ.toLowerCase())||i.desc.toLowerCase().includes(searchQ.toLowerCase())) : (INTEGRATIONS[activeCat]?.items||[]);
+  const sBadge={connected:'bg-green',configured:'bg-teal',available:'bg-slate'};
+  const sLabel={connected:'Connected',configured:'Configured',available:'Available'};
+
+  return (
+    <div>
+      <div style={{display:'flex',gap:10,marginBottom:14}}>
+        <input className="fi" placeholder="Search integrations..." value={searchQ} onChange={e=>setSearchQ(e.target.value)} style={{maxWidth:280,fontSize:12}}/>
+        {!searchQ && Object.entries(INTEGRATIONS).map(([k,cat])=>(
+          <button key={k} className={'btn btn-sm '+(activeCat===k&&!searchQ?'btn-primary':'btn-ghost')} onClick={()=>setActiveCat(k)}>
+            {cat.icon} {cat.label}
+          </button>
+        ))}
+      </div>
+      <div className="int-grid">
+        {filtered.map(int=>(
+          <div key={int.id} className="int-card" onClick={()=>setSelInt(int)}>
+            <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:8}}>
+              <div style={{width:36,height:36,borderRadius:8,background:int.color+'18',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{int.icon}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:700,fontSize:12,marginBottom:2}}>{int.name}</div>
+                <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                  <span className={'badge '+sBadge[int.status]}>{sLabel[int.status]}</span>
+                  {int.he&&<span className="he-badge">HE</span>}
+                </div>
+              </div>
+            </div>
+            <div style={{fontSize:11,color:'var(--ink70)',lineHeight:1.5,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{int.desc}</div>
+          </div>
+        ))}
+      </div>
+      {selInt && (
+        <div className="overlay" onClick={()=>setSelInt(null)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <div className="mh">
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{width:44,height:44,borderRadius:10,background:selInt.color+'18',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>{selInt.icon}</div>
+                <div>
+                  <div style={{fontSize:16,fontWeight:800}}>{selInt.name}</div>
+                  <div style={{display:'flex',gap:6,marginTop:3}}>
+                    <span className={'badge '+sBadge[selInt.status]}>{sLabel[selInt.status]}</span>
+                    <span className="badge bg-slate" style={{fontFamily:'var(--mono)'}}>{selInt.badge}</span>
+                    {selInt.he&&<span className="he-badge">Higher-Ed Specialist</span>}
+                  </div>
+                </div>
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={()=>setSelInt(null)}>✕</button>
+            </div>
+            <div className="mb">
+              <p style={{fontSize:13,color:'var(--ink70)',lineHeight:1.7,marginBottom:20}}>{selInt.desc}</p>
+              {selInt.status==='connected' ? (
+                <div style={{background:'var(--greenl)',border:'1px solid var(--green)',borderRadius:8,padding:14}}>
+                  <div style={{fontWeight:700,color:'var(--green)',marginBottom:6}}>Connected and Active</div>
+                  <div style={{fontSize:12,color:'var(--ink70)'}}>Last sync: 4 minutes ago. All outbound messages routing through this provider.</div>
+                  <button className="btn btn-ghost btn-sm" style={{marginTop:10}}>Disconnect</button>
+                </div>
+              ) : selInt.status==='configured' ? (
+                <div style={{background:'var(--teall)',border:'1px solid var(--teal)',borderRadius:8,padding:14}}>
+                  <div style={{fontWeight:700,color:'var(--teal)',marginBottom:6}}>Configured: Pending Activation</div>
+                  <div style={{fontSize:12,color:'var(--ink70)',marginBottom:10}}>API credentials saved. Activate to begin routing messages.</div>
+                  <button className="btn btn-primary btn-sm" onClick={()=>{setSelInt({...selInt,status:'connected'});toast('Integration activated!','success','✅')}}>Activate</button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,marginBottom:12}}>Setup Guide</div>
+                  {['Obtain API credentials from your '+selInt.name+' account dashboard','Enter API key and configuration below','Test connection to verify','Activate to route messages through this provider'].map((step,i)=>(
+                    <div key={i} style={{display:'flex',gap:10,marginBottom:10,alignItems:'flex-start'}}>
+                      <div style={{width:20,height:20,borderRadius:'50%',background:'var(--teal)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>{i+1}</div>
+                      <div style={{fontSize:12,color:'var(--ink70)',paddingTop:2}}>{step}</div>
+                    </div>
+                  ))}
+                  <div style={{marginTop:16}}>
+                    <label className="fl">API Key</label>
+                    <input className="fi" placeholder="Enter API key..." type="password" style={{fontSize:12,marginBottom:8}}/>
+                    <button className="btn btn-primary btn-sm" onClick={()=>toast('Credentials saved','success','🔑')}>Save Credentials</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ANALYTICS
+// ═══════════════════════════════════════════════════════════════
+function AnalyticsPage() {
+  const channels=[
+    {lbl:'Email',sent:12400,delivered:'98.1%',opened:'42.3%',replied:'11.2%',color:'var(--teal)'},
+    {lbl:'SMS',sent:3200,delivered:'99.4%',opened:'94.7%',replied:'18.3%',color:'var(--slate)'},
+    {lbl:'Direct Mail',sent:480,delivered:'100%',opened:'N/A',replied:'6.2%',color:'var(--amber)'},
+    {lbl:'Phone',sent:890,delivered:'N/A',opened:'N/A',replied:'34.1%',color:'var(--green)'},
+  ];
+  const seqPerf=[
+    {name:'Major Gift Cultivation',steps:8,enrolled:47,opened:'68%',replied:'24%',converted:'6%'},
+    {name:'Post-Gift Stewardship',steps:4,enrolled:1203,opened:'71%',replied:'18%',converted:'N/A'},
+    {name:'Giving Day Campaign',steps:4,enrolled:8420,opened:'59%',replied:'12%',converted:'8%'},
+    {name:'Lapse Recovery',steps:5,enrolled:312,opened:'41%',replied:'9%',converted:'3%'},
+    {name:'Planned Giving Discovery',steps:4,enrolled:23,opened:'57%',replied:'13%',converted:'N/A'},
+  ];
+  return (
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+      <div className="card">
+        <div className="card-hd"><span className="card-title">Channel Performance (30 days)</span></div>
+        <div className="card-bd">
+          {channels.map(c=>(
+            <div key={c.lbl} style={{marginBottom:14}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+                <span style={{fontWeight:700,fontSize:12}}>{c.lbl}</span>
+                <span style={{fontSize:11.5,color:'var(--ink45)'}}>{c.sent.toLocaleString()} sent</span>
+              </div>
+              {[['Delivered',c.delivered,80],['Opened',c.opened,40],['Replied',c.replied,15]].map(([lbl,val,barPct])=>(
+                <div key={lbl} className="metric-bar">
+                  <span style={{fontSize:11,color:'var(--ink45)',width:60,flexShrink:0}}>{lbl}</span>
+                  <div style={{flex:1,height:8,background:'var(--s3)',borderRadius:4}}>
+                    {val!=='N/A'&&<div className="metric-bar-fill" style={{width:val,background:c.color,maxWidth:'100%'}}/>}
+                  </div>
+                  <span style={{fontSize:11,fontWeight:700,width:48,textAlign:'right',color:c.color}}>{val}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-hd"><span className="card-title">Sequence Performance</span></div>
+        <div className="card-bd">
+          <table style={{width:'100%',fontSize:11.5,borderCollapse:'collapse'}}>
+            <thead>
+              <tr style={{borderBottom:'1px solid var(--ink20)'}}>
+                {['Sequence','Enrolled','Opened','Replied','Conv.'].map(h=>(
+                  <th key={h} style={{textAlign:'left',padding:'4px 6px',fontWeight:700,color:'var(--ink45)',fontSize:10.5}}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {seqPerf.map(s=>(
+                <tr key={s.name} style={{borderBottom:'1px solid var(--ink20)'}}>
+                  <td style={{padding:'8px 6px',fontWeight:600}}>{s.name}</td>
+                  <td style={{padding:'8px 6px',color:'var(--ink70)'}}>{s.enrolled}</td>
+                  <td style={{padding:'8px 6px',color:'var(--teal)',fontWeight:700}}>{s.opened}</td>
+                  <td style={{padding:'8px 6px',color:'var(--slate)',fontWeight:700}}>{s.replied}</td>
+                  <td style={{padding:'8px 6px',color:'var(--green)',fontWeight:700}}>{s.converted}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DIRECT MAIL
+// ═══════════════════════════════════════════════════════════════
+function DirectMailPage({ customTokens, onAddCustom, onDeleteCustom }) {
+  const [noteBody, setNoteBody] = useState('Dear {{first_name}},\n\nThank you for your incredible generosity over {{giving_years}}. Your gift of {{last_gift_amount}} has made a lasting difference in the lives of our students at {{university}}.\n\nWith heartfelt gratitude,\n{{agent_name}}\n{{agent_title}}');
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewDonor, setPreviewDonor] = useState(PREVIEW_DONORS[0]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [provider, setProvider] = useState('handwrytten');
+  const taRef = useRef(null);
+  const { insertToken, dragHandlers } = useTokenInsertion(taRef, noteBody, setNoteBody);
+
+  async function aiGenNote() {
+    if (!aiPrompt.trim()) { toast('Describe the note context','warn','⚠️'); return; }
+    setAiLoading(true);
+    try {
+      const txt = await callClaude(
+        'You are a university fundraising copywriter writing personal handwritten card notes. Write a warm, brief, personal note under 120 words using {{merge_tokens}} like {{first_name}}, {{giving_years}}, {{last_gift_amount}}, {{society_name}}, {{agent_name}}, {{university}}. No bullet lists. Return ONLY the note text.',
+        aiPrompt, 250
+      );
+      setNoteBody(txt.trim());
+      toast('Note generated','success','✍️');
+    } catch(e) { toast('AI unavailable','error','✗'); }
+    setAiLoading(false);
+  }
+
+  return (
+    <div>
+      <PreviewDonorBar donors={PREVIEW_DONORS} selected={previewDonor} onSelect={setPreviewDonor} previewMode={previewMode} onToggle={()=>setPreviewMode(p=>!p)}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 260px',gap:16}}>
+        <div>
+          <div className="card" style={{marginBottom:14}}>
+            <div className="card-hd" style={{justifyContent:'space-between'}}>
+              <span className="card-title">Note Composer</span>
+              {previewMode && <span className="badge bg-teal">Live Preview</span>}
+            </div>
+            <div className="card-bd">
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:14}}>
+                <div><label className="fl">Provider</label>
+                  <select className="fi fsel" value={provider} onChange={e=>setProvider(e.target.value)} style={{fontSize:12}}>
+                    <option value="handwrytten">Handwrytten (configured)</option>
+                    <option value="postgrid">PostGrid</option>
+                    <option value="lob">Lob</option>
+                    <option value="pfl">Printing for Less</option>
+                  </select>
+                </div>
+                <div><label className="fl">Card Style</label>
+                  <select className="fi fsel" style={{fontSize:12}}>
+                    <option>University Branded</option><option>Personal Notecard</option>
+                    <option>Seasonal / Holiday</option><option>Annual Fund</option>
+                  </select>
+                </div>
+                <div><label className="fl">Trigger</label>
+                  <select className="fi fsel" style={{fontSize:12}}>
+                    <option>Major gift thank you</option>
+                    <option>Gift anniversary</option>
+                    <option>Lapse recovery</option>
+                    <option>Society milestone</option>
+                    <option>Birthday outreach</option>
+                  </select>
+                </div>
+              </div>
+              {/* AI generate */}
+              <div style={{display:'flex',gap:8,marginBottom:12,padding:10,background:'var(--teall)',borderRadius:8,border:'1px solid var(--token-teal-border)'}}>
+                <span style={{fontSize:16}}>✨</span>
+                <input className="fi" placeholder="Describe note purpose... (AI writes with tokens)" value={aiPrompt} onChange={e=>setAiPrompt(e.target.value)} style={{flex:1,fontSize:12,background:'transparent',border:'none',boxShadow:'none'}} onKeyDown={e=>e.key==='Enter'&&aiGenNote()}/>
+                <button className="btn btn-primary btn-sm" onClick={aiGenNote} disabled={aiLoading}>{aiLoading?'...':'Generate'}</button>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+                <div>
+                  <label className="fl">Note Text</label>
+                  {previewMode
+                    ? <div style={{border:'1px solid var(--teal)',borderRadius:7,padding:12,fontSize:13,lineHeight:1.7,background:'rgba(42,140,126,.03)',minHeight:160,fontFamily:'Georgia,serif'}}>{fillTokens(noteBody,previewDonor)}</div>
+                    : <textarea ref={taRef} className="fi fta" style={{minHeight:160,fontSize:13,lineHeight:1.7}} value={noteBody} onChange={e=>setNoteBody(e.target.value)} placeholder="Note with {{tokens}}..." {...dragHandlers}/>
+                  }
+                  {!previewMode && (
+                    <div style={{marginTop:6,padding:'6px 8px',background:'var(--s2)',borderRadius:6}}>
+                      <TokenHighlightPreview text={noteBody} previewMode={false} previewDonor={previewDonor} style={{fontSize:11}}/>
+                    </div>
+                  )}
+                  <div style={{marginTop:8,fontSize:11,color:'var(--ink45)'}}>
+                    {noteBody.length} chars • ~{Math.ceil(noteBody.length/80)} lines • Est. $3.00/card via {provider}
+                  </div>
+                </div>
+                {/* Card preview */}
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--ink45)',marginBottom:8,textTransform:'uppercase',letterSpacing:'.05em'}}>Card Preview</div>
+                  <div style={{background:'#fff9f0',border:'2px solid #d4b896',borderRadius:10,padding:'20px 18px',boxShadow:'2px 3px 12px rgba(0,0,0,.15)',minHeight:200,position:'relative'}}>
+                    <div style={{position:'absolute',top:8,right:10,width:20,height:28,background:'#e8e0d4',borderRadius:3,border:'1px dashed #bbb',fontSize:8,display:'flex',alignItems:'center',justifyContent:'center',color:'#999'}}>✦</div>
+                    <div style={{fontFamily:'Georgia,serif',fontSize:12,lineHeight:1.8,color:'#3a2d20',whiteSpace:'pre-wrap'}}>
+                      {previewMode ? fillTokens(noteBody,previewDonor) : <TokenHighlightPreview text={noteBody} previewMode={false} previewDonor={previewDonor} style={{fontFamily:'Georgia,serif',fontSize:12,color:'#3a2d20'}}/>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <TokenPanel onInsert={insertToken} customTokens={customTokens} onAddCustom={onAddCustom} onDeleteCustom={onDeleteCustom}/>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  APP SHELL
+// ═══════════════════════════════════════════════════════════════
+const NAV = [
+  {id:'email',       lbl:'Email Designer',    icon:'✉️', badge:null},
+  {id:'sms',         lbl:'SMS Designer',       icon:'💬', badge:'8 templates'},
+  {id:'sequences',   lbl:'Sequences',          icon:'⑂',  badge:'5'},
+  {id:'directmail',  lbl:'Direct Mail',        icon:'✍️', badge:null},
+  {id:'integrations',lbl:'Integrations',       icon:'🔗', badge:null},
+  {id:'analytics',   lbl:'Analytics',          icon:'📊', badge:null},
+];
+
+const PAGE_TITLES = {
+  email:'Email Designer',sms:'SMS Designer',sequences:'Sequences',
+  directmail:'Direct Mail + Handwritten Notes',integrations:'Integrations Hub',analytics:'Analytics',
+};
+
+const PAGE_SUBS = {
+  email:'Build personalized email templates with drag-and-drop token insertion',
+  sms:'Compose personalized SMS with real-time character estimation',
+  sequences:'Automated multi-step sequences with {{tokens}} at every step',
+  directmail:'Handwritten and printed mail with personalized {{tokens}}',
+  integrations:'Connect email, SMS, direct mail, and CRM providers',
+  analytics:'Channel performance and sequence metrics',
+};
+
+function App() {
+  const [page, setPage] = useState('email');
+  const [customTokens, setCustomTokens] = useState(DEFAULT_CUSTOM);
+
+  function onAddCustom(tok) { setCustomTokens(p => [...p, tok]); }
+  function onDeleteCustom(id) { setCustomTokens(p => p.filter(t => t.id !== id)); }
+
+  const sharedProps = { customTokens, onAddCustom, onDeleteCustom };
+
+  const pages = {
+    email:       <EmailDesignerPage {...sharedProps}/>,
+    sms:         <SMSDesignerPage {...sharedProps}/>,
+    sequences:   <SequencesPage {...sharedProps}/>,
+    directmail:  <DirectMailPage {...sharedProps}/>,
+    integrations:<IntegrationsPage/>,
+    analytics:   <AnalyticsPage/>,
+  };
+
+  return (
+    <ToastProvider>
+      <div className="shell">
+        {/* Sidebar */}
+        <div className="sidebar">
+          <div className="sb-brand">
+            <div className="sb-logo">
+              <div className="sb-dot">◎</div>
+              <div>
+                <div className="sb-name">Orbit</div>
+                <div className="sb-sub">COMMS HUB</div>
+              </div>
+            </div>
+          </div>
+          <div className="sb-nav">
+            <div className="sb-section">Channels</div>
+            {NAV.map(n => (
+              <div key={n.id} className={'sb-item'+(page===n.id?' active':'')} onClick={()=>setPage(n.id)}>
+                <span>{n.icon}</span>
+                <span style={{flex:1}}>{n.lbl}</span>
+                {n.badge && <span className="badge">{n.badge}</span>}
+              </div>
+            ))}
+            <div className="sb-section" style={{marginTop:8}}>Personalization</div>
+            <div className="sb-item" style={{background:'var(--teall)',color:'var(--teal)',borderRadius:7,margin:'2px 0'}}>
+              <span>◈</span>
+              <span style={{flex:1,fontSize:12}}>
+                {[...MASTER_TOKENS,...customTokens].length} tokens available
+              </span>
+            </div>
+            <div className="sb-item" style={{fontSize:11.5,color:'rgba(255,255,255,.4)',cursor:'default'}}>
+              {customTokens.length} custom tokens
+            </div>
+          </div>
+        </div>
+        {/* Main */}
+        <div className="main">
+          <div className="topbar">
+            <div className="tb-title">{PAGE_TITLES[page]||page}</div>
+            <div className="tb-sub">{PAGE_SUBS[page]||''}</div>
+            <div className="tb-actions">
+              <button className="btn btn-ghost btn-sm" onClick={()=>window.dispatchEvent(new CustomEvent('orbit:navigate',{detail:{page:'overview'}}))}>
+                ← Main Dashboard
+              </button>
+              <button className="btn btn-primary btn-sm" onClick={()=>toast('Changes saved','success','✓')}>
+                Save
+              </button>
+            </div>
+          </div>
+          <div className="content">
+            {pages[page]}
+          </div>
+        </div>
+      </div>
+    </ToastProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

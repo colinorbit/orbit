@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbit — Nav Redesign Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #0f0f14;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 22px; font-weight: 700; color: #f8fafc;
+    margin-bottom: 6px;
+  }
+  .subtitle { font-size: 13px; color: #64748b; margin-bottom: 36px; font-weight: 500; }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+
+  .option-wrap {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+
+  .option-label {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .option-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #1e293b; border: 1.5px solid #334155;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .option-title { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+  .option-desc  { font-size: 11px; color: #64748b; margin-top: 2px; line-height: 1.5; }
+
+  .option-num.rec { background: rgba(42,140,126,0.2); border-color: rgba(42,140,126,0.5); color: #4ade80; }
+  .rec-badge {
+    padding: 2px 8px; border-radius: 20px;
+    background: rgba(42,140,126,0.15); color: #4ade80;
+    border: 1px solid rgba(74,222,128,0.25);
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+    font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+  }
+
+  /* ─── SHARED MOCK CHROME ─── */
+  .mock {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid #1e293b;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    background: #f8fafc;
+    height: 520px;
+    position: relative;
+  }
+
+  /* fake content area */
+  .fake-content {
+    background: #f1f5f9;
+    padding: 20px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .fake-page-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px; font-weight: 700; color: #0f172a;
+    margin-bottom: 4px;
+  }
+  .fake-breadcrumb { font-size: 11px; color: #94a3b8; margin-bottom: 18px; }
+  .fake-kpi-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .fake-kpi {
+    flex: 1; background: white; border-radius: 10px;
+    padding: 12px 14px; border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .fake-kpi-val { font-size: 20px; font-weight: 800; color: #0f172a; font-family:'Outfit',sans-serif; }
+  .fake-kpi-lbl { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+  .fake-card {
+    background: white; border-radius: 10px; border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05); padding: 14px;
+    margin-bottom: 12px;
+  }
+  .fake-card-title { font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+  .fake-row { height: 8px; background: #f1f5f9; border-radius: 4px; margin-bottom: 6px; }
+  .fake-row.w80 { width: 80%; }
+  .fake-row.w60 { width: 60%; }
+  .fake-row.w90 { width: 90%; }
+
+  /* search bar mock */
+  .fake-search {
+    display: flex; align-items: center; gap: 8px;
+    background: white; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 12px; color: #94a3b8;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .fake-search kbd {
+    margin-left: auto; font-size: 9px; padding: 2px 6px;
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 4px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;
+  }
+
+  /* ════════════════════════════════
+     OPTION A — Narrow Icon Rail
+  ════════════════════════════════ */
+  .optA { display: flex; height: 100%; }
+
+  .rail {
+    width: 56px; background: #0f172a;
+    display: flex; flex-direction: column;
+    flex-shrink: 0; height: 100%;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .rail-logo {
+    width: 56px; height: 52px; display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+  }
+  .logomark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(145deg, #2a8c7e, #1a6b60);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; color: white;
+    box-shadow: 0 3px 10px rgba(42,140,126,0.35);
+  }
+  .rail-nav { flex: 1; padding: 8px 0; overflow: hidden; }
+  .rail-section-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: rgba(255,255,255,0.12); margin: 8px auto 4px;
+  }
+  .rail-item {
+    width: 40px; height: 34px; border-radius: 8px;
+    margin: 2px 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; cursor: pointer;
+    color: rgba(255,255,255,0.35);
+    position: relative;
+  }
+  .rail-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
+  .rail-item.active {
+    background: rgba(42,140,126,0.2); color: #4ade80;
+  }
+  .rail-item .dot {
+    position: absolute; top: 4px; right: 4px;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #2a8c7e;
+  }
+  .rail-footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 8px 0; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .rail-footer-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: rgba(255,255,255,0.35);
+    cursor: pointer; position: relative;
+  }
+  .rail-footer-btn:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); }
+  .rail-avatar {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, #2a8c7e, #1a6b60);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: white;
+    font-family: 'JetBrains Mono', monospace; cursor: pointer;
+    margin: 4px auto 2px;
+  }
+  .ai-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #4ade80; margin: 0 auto 4px;
+    box-shadow: 0 0 6px rgba(74,222,128,0.5);
+  }
+  .rail-main { flex: 1; display: flex; flex-direction: column; }
+  .rail-subheader {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px 0; flex-shrink: 0;
+  }
+  .rail-subheader .fake-page-title { margin-bottom: 0; font-size: 17px; }
+
+  /* ════════════════════════════════
+     OPTION B — Bottom Tab Bar
+  ════════════════════════════════ */
+  .optB { display: flex; flex-direction: column; height: 100%; }
+
+  .bottom-bar {
+    height: 58px; background: #0f172a;
+    display: flex; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 0 4px; flex-shrink: 0;
+    order: 2;
+  }
+  .btab {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 3px; padding: 6px 4px;
+    border-radius: 8px; cursor: pointer;
+    color: rgba(255,255,255,0.35); font-size: 9px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.12s;
+  }
+  .btab:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.05); }
+  .btab.active { color: #4ade80; background: rgba(42,140,126,0.12); }
+  .btab-icon { font-size: 16px; line-height: 1; }
+  .btab-more { font-size: 18px; color: rgba(255,255,255,0.25); }
+
+  .btop-bar {
+    height: 48px; background: #0f172a;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 14px; flex-shrink: 0; order: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .btop-logo { display: flex; align-items: center; gap: 8px; }
+  .btop-logo .logomark { width: 26px; height: 26px; border-radius: 7px; font-size: 12px; }
+  .btop-wordmark { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.85); }
+  .btop-right { display: flex; align-items: center; gap: 8px; }
+  .btop-icon { font-size: 16px; color: rgba(255,255,255,0.4); cursor: pointer; padding: 4px; }
+  .btop-avatar {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: linear-gradient(135deg, #2a8c7e, #1a6b60);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: white;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .btab-ai-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #4ade80; position: absolute; top: 6px; right: 6px;
+    box-shadow: 0 0 5px rgba(74,222,128,0.6);
+  }
+  .btab-wrap { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; }
+  .b-content { flex: 1; order: 1; overflow: hidden; }
+
+  /* ════════════════════════════════
+     OPTION C — Floating Left Panel
+  ════════════════════════════════ */
+  .optC { display: flex; height: 100%; }
+
+  .float-rail-wrap {
+    width: 56px; background: #f1f5f9; position: relative;
+    display: flex; flex-direction: column; flex-shrink: 0;
+    border-right: 1px solid #e2e8f0;
+  }
+  .float-logo-area {
+    height: 52px; display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid #e2e8f0; flex-shrink: 0;
+  }
+  .float-logo {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(145deg, #2a8c7e, #1a6b60);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: white; font-family: 'Outfit', sans-serif;
+  }
+  .float-nav { flex: 1; padding: 8px 0; }
+  .float-item {
+    width: 38px; height: 34px; border-radius: 8px;
+    margin: 2px 9px; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; cursor: pointer; color: #64748b; position: relative;
+  }
+  .float-item:hover { background: rgba(42,140,126,0.08); color: #2a8c7e; }
+  .float-item.active { background: rgba(42,140,126,0.12); color: #2a8c7e; }
+  .float-section-line {
+    height: 1px; background: #e2e8f0; margin: 6px 12px;
+  }
+  .float-footer {
+    border-top: 1px solid #e2e8f0; padding: 8px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .float-avatar {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, #2a8c7e, #1a6b60);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: white; font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+  }
+  .float-icon-btn {
+    width: 30px; height: 28px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer; color: #94a3b8;
+  }
+  .float-icon-btn:hover { background: rgba(42,140,126,0.08); color: #2a8c7e; }
+  .float-ai-indicator {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #22c55e; box-shadow: 0 0 5px rgba(34,197,94,0.4);
+    margin: 0 auto;
+  }
+  .float-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .float-subheader {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px 0; flex-shrink: 0;
+  }
+  .float-subheader .fake-page-title { margin-bottom: 0; font-size: 17px; }
+
+  /* badges */
+  .nb {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #2a8c7e;
+    position: absolute; top: 4px; right: 5px;
+  }
+
+  /* chooser banner */
+  .chooser {
+    margin-top: 28px; padding: 20px 24px;
+    background: #0f172a; border-radius: 12px;
+    border: 1px solid #1e293b;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .chooser-label { font-size: 12px; color: #64748b; font-weight: 600; flex-shrink: 0; }
+  .chooser-opts { display: flex; gap: 10px; flex: 1; }
+  .c-opt {
+    flex: 1; padding: 10px 14px; border-radius: 8px;
+    border: 1.5px solid #1e293b; cursor: pointer;
+    font-size: 11px; font-weight: 700; color: #64748b;
+    transition: all 0.15s; text-align: center;
+  }
+  .c-opt:hover { border-color: #334155; color: #94a3b8; background: #1e293b; }
+  .c-opt.pick { border-color: rgba(42,140,126,0.5); color: #4ade80; background: rgba(42,140,126,0.08); }
+  .c-opt-sub { font-size: 9px; color: #475569; font-weight: 400; margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<h1>Orbit — Nav Redesign Options</h1>
+<p class="subtitle">3 layout directions — pick one (or mix ideas) before we build</p>
+
+<div class="options-grid">
+
+  <!-- ══ OPTION A — Slim Icon Rail (dark, left) ══ -->
+  <div class="option-wrap">
+    <div class="option-label">
+      <div class="option-num rec">A</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="option-title">Slim Dark Rail</div>
+          <span class="rec-badge">Recommended</span>
+        </div>
+        <div class="option-desc">64px icon rail on the left. Expands to full labels on hover. Account, AI status &amp; settings live at the bottom of the rail.</div>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="optA" style="height:100%">
+        <!-- RAIL -->
+        <div class="rail">
+          <div class="rail-logo"><div class="logomark">O</div></div>
+          <div class="rail-nav">
+            <!-- Command Center -->
+            <div class="rail-section-dot"></div>
+            <div class="rail-item active">📊</div>
+            <div class="rail-item">🧠 <span class="dot"></span></div>
+            <div class="rail-item">🤖 <span class="dot"></span></div>
+            <!-- Donors -->
+            <div class="rail-section-dot"></div>
+            <div class="rail-item">👥</div>
+            <div class="rail-item">💼</div>
+            <div class="rail-item">📨 <span class="dot"></span></div>
+            <!-- AI Tools -->
+            <div class="rail-section-dot"></div>
+            <div class="rail-item">🔍</div>
+            <div class="rail-item">🎯</div>
+            <div class="rail-item">💬</div>
+            <div class="rail-item">📡</div>
+            <!-- Reports -->
+            <div class="rail-section-dot"></div>
+            <div class="rail-item">📈</div>
+            <div class="rail-item">🔗</div>
+          </div>
+          <!-- FOOTER — account lives here -->
+          <div class="rail-footer">
+            <!-- AI Active indicator -->
+            <div class="ai-dot" title="AI Active"></div>
+            <!-- Notifications -->
+            <div class="rail-footer-btn">🔔<span style="position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:#f87171;border:1.5px solid #0f172a"></span></div>
+            <!-- Settings -->
+            <div class="rail-footer-btn">⚙️</div>
+            <!-- User avatar -->
+            <div class="rail-avatar">SJ</div>
+          </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="rail-main">
+          <div class="rail-subheader">
+            <div class="fake-page-title">Dashboard</div>
+            <div class="fake-search" style="flex:1;max-width:260px">🔍 Search… <kbd>⌘K</kbd></div>
+          </div>
+          <div class="fake-content" style="padding:14px 18px 0">
+            <div class="fake-breadcrumb">Command Center · Overview</div>
+            <div class="fake-kpi-row">
+              <div class="fake-kpi"><div class="fake-kpi-val">$4.2M</div><div class="fake-kpi-lbl">Raised YTD</div></div>
+              <div class="fake-kpi"><div class="fake-kpi-val">1,847</div><div class="fake-kpi-lbl">Active Donors</div></div>
+              <div class="fake-kpi"><div class="fake-kpi-val">73%</div><div class="fake-kpi-lbl">Retention</div></div>
+            </div>
+            <div class="fake-card">
+              <div class="fake-card-title">Agent Activity</div>
+              <div class="fake-row w90"></div>
+              <div class="fake-row w80"></div>
+              <div class="fake-row w60"></div>
+            </div>
+            <div class="fake-card">
+              <div class="fake-card-title">Today's Priorities</div>
+              <div class="fake-row w80"></div>
+              <div class="fake-row w60"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION B — Bottom Tab Bar ══ -->
+  <div class="option-wrap">
+    <div class="option-label">
+      <div class="option-num">B</div>
+      <div>
+        <div class="option-title">Bottom Tab Bar</div>
+        <div class="option-desc">Nav moves to bottom. Top bar slims to just logo + account. Most familiar mobile pattern — maximises vertical content space.</div>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="optB" style="height:100%">
+        <!-- SLIM TOP BAR — logo + account only -->
+        <div class="btop-bar">
+          <div class="btop-logo">
+            <div class="logomark btop-logo" style="width:26px;height:26px;border-radius:7px;font-size:12px">O</div>
+            <div class="btop-wordmark" style="margin-left:8px">Orbit</div>
+            <span style="margin-left:6px;font-size:9px;padding:2px 6px;border-radius:10px;background:rgba(42,140,126,0.2);color:#4ade80;font-family:'JetBrains Mono',monospace;font-weight:700">AI ACTIVE</span>
+          </div>
+          <div class="btop-right">
+            <div class="btop-icon" style="position:relative">🔔<span style="position:absolute;top:2px;right:2px;width:5px;height:5px;border-radius:50%;background:#f87171"></span></div>
+            <div class="btop-icon">⚙️</div>
+            <div class="btop-avatar">SJ</div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="b-content fake-content" style="padding:14px 16px 0">
+          <div class="fake-page-title">Dashboard</div>
+          <div class="fake-breadcrumb">Command Center · Overview</div>
+          <div style="margin-bottom:10px">
+            <div class="fake-search">🔍 Search donors, pages, actions… <kbd>⌘K</kbd></div>
+          </div>
+          <div class="fake-kpi-row">
+            <div class="fake-kpi"><div class="fake-kpi-val">$4.2M</div><div class="fake-kpi-lbl">Raised YTD</div></div>
+            <div class="fake-kpi"><div class="fake-kpi-val">1,847</div><div class="fake-kpi-lbl">Active Donors</div></div>
+            <div class="fake-kpi"><div class="fake-kpi-val">73%</div><div class="fake-kpi-lbl">Retention</div></div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-card-title">Agent Activity</div>
+            <div class="fake-row w90"></div>
+            <div class="fake-row w80"></div>
+          </div>
+        </div>
+
+        <!-- BOTTOM TAB BAR -->
+        <div class="bottom-bar">
+          <div class="btab active">
+            <div class="btab-icon">📊</div>
+            <div>Dash</div>
+          </div>
+          <div class="btab">
+            <div class="btab-wrap">
+              <div class="btab-icon">👥</div>
+            </div>
+            <div>Donors</div>
+          </div>
+          <div class="btab">
+            <div class="btab-wrap">
+              <div class="btab-icon">📨</div>
+              <div class="btab-ai-dot"></div>
+            </div>
+            <div>Outreach</div>
+          </div>
+          <div class="btab">
+            <div class="btab-icon">🤖</div>
+            <div>Agents</div>
+          </div>
+          <div class="btab">
+            <div class="btab-icon">···</div>
+            <div>More</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION C — Light Rail (same side, light bg) ══ -->
+  <div class="option-wrap">
+    <div class="option-label">
+      <div class="option-num">C</div>
+      <div>
+        <div class="option-title">Light Side Rail</div>
+        <div class="option-desc">Same concept as A but the rail uses the light surface colour — blends into the content area. More airy, less heavy.</div>
+      </div>
+    </div>
+
+    <div class="mock">
+      <div class="optC" style="height:100%">
+        <!-- LIGHT RAIL -->
+        <div class="float-rail-wrap">
+          <div class="float-logo-area"><div class="float-logo">O</div></div>
+          <div class="float-nav">
+            <div class="float-section-line"></div>
+            <div class="float-item active">📊</div>
+            <div class="float-item">🧠 <span class="nb"></span></div>
+            <div class="float-item">🤖 <span class="nb"></span></div>
+            <div class="float-section-line"></div>
+            <div class="float-item">👥</div>
+            <div class="float-item">💼</div>
+            <div class="float-item">📨 <span class="nb"></span></div>
+            <div class="float-section-line"></div>
+            <div class="float-item">🔍</div>
+            <div class="float-item">🎯</div>
+            <div class="float-item">💬</div>
+            <div class="float-section-line"></div>
+            <div class="float-item">📈</div>
+            <div class="float-item">🔗</div>
+          </div>
+          <div class="float-footer">
+            <div class="float-ai-indicator" title="AI Active"></div>
+            <div class="float-icon-btn">🔔</div>
+            <div class="float-icon-btn">⚙️</div>
+            <div class="float-avatar">SJ</div>
+          </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="float-main">
+          <div class="float-subheader">
+            <div class="fake-page-title">Dashboard</div>
+            <div class="fake-search" style="flex:1;max-width:240px;font-size:11px">🔍 Search… <kbd>⌘K</kbd></div>
+          </div>
+          <div class="fake-content" style="padding:12px 16px 0">
+            <div class="fake-breadcrumb">Command Center · Overview</div>
+            <div class="fake-kpi-row">
+              <div class="fake-kpi"><div class="fake-kpi-val">$4.2M</div><div class="fake-kpi-lbl">Raised YTD</div></div>
+              <div class="fake-kpi"><div class="fake-kpi-val">1,847</div><div class="fake-kpi-lbl">Donors</div></div>
+              <div class="fake-kpi"><div class="fake-kpi-val">73%</div><div class="fake-kpi-lbl">Retention</div></div>
+            </div>
+            <div class="fake-card">
+              <div class="fake-card-title">Agent Activity</div>
+              <div class="fake-row w90"></div>
+              <div class="fake-row w80"></div>
+              <div class="fake-row w60"></div>
+            </div>
+            <div class="fake-card">
+              <div class="fake-card-title">Today's Priorities</div>
+              <div class="fake-row w80"></div>
+              <div class="fake-row w60"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- chooser -->
+<div class="chooser">
+  <div class="chooser-label">Which direction?</div>
+  <div class="chooser-opts">
+    <div class="c-opt pick" onclick="this.classList.toggle('pick')">
+      A — Slim Dark Rail
+      <div class="c-opt-sub">My recommendation</div>
+    </div>
+    <div class="c-opt" onclick="this.classList.toggle('pick')">
+      B — Bottom Tabs
+      <div class="c-opt-sub">Mobile-first feel</div>
+    </div>
+    <div class="c-opt" onclick="this.classList.toggle('pick')">
+      C — Light Rail
+      <div class="c-opt-sub">Softer &amp; airier</div>
+    </div>
+    <div class="c-opt" onclick="this.classList.toggle('pick')">
+      A + B hybrid
+      <div class="c-opt-sub">Rail + bottom bar</div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:20px;font-size:11px;color:#334155;font-family:'JetBrains Mono',monospace">
+  All 3 options: no topbar · page title inline with content · account/user/AI status at bottom of rail · search stays accessible · tooltips on hover for icon labels
+</p>
+
+</body>
+</html>

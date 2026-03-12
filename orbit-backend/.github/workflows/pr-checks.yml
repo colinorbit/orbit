@@ -1,0 +1,65 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, staging]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # Fast check: does it even start without crashing?
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: orbit-backend
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: orbit_test
+          POSTGRES_PASSWORD: orbit_test_pw
+          POSTGRES_DB: orbit_test
+        ports: [5432:5432]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: [6379:6379]
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://orbit_test:orbit_test_pw@localhost:5432/orbit_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: test-secret
+      ANTHROPIC_API_KEY: test
+      ENABLE_EMAIL: "false"
+      ENABLE_SMS: "false"
+      PORT: 3001
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: orbit-backend/package-lock.json
+
+      - run: npm ci
+      - run: psql postgresql://orbit_test:orbit_test_pw@localhost:5432/orbit_test -f schema.sql
+      - run: npm run lint
+      - run: npm run test:ci
+
+      # Post a summary comment on the PR
+      - name: PR Test Summary
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: orbit-backend/coverage/junit.xml
+        continue-on-error: true

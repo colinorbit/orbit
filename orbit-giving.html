@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0"/>
+<meta name="description" content="Greenfield University Day of Giving 2026 — Give today and make your mark."/>
+<title>Greenfield Day of Giving 2026 — Give Now</title>
+
+<!-- Fonts: match Orbit dashboard exactly -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+<style>
+/* ═══════════════════════════════════════════════════
+   ORBIT DESIGN SYSTEM — matches orbit-dashboard.html
+═══════════════════════════════════════════════════ */
+:root {
+  /* Light base — matches dashboard */
+  --bg:           #f0f2f5;
+  --surface:      #ffffff;
+  --surface-2:    #f0f2f5;
+  --surface-3:    #e4e7ec;
+  --border:       rgba(26,29,35,0.10);
+  --border-md:    rgba(26,29,35,0.15);
+  --ink:          #1a1d23;
+  --ink-70:       rgba(26,29,35,0.70);
+  --ink-45:       rgba(26,29,35,0.45);
+  --ink-20:       rgba(26,29,35,0.20);
+  --ink-08:       rgba(26,29,35,0.08);
+
+  /* Brand — matches dashboard */
+  --teal:         #2a8c7e;
+  --teal-hover:   #1f6e63;
+  --teal-light:   #e4f4f1;
+  --teal-mid:     #48a99d;
+  --teal-glow:    rgba(42,140,126,0.22);
+  --amber:        #c2853a;
+  --amber-light:  #fdf2e4;
+  --green:        #16a34a;
+  --green-light:  #dcfce7;
+  --coral:        #cc6d52;
+  --coral-light:  #faede8;
+  --gold:         #d97706;
+  --gold-light:   #fef3c7;
+
+  /* Typography */
+  --font-body:    'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* Radii */
+  --r-xs:  6px;
+  --r-sm:  10px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+
+  /* Shadows */
+  --sh-sm: 0 1px 4px rgba(24,24,31,0.07), 0 4px 14px rgba(24,24,31,0.05);
+  --sh-md: 0 4px 20px rgba(24,24,31,0.09), 0 1px 4px rgba(24,24,31,0.05);
+  --sh-lg: 0 16px 56px rgba(24,24,31,0.12), 0 4px 16px rgba(24,24,31,0.06);
+}
+
+/* ── Reset ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Layout helpers ────────────────────────────────── */
+.container  { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.sr-only    { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+
+/* ── Sticky header ─────────────────────────────────── */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--sh-sm);
+  padding: 0 20px;
+}
+.header-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  height: 60px; gap: 12px;
+}
+.logo-area { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.logo-mark {
+  width: 34px; height: 34px; border-radius: var(--r-sm);
+  background: var(--teal); display: flex; align-items: center;
+  justify-content: center; font-family: var(--font-display);
+  font-size: 16px; font-weight: 800; color: white;
+  flex-shrink: 0;
+}
+.logo-text  { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.logo-sub   { font-size: 11px; color: var(--ink-45); }
+.live-chip  {
+  display: flex; align-items: center; gap: 5px;
+  background: #fef2f2; border: 1px solid #fecaca;
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 10px; font-weight: 700; color: #dc2626;
+  letter-spacing: 0.07em; text-transform: uppercase; flex-shrink: 0;
+}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #dc2626; animation: pulse 1.5s ease-in-out infinite; }
+
+.hdr-stats { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.hdr-stat  { display: flex; flex-direction: column; align-items: flex-end; }
+.hdr-stat .v { font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: var(--teal); line-height: 1; }
+.hdr-stat .l { font-size: 10px; color: var(--ink-45); margin-top: 1px; }
+.countdown-pill {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 700;
+  color: var(--amber); background: var(--amber-light);
+  border: 1px solid rgba(194,133,58,0.25);
+  border-radius: var(--r-sm); padding: 5px 12px;
+  white-space: nowrap;
+}
+
+/* ── Hero ──────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(160deg, var(--teal-light) 0%, var(--bg) 60%);
+  border-bottom: 1px solid var(--border);
+  padding: 48px 20px 40px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--teal-light); border: 1px solid rgba(42,140,126,0.3);
+  border-radius: 20px; padding: 4px 14px;
+  font-size: 11px; font-weight: 700; color: var(--teal);
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 60px);
+  font-weight: 800; color: var(--ink); line-height: 1.08;
+  letter-spacing: -0.02em; margin-bottom: 14px;
+}
+.hero h1 em { font-style: normal; color: var(--teal); }
+.hero-sub {
+  font-size: clamp(14px, 2vw, 18px); color: var(--ink-70);
+  max-width: 540px; margin: 0 auto 0; line-height: 1.6;
+}
+
+/* ── Main layout ───────────────────────────────────── */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  padding: 24px 20px 60px;
+  max-width: 1100px; margin: 0 auto;
+  align-items: start;
+}
+
+/* ── Goal thermometer ──────────────────────────────── */
+.thermo {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 24px 28px;
+  box-shadow: var(--sh-sm); margin-bottom: 20px;
+}
+.thermo-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.raised-amt  { font-family: var(--font-mono); font-size: clamp(28px, 4vw, 44px); font-weight: 800; color: var(--ink); line-height: 1; }
+.raised-sub  { font-size: 12px; color: var(--ink-45); margin-top: 4px; }
+.pct-num     { font-family: var(--font-mono); font-size: 32px; font-weight: 800; color: var(--teal); line-height: 1; }
+.pct-sub     { font-size: 11px; color: var(--ink-45); text-align: right; margin-top: 2px; }
+.bar-track   { height: 14px; background: var(--surface-3); border-radius: 7px; overflow: hidden; margin-bottom: 8px; position: relative; }
+.bar-fill    {
+  height: 100%; border-radius: 7px;
+  background: linear-gradient(90deg, var(--teal-mid), var(--teal));
+  transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 12px var(--teal-glow);
+}
+.bar-labels  { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-45); font-family: var(--font-mono); }
+.thermo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+.tg-stat     { background: var(--surface-2); border-radius: var(--r-sm); padding: 10px 12px; text-align: center; }
+.tg-stat .v  { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--ink); }
+.tg-stat .l  { font-size: 10px; color: var(--ink-45); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.pace-bar    {
+  margin-top: 14px; background: var(--teal-light); border: 1px solid rgba(42,140,126,0.2);
+  border-radius: var(--r-sm); padding: 10px 14px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
+}
+.pace-bar span { font-size: 12px; color: var(--teal); font-weight: 600; }
+
+/* ── Tab bar ───────────────────────────────────────── */
+.tab-bar {
+  display: flex; gap: 2px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: 4px; margin-bottom: 20px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; box-shadow: var(--sh-sm);
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 1 0 auto; padding: 8px 14px; border: none; background: transparent;
+  border-radius: var(--r-sm); font-size: 12px; font-weight: 600;
+  color: var(--ink-45); cursor: pointer; white-space: nowrap;
+  font-family: var(--font-body); transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.tab-btn.active { background: var(--teal); color: white; box-shadow: var(--sh-sm); }
+.tab-btn:hover:not(.active) { background: var(--surface-3); color: var(--ink-70); }
+
+/* ── Section titles ────────────────────────────────── */
+.section-h {
+  font-family: var(--font-display); font-size: 17px; font-weight: 700;
+  color: var(--ink); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ── Card ──────────────────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); box-shadow: var(--sh-sm);
+  overflow: hidden;
+}
+.card-body { padding: 20px; }
+
+/* ── Challenge cards ───────────────────────────────── */
+.challenge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.chal-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 18px;
+  box-shadow: var(--sh-sm); transition: box-shadow 0.2s;
+}
+.chal-card:hover { box-shadow: var(--sh-md); }
+.chal-card.active-match { border-color: rgba(42,140,126,0.3); background: linear-gradient(160deg, var(--teal-light), var(--surface)); }
+.chal-card.active-unlock { border-color: rgba(194,133,58,0.3); background: linear-gradient(160deg, var(--amber-light), var(--surface)); }
+.chal-card.active-battle { border-color: rgba(90,109,168,0.3); }
+.chal-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.tag-match  { background: var(--teal-light);  color: var(--teal); border: 1px solid rgba(42,140,126,0.2); }
+.tag-unlock { background: var(--amber-light); color: var(--amber); border: 1px solid rgba(194,133,58,0.2); }
+.tag-power  { background: var(--coral-light); color: var(--coral); border: 1px solid rgba(204,109,82,0.2); }
+.tag-battle { background: #edf0fa; color: #5a6da8; border: 1px solid rgba(90,109,168,0.2); }
+.chal-name  { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.chal-desc  { font-size: 11px; color: var(--ink-45); line-height: 1.5; margin-bottom: 12px; }
+.chal-big   { font-family: var(--font-mono); font-size: 22px; font-weight: 800; color: var(--teal); margin-bottom: 4px; }
+.chal-bar-track { height: 7px; background: var(--surface-3); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.chal-bar-fill  { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+.chal-footer { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-45); }
+
+/* ── Leaderboard ───────────────────────────────────── */
+.lb-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.lb-pill {
+  padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  cursor: pointer; border: 1px solid var(--border); background: var(--surface);
+  color: var(--ink-45); transition: all 0.15s; font-family: var(--font-body);
+}
+.lb-pill.active { background: var(--teal-light); border-color: rgba(42,140,126,0.3); color: var(--teal); }
+.lb-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-rank { font-family: var(--font-mono); font-size: 12px; font-weight: 700; width: 24px; text-align: center; color: var(--ink-20); flex-shrink: 0; }
+.lb-rank.g1 { color: #d97706; }
+.lb-rank.g2 { color: #94a3b8; }
+.lb-rank.g3 { color: #a16207; }
+.lb-name  { flex: 1; font-size: 13px; font-weight: 600; color: var(--ink-70); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-track { flex: 2; height: 5px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
+.lb-fill  { height: 100%; border-radius: 3px; background: var(--teal); transition: width 0.8s; }
+.lb-val   { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--teal); min-width: 68px; text-align: right; flex-shrink: 0; }
+
+/* ── Gift stream ───────────────────────────────────── */
+.gift-row {
+  display: flex; align-items: center; gap: 12px; padding: 11px 16px;
+  border-bottom: 1px solid var(--border); transition: background 0.3s;
+  animation: slideIn 0.35s ease;
+}
+.gift-row.new-gift { background: var(--teal-light); }
+.gift-row:last-child { border-bottom: none; }
+.gift-avatar {
+  width: 34px; height: 34px; border-radius: var(--r-sm);
+  background: var(--teal-light); color: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+.gift-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.gift-fund { font-size: 11px; color: var(--ink-45); margin-top: 1px; }
+.gift-amt  { margin-left: auto; text-align: right; flex-shrink: 0; }
+.gift-amt .a { font-family: var(--font-mono); font-size: 15px; font-weight: 800; color: var(--teal); }
+.gift-match  { font-size: 10px; font-weight: 700; color: var(--amber); margin-top: 1px; }
+
+/* ── Milestones ────────────────────────────────────── */
+.milestone {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.milestone:last-child { border-bottom: none; }
+.milestone.unlocked { background: var(--teal-light); }
+.ms-icon { font-size: 26px; flex-shrink: 0; }
+.ms-label { font-size: 13px; font-weight: 700; color: var(--ink); }
+.ms-desc  { font-size: 11px; color: var(--ink-45); margin-top: 2px; }
+.ms-right { margin-left: auto; text-align: right; flex-shrink: 0; }
+.ms-thresh { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--ink-45); }
+.ms-done   { font-size: 10px; font-weight: 700; color: var(--teal); background: var(--surface); border: 1px solid rgba(42,140,126,0.2); border-radius: 10px; padding: 2px 8px; display: block; margin-top: 4px; }
+
+/* ── Ambassador cards ──────────────────────────────── */
+.amb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.amb-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 18px; box-shadow: var(--sh-sm);
+}
+.amb-av {
+  width: 44px; height: 44px; border-radius: var(--r-md);
+  background: var(--teal-light); color: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 800; margin-bottom: 10px;
+  font-family: var(--font-mono);
+}
+.amb-name  { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.amb-team  { font-size: 11px; color: var(--ink-45); margin-bottom: 12px; }
+.amb-raised{ font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: var(--teal); }
+.amb-goal  { font-size: 11px; color: var(--ink-45); margin-bottom: 8px; }
+.amb-prog  { height: 5px; background: var(--surface-3); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+.amb-fill  { height: 100%; border-radius: 3px; background: var(--teal); }
+.amb-btn   {
+  width: 100%; padding: 7px; border-radius: var(--r-sm);
+  border: 1px solid var(--border-md); background: transparent;
+  color: var(--ink-70); font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: var(--font-body); transition: all 0.15s;
+}
+.amb-btn:hover { background: var(--teal-light); color: var(--teal); border-color: rgba(42,140,126,0.3); }
+
+/* ══ STICKY GIVING FORM ════════════════════════════ */
+.give-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); box-shadow: var(--sh-lg);
+  position: sticky; top: 76px; overflow: hidden;
+}
+.give-card-header {
+  background: var(--teal); padding: 18px 22px;
+}
+.give-card-header h2 { font-family: var(--font-display); font-size: 17px; font-weight: 800; color: white; margin-bottom: 3px; }
+.give-card-header p  { font-size: 12px; color: rgba(255,255,255,0.75); }
+.give-body { padding: 20px; }
+
+.fl { font-size: 11px; font-weight: 700; color: var(--ink-45); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 6px; }
+.amt-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 10px; }
+.amt-btn {
+  padding: 11px 6px; border-radius: var(--r-sm);
+  border: 1.5px solid var(--border-md);
+  background: var(--surface-2); cursor: pointer;
+  font-family: var(--font-mono); font-size: 15px; font-weight: 700;
+  color: var(--ink-70); transition: all 0.15s; text-align: center;
+}
+.amt-btn:hover { border-color: var(--teal); color: var(--teal); }
+.amt-btn.sel   { border-color: var(--teal); background: var(--teal-light); color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }
+.fi {
+  width: 100%; padding: 10px 12px; margin-bottom: 10px;
+  background: var(--surface-2); border: 1.5px solid var(--border-md);
+  border-radius: var(--r-sm); color: var(--ink); font-size: 13px;
+  font-family: var(--font-body); transition: border-color 0.15s;
+}
+.fi:focus { outline: none; border-color: var(--teal); background: var(--surface); }
+.fi::placeholder { color: var(--ink-20); }
+.fi.no-mb { margin-bottom: 0; }
+.grid-2i { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.freq-row { display: flex; gap: 6px; margin-bottom: 14px; }
+.freq-btn {
+  flex: 1; padding: 8px 4px; border-radius: var(--r-sm);
+  border: 1.5px solid var(--border-md); background: var(--surface-2);
+  color: var(--ink-45); font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: var(--font-body); transition: all 0.15s;
+}
+.freq-btn.sel { border-color: var(--teal); background: var(--teal-light); color: var(--teal); }
+.match-hint {
+  background: var(--amber-light); border: 1px solid rgba(194,133,58,0.2);
+  border-radius: var(--r-sm); padding: 10px 12px;
+  font-size: 12px; color: var(--amber);
+  margin-bottom: 14px; display: flex; align-items: flex-start; gap: 7px; line-height: 1.4;
+}
+.anon-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; cursor: pointer; }
+.anon-row label { font-size: 12px; color: var(--ink-45); cursor: pointer; }
+.give-btn {
+  width: 100%; padding: 14px;
+  background: var(--teal); border: none; border-radius: var(--r-md);
+  font-family: var(--font-display); font-size: 16px; font-weight: 800;
+  color: white; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 14px var(--teal-glow); letter-spacing: 0.01em;
+}
+.give-btn:hover:not(:disabled) { background: var(--teal-hover); box-shadow: 0 6px 20px rgba(42,140,126,0.35); transform: translateY(-1px); }
+.give-btn:active { transform: none; }
+.give-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.pm-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; justify-content: center; }
+.pm-chip {
+  padding: 3px 9px; border-radius: 6px; font-size: 10px; font-weight: 700;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--ink-45);
+}
+.secure-note { text-align: center; font-size: 10px; color: var(--ink-20); margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+/* ── Success modal ─────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(26,29,35,0.55);
+  backdrop-filter: blur(6px); z-index: 500;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface); border-radius: var(--r-xl);
+  box-shadow: var(--sh-lg); padding: 40px 32px;
+  max-width: 460px; width: 100%; text-align: center;
+  transform: scale(0.93) translateY(10px); transition: transform 0.25s;
+}
+.overlay.show .modal { transform: scale(1) translateY(0); }
+.modal-icon  { font-size: 60px; display: block; margin-bottom: 16px; }
+.modal-title { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+.modal-amt   { font-family: var(--font-mono); font-size: 36px; font-weight: 800; color: var(--teal); margin-bottom: 14px; }
+.modal-body  { font-size: 14px; color: var(--ink-70); line-height: 1.6; margin-bottom: 22px; }
+.share-row   { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 18px; }
+.share-btn   {
+  padding: 8px 14px; border-radius: var(--r-sm);
+  border: 1.5px solid var(--border-md); background: var(--surface-2);
+  color: var(--ink-70); font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: var(--font-body); transition: all 0.15s;
+  display: flex; align-items: center; gap: 5px;
+}
+.share-btn:hover { background: var(--teal-light); border-color: rgba(42,140,126,0.3); color: var(--teal); }
+.modal-close { padding: 10px 28px; background: var(--teal); border: none; border-radius: var(--r-sm); color: white; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font-body); }
+
+/* ── Footer ────────────────────────────────────────── */
+.site-footer {
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 24px 20px; text-align: center;
+  font-size: 12px; color: var(--ink-45);
+}
+.orbit-powered {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 8px; font-size: 11px; color: var(--ink-20);
+}
+.orbit-badge { font-weight: 800; color: var(--teal); }
+
+/* ── Animations ────────────────────────────────────── */
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50%      { opacity:0.4; }
+}
+@keyframes slideIn {
+  from { transform: translateY(-8px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — MOBILE FIRST
+═══════════════════════════════════════ */
+
+/* Tablet: ≤900px — stack form below content */
+@media (max-width: 900px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    padding: 16px 16px 40px;
+  }
+  .give-card { position: static; order: -1; } /* form on top on tablet/mobile */
+  .challenge-grid { grid-template-columns: 1fr; }
+  .thermo { padding: 18px 20px; }
+  .thermo-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Phone: ≤600px */
+@media (max-width: 600px) {
+  .hero { padding: 32px 16px 28px; }
+  .hero h1 { font-size: 28px; }
+  .hero-sub { font-size: 14px; }
+
+  .site-header { padding: 0 14px; }
+  .header-inner { height: 54px; }
+  .logo-sub { display: none; }
+  .hdr-stats .hdr-stat:first-child { display: none; } /* hide one stat on tiny screens */
+
+  .main-layout { padding: 12px 14px 36px; gap: 16px; }
+
+  .thermo-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .tg-stat .v  { font-size: 16px; }
+  .raised-amt  { font-size: 28px; }
+  .pct-num     { font-size: 24px; }
+
+  .tab-bar { border-radius: var(--r-sm); }
+  .tab-btn { padding: 7px 10px; font-size: 11px; }
+
+  .challenge-grid { grid-template-columns: 1fr; }
+  .amb-grid { grid-template-columns: 1fr 1fr; }
+
+  .give-body { padding: 16px; }
+  .give-card-header { padding: 14px 16px; }
+  .amt-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .amt-btn  { padding: 10px 4px; font-size: 14px; }
+
+  .modal { padding: 28px 20px; }
+  .modal-title { font-size: 22px; }
+  .modal-amt   { font-size: 28px; }
+}
+
+/* Tiny phone: ≤360px */
+@media (max-width: 360px) {
+  .hero h1  { font-size: 24px; }
+  .countdown-pill { font-size: 13px; padding: 4px 9px; }
+  .amt-btn  { font-size: 12px; }
+  .amb-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ Sticky Header ══════════════════════════════ -->
+<header class="site-header" role="banner">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-mark" aria-hidden="true">G</div>
+      <div>
+        <div class="logo-text">Greenfield University</div>
+        <div class="logo-sub">Day of Giving 2026</div>
+      </div>
+      <div class="live-chip" aria-label="Campaign is live">
+        <div class="live-dot" aria-hidden="true"></div>LIVE
+      </div>
+    </div>
+
+    <div class="hdr-stats" aria-label="Campaign statistics">
+      <div class="hdr-stat">
+        <div class="v" id="hdr-raised" aria-live="polite">$231K</div>
+        <div class="l">Raised</div>
+      </div>
+      <div class="hdr-stat">
+        <div class="v" id="hdr-donors" aria-live="polite">401</div>
+        <div class="l">Donors</div>
+      </div>
+      <div class="countdown-pill" id="hdr-countdown" aria-label="Time remaining" aria-live="polite">00:00:00</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ Hero ══════════════════════════════════════ -->
+<section class="hero" aria-label="Campaign hero">
+  <div class="hero-badge" aria-hidden="true">🎯 April 15, 2026 · 24-Hour Campaign</div>
+  <h1>Today, Every Gift<br/>Shapes <em>Tomorrow</em></h1>
+  <p class="hero-sub">Join thousands of Greenfield alumni making history. One day. One community. Unlimited impact.</p>
+</section>
+
+<!-- ══ Main ══════════════════════════════════════ -->
+<main>
+<div class="main-layout">
+
+  <!-- ── Left column: data + tabs ─────────────── -->
+  <div>
+
+    <!-- Thermometer -->
+    <div class="thermo" role="region" aria-label="Campaign progress">
+      <div class="thermo-top">
+        <div>
+          <div class="raised-amt" id="raised-display" aria-live="polite">$231,400</div>
+          <div class="raised-sub">raised of <strong>$300,000</strong> goal · April 15, 2026</div>
+        </div>
+        <div style="text-align:right">
+          <div class="pct-num" id="pct-display" aria-live="polite">77%</div>
+          <div class="pct-sub">of goal</div>
+        </div>
+      </div>
+      <div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="77">
+        <div class="bar-fill" id="goal-bar" style="width:77%"></div>
+      </div>
+      <div class="bar-labels" aria-hidden="true">
+        <span>$0</span><span>$75K</span><span>$150K</span><span>$225K</span><span>$300K</span>
+      </div>
+      <div class="thermo-grid">
+        <div class="tg-stat"><div class="v" id="ts-gifts">401</div><div class="l">Gifts</div></div>
+        <div class="tg-stat"><div class="v" id="ts-donors">387</div><div class="l">Donors</div></div>
+        <div class="tg-stat"><div class="v" id="ts-avg">$578</div><div class="l">Avg Gift</div></div>
+        <div class="tg-stat"><div class="v" id="ts-match">$68K</div><div class="l">Matched</div></div>
+      </div>
+      <div class="pace-bar">
+        <span id="pace-left">📈 Current pace: $25.7K/hr</span>
+        <span id="pace-right" style="color:var(--ink-45)">Need $8.4K/hr to finish on goal</span>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar" role="tablist" aria-label="Campaign sections">
+      <button class="tab-btn active" role="tab" aria-selected="true"  id="tab-leaderboard" onclick="showTab('leaderboard')">🏆 Leaderboard</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" id="tab-challenges"  onclick="showTab('challenges')">⚡ Challenges</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" id="tab-stream"      onclick="showTab('stream')">🎁 Live Gifts</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" id="tab-milestones"  onclick="showTab('milestones')">🎯 Milestones</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" id="tab-ambassadors" onclick="showTab('ambassadors')">⭐ Ambassadors</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" id="tab-impact"      onclick="showTab('impact')">💡 Impact</button>
+    </div>
+
+    <!-- ── LEADERBOARD ─────────────────────────── -->
+    <div id="pane-leaderboard" role="tabpanel">
+      <div class="section-h">🏆 Giving Leaderboard</div>
+      <div class="lb-pills" role="group" aria-label="Leaderboard type">
+        <button class="lb-pill active" onclick="setLb('class')"  id="lb-class">Class Year</button>
+        <button class="lb-pill"        onclick="setLb('fund')"   id="lb-fund">By Fund</button>
+        <button class="lb-pill"        onclick="setLb('school')" id="lb-school">School</button>
+        <button class="lb-pill"        onclick="setLb('state')"  id="lb-state">Geography</button>
+      </div>
+      <div class="card"><div class="card-body" id="lb-content" style="padding-top:0;padding-bottom:0"></div></div>
+    </div>
+
+    <!-- ── CHALLENGES ──────────────────────────── -->
+    <div id="pane-challenges" style="display:none" role="tabpanel">
+      <div class="section-h">⚡ Active Challenges</div>
+      <div class="challenge-grid" id="chal-grid"></div>
+    </div>
+
+    <!-- ── LIVE GIFTS ──────────────────────────── -->
+    <div id="pane-stream" style="display:none" role="tabpanel" aria-live="polite">
+      <div class="section-h" style="display:flex;align-items:center;justify-content:space-between">
+        <span>🎁 Live Gift Stream</span>
+        <span style="font-size:12px;color:var(--teal);display:flex;align-items:center;gap:5px;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 1.5s infinite"></span>Real-time</span>
+      </div>
+      <div class="card" id="gift-stream"></div>
+    </div>
+
+    <!-- ── MILESTONES ──────────────────────────── -->
+    <div id="pane-milestones" style="display:none" role="tabpanel">
+      <div class="section-h">🎯 Campaign Milestones</div>
+      <div class="card" id="ms-list"></div>
+    </div>
+
+    <!-- ── AMBASSADORS ─────────────────────────── -->
+    <div id="pane-ambassadors" style="display:none" role="tabpanel">
+      <div class="section-h">⭐ Student &amp; Alumni Ambassadors</div>
+      <div class="amb-grid" id="amb-grid"></div>
+    </div>
+
+    <!-- ── IMPACT ──────────────────────────────── -->
+    <div id="pane-impact" style="display:none" role="tabpanel">
+      <div class="section-h">💡 Your Gift in Action</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px" id="impact-cards"></div>
+      <div class="card">
+        <div class="card-body">
+          <div class="section-h" style="font-size:15px;margin-bottom:12px">📊 Giving by Fund</div>
+          <div id="fund-bars"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /left col -->
+
+  <!-- ── Right column: sticky giving form ──────── -->
+  <aside aria-label="Giving form">
+    <div class="give-card" role="form" aria-label="Make a gift">
+      <div class="give-card-header">
+        <h2>Make Your Gift</h2>
+        <p>Every gift matched dollar-for-dollar until midnight.</p>
+      </div>
+      <div class="give-body">
+
+        <label class="fl" for="custom-amt-input">Gift Amount</label>
+        <div class="amt-grid" id="amt-grid" role="group" aria-label="Preset gift amounts">
+          <button class="amt-btn" onclick="setAmt(25)"  aria-pressed="false">$25</button>
+          <button class="amt-btn" onclick="setAmt(50)"  aria-pressed="false">$50</button>
+          <button class="amt-btn" onclick="setAmt(100)" aria-pressed="false">$100</button>
+          <button class="amt-btn sel" onclick="setAmt(250)" aria-pressed="true">$250</button>
+          <button class="amt-btn" onclick="setAmt(500)" aria-pressed="false">$500</button>
+          <button class="amt-btn" onclick="setAmt(1000)" aria-pressed="false">$1K</button>
+        </div>
+        <input type="number" id="custom-amt-input" class="fi" placeholder="Other amount…" min="1" aria-label="Custom gift amount" oninput="handleCustom(this.value)" style="margin-bottom:14px"/>
+
+        <label class="fl" for="fund-select">Designation</label>
+        <select id="fund-select" class="fi" aria-label="Fund designation" style="margin-bottom:14px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%231a1d23' fill-opacity='.4' d='M6 8L0 0h12z'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px">
+          <option value="general">General Fund</option>
+          <option value="scholarship">Scholarship Fund</option>
+          <option value="research">Research &amp; Innovation</option>
+          <option value="athletics">Athletics</option>
+          <option value="arts">Arts &amp; Culture</option>
+          <option value="faculty">Faculty Excellence</option>
+        </select>
+
+        <label class="fl">Frequency</label>
+        <div class="freq-row" role="group" aria-label="Gift frequency" id="freq-row">
+          <button class="freq-btn sel" onclick="setFreq('one_time')">One-time</button>
+          <button class="freq-btn"     onclick="setFreq('monthly')">Monthly</button>
+          <button class="freq-btn"     onclick="setFreq('annually')">Annually</button>
+        </div>
+
+        <div class="match-hint" role="note">
+          🎯&nbsp;<span>Your gift will be <strong>doubled</strong> by The Johnson Family Foundation — <strong>$<span id="match-preview">250</span></strong> match applied</span>
+        </div>
+
+        <label class="fl">Your Information</label>
+        <div class="grid-2i">
+          <input type="text"  id="fname" class="fi no-mb" placeholder="First name"  autocomplete="given-name"/>
+          <input type="text"  id="lname" class="fi no-mb" placeholder="Last name"   autocomplete="family-name"/>
+        </div>
+        <input type="email"  id="email"      class="fi" placeholder="Email address"  autocomplete="email"    aria-label="Email address" style="margin-top:8px"/>
+        <input type="number" id="class-year" class="fi" placeholder="Class year (optional)" aria-label="Graduation year" style="margin-bottom:4px"/>
+
+        <label class="anon-row">
+          <input type="checkbox" id="is-anon" style="accent-color:var(--teal);width:15px;height:15px"/>
+          <span>Give anonymously</span>
+        </label>
+
+        <button class="give-btn" id="give-btn" onclick="submitGift()">
+          <span id="btn-inner">Give $250 Now →</span>
+        </button>
+
+        <div class="pm-row" aria-label="Accepted payment methods">
+          <div class="pm-chip">💳 Card</div>
+          <div class="pm-chip">🍎 Apple Pay</div>
+          <div class="pm-chip">G Pay</div>
+          <div class="pm-chip">🏦 ACH</div>
+          <div class="pm-chip">📋 DAF</div>
+        </div>
+        <div class="secure-note">🔒 SSL Encrypted · PCI Compliant · Powered by Orbit Giving</div>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /main-layout -->
+</main>
+
+<!-- ══ Success Modal ═════════════════════════════ -->
+<div class="overlay" id="success-overlay" role="dialog" aria-modal="true" aria-label="Gift confirmation" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <span class="modal-icon" aria-hidden="true">🎉</span>
+    <div class="modal-title">Thank You!</div>
+    <div class="modal-amt" id="modal-amt">$250</div>
+    <div class="modal-body">Your gift to Greenfield University has been received. A receipt will arrive at your email shortly.<br/><br/>Your gift is being <strong style="color:var(--teal)">matched dollar-for-dollar</strong> right now.</div>
+    <div class="share-row" aria-label="Share your gift">
+      <button class="share-btn" onclick="doShare('twitter')">🐦 Share on X</button>
+      <button class="share-btn" onclick="doShare('facebook')">📘 Facebook</button>
+      <button class="share-btn" onclick="doShare('copy')">🔗 Copy Link</button>
+    </div>
+    <button class="modal-close" onclick="closeModal()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══ Footer ═══════════════════════════════════ -->
+<footer class="site-footer">
+  <div>Greenfield University · Office of Advancement · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1a7d736c73747d5a7d687f7f747c737f767e347f7e6f">[email&#160;protected]</a></div>
+  <div class="orbit-powered">Powered by <span class="orbit-badge">Orbit Giving</span></div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ════════════════════════════════════════════════════
+//  ORBIT GIVING — Client Logic
+//  In production: replace demo data with API/SSE calls
+// ════════════════════════════════════════════════════
+
+/* ── State ──────────────────────────────────────── */
+const S = {
+  raised: 231400, gifts: 401, donors: 387, matched: 68000,
+  goal: 300000, amt: 250, freq: 'one_time', lbType: 'class', tab: 'leaderboard',
+};
+
+/* ── Demo data ──────────────────────────────────── */
+const LB = {
+  class:  [{n:'Class of 1999',v:52400},{n:'Class of 2004',v:41200},{n:'Class of 2010',v:28900},{n:'Class of 1985',v:87300},{n:'Class of 2015',v:19200},{n:'Class of 2020',v:11400},{n:'Class of 1975',v:124000},{n:'Class of 2022',v:8700}],
+  fund:   [{n:'Annual Fund',v:94200},{n:'Scholarship Fund',v:67800},{n:'Research & Innovation',v:41200},{n:'Athletics',v:18400},{n:'Arts & Culture',v:9800}],
+  school: [{n:'College of Engineering',v:61200},{n:'Business School',v:54300},{n:'Arts & Sciences',v:43100},{n:'School of Medicine',v:38900},{n:'Law School',v:34200}],
+  state:  [{n:'New York',v:51000},{n:'California',v:42000},{n:'Massachusetts',v:31000},{n:'Texas',v:22000},{n:'Illinois',v:18000}],
+};
+const CHALLENGES = [
+  {type:'match',  cls:'active-match',  tag:'tag-match',  label:'The Johnson Family Foundation', desc:'Every gift matched dollar-for-dollar until midnight or the $75K cap is reached.',           big:'$7,000 left',  pct:91, footer:['91% claimed','Ends midnight']},
+  {type:'unlock', cls:'active-unlock', tag:'tag-unlock', label:'Class of 1999 Reunion Challenge', desc:'If 100 donors give before 6 PM, the Class of 1999 unlocks a $25,000 bonus gift.',        big:'87 / 100 donors', pct:87, footer:['13 more donors needed','Deadline: 6:00 PM ET']},
+  {type:'power',  cls:'',              tag:'tag-power',  label:'Board of Trustees Power Hour',   desc:'All gifts from 2–3 PM ET receive a 2:1 match from the Board of Trustees. $15K cap.',     big:'Starts in 45 min', pct:0, footer:['2:00 – 3:00 PM ET','$15,000 cap']},
+  {type:'battle', cls:'active-battle', tag:'tag-battle', label:'School Spirit Battle',           desc:'Engineering vs. Business School — top school earns a $10,000 anonymous bonus gift.',      big:'Eng $61K vs Biz $54K', pct:53, footer:['Engineering leading','$10K bonus for winner']},
+];
+const STREAM_SEED = [
+  {i:'MK',n:'Margaret K.', f:'Annual Fund',    a:500,  m:true,  t:'just now'},
+  {i:'?', n:'Anonymous',   f:'Scholarship',    a:250,  m:false, t:'1m ago'},
+  {i:'TW',n:'Thomas W.',   f:'Annual Fund',    a:1000, m:true,  t:'2m ago'},
+  {i:'SL',n:'Sandra L.',   f:'Research',       a:150,  m:false, t:'3m ago'},
+  {i:'JO',n:'James O.',    f:'Annual Fund',    a:500,  m:true,  t:'5m ago'},
+  {i:'PW',n:'Patricia W.', f:'Scholarship',    a:100,  m:false, t:'6m ago'},
+  {i:'DS',n:'David S.',    f:'Athletics',      a:250,  m:true,  t:'8m ago'},
+  {i:'CB',n:'Catherine B.',f:'Annual Fund',    a:5000, m:false, t:'11m ago'},
+];
+const MILESTONES = [
+  {icon:'🌱',label:'First 100 Donors',    desc:'Campaign gains momentum',        thresh:'100 donors', done:true},
+  {icon:'⚡',label:'$100K Raised',         desc:'Halfway to our goal!',           thresh:'$100K',      done:true},
+  {icon:'🔥',label:'300 Donors',           desc:'Community is rallying!',         thresh:'300 donors', done:true},
+  {icon:'💫',label:'$200K Raised',         desc:'Two-thirds of the way there',    thresh:'$200K',      done:true},
+  {icon:'🏆',label:'500 Donors',           desc:'Community goal achieved',        thresh:'500 donors', done:false},
+  {icon:'🎯',label:'$300K — Full Goal',    desc:'Campaign complete!',             thresh:'$300K',      done:false},
+  {icon:'🚀',label:'$350K Stretch Goal',   desc:'Beyond the goal — bonus impact', thresh:'$350K',      done:false},
+];
+const AMBASSADORS = [
+  {i:'PR',n:'Priya R.',      team:'Class of 2004',    raised:14200, goal:20000, gifts:47},
+  {i:'MT',n:'Marcus T.',    team:'Athletics Alumni',  raised:11800, goal:15000, gifts:39},
+  {i:'JL',n:'James L.',     team:'STEM Network',      raised:22400, goal:25000, gifts:31},
+  {i:'CM',n:'Dr. Chen M.',  team:'Faculty Council',   raised:9200,  goal:10000, gifts:24},
+  {i:'AK',n:'Aisha K.',     team:'Pre-Med Society',   raised:7800,  goal:12000, gifts:19},
+  {i:'RH',n:'Robert H.',   team:'Class of 1999',      raised:18900, goal:20000, gifts:16},
+];
+const IMPACT_ITEMS = [
+  {emoji:'📚',amt:'$50',  desc:'One semester of textbooks for a student in need'},
+  {emoji:'🔬',amt:'$100', desc:'Two hours of funded laboratory research'},
+  {emoji:'🎓',amt:'$250', desc:'One month of undergraduate research support'},
+  {emoji:'🏆',amt:'$500', desc:'Half a scholarship for a deserving student'},
+  {emoji:'🏛️',amt:'$1,000',desc:'Full scholarship for one deserving student'},
+  {emoji:'💡',amt:'$5,000',desc:'Equipment for an entire research lab session'},
+];
+const FUND_BARS = [
+  {n:'Annual Fund',v:94200},{n:'Scholarship Fund',v:67800},{n:'Research & Innovation',v:41200},{n:'Athletics',v:18400},{n:'Arts & Culture',v:9800},
+];
+const NAMES = ['Alex J.','Morgan P.','Jordan B.','Taylor S.','Riley M.','Casey L.','Drew K.','Quinn A.'];
+const FUNDS = ['Annual Fund','Scholarship Fund','Research & Innovation','Athletics'];
+const STREAM = [...STREAM_SEED];
+
+/* ── Countdown ──────────────────────────────────── */
+function tick() {
+  const now=new Date(), end=new Date(); end.setHours(23,59,59,0);
+  const d = Math.max(0, end-now);
+  const t = [Math.floor(d/3600000),Math.floor((d%3600000)/60000),Math.floor((d%60000)/1000)]
+    .map(n=>String(n).padStart(2,'0')).join(':');
+  document.getElementById('hdr-countdown').textContent = t;
+}
+tick(); setInterval(tick, 1000);
+
+/* ── Header stats ───────────────────────────────── */
+function updateHeader() {
+  const r = document.getElementById('hdr-raised');
+  const d = document.getElementById('hdr-donors');
+  if(r) r.textContent = S.raised >= 1000 ? '$'+(S.raised/1000).toFixed(0)+'K' : '$'+S.raised;
+  if(d) d.textContent = S.donors;
+}
+
+/* ── Thermometer ────────────────────────────────── */
+function updateThermo() {
+  const pct = Math.min(Math.round(S.raised/S.goal*100), 100);
+  document.getElementById('raised-display').textContent = '$'+S.raised.toLocaleString();
+  document.getElementById('pct-display').textContent = pct+'%';
+  document.getElementById('goal-bar').style.width = pct+'%';
+  document.getElementById('goal-bar').setAttribute('aria-valuenow', pct);
+  document.getElementById('ts-gifts').textContent = S.gifts;
+  document.getElementById('ts-donors').textContent = S.donors;
+  document.getElementById('ts-avg').textContent = '$'+Math.round(S.raised/S.gifts);
+  document.getElementById('ts-match').textContent = '$'+(S.matched/1000).toFixed(0)+'K';
+  updateHeader();
+}
+
+/* ── Tabs ───────────────────────────────────────── */
+const TABS = ['leaderboard','challenges','stream','milestones','ambassadors','impact'];
+function showTab(id) {
+  TABS.forEach(t => {
+    const pane = document.getElementById('pane-'+t);
+    const btn  = document.getElementById('tab-'+t);
+    if(pane) pane.style.display = t===id ? '' : 'none';
+    if(btn) { btn.classList.toggle('active', t===id); btn.setAttribute('aria-selected', t===id); }
+  });
+  S.tab = id;
+  if(id==='leaderboard') renderLB();
+  if(id==='challenges')  renderChal();
+  if(id==='stream')      renderStream();
+  if(id==='milestones')  renderMS();
+  if(id==='ambassadors') renderAmb();
+  if(id==='impact')      renderImpact();
+}
+
+/* ── Leaderboard ────────────────────────────────── */
+function setLb(type) {
+  S.lbType = type;
+  ['class','fund','school','state'].forEach(t => {
+    document.getElementById('lb-'+t)?.classList.toggle('active', t===type);
+  });
+  renderLB();
+}
+function renderLB() {
+  const data = LB[S.lbType] || [];
+  const max  = Math.max(...data.map(d => d.v), 1);
+  const rank = ['🥇','🥈','🥉'];
+  document.getElementById('lb-content').innerHTML = data.map((d,i) => `
+    <div class="lb-row">
+      <div class="lb-rank ${i===0?'g1':i===1?'g2':i===2?'g3':''}">${rank[i]||i+1}</div>
+      <div class="lb-name">${d.n}</div>
+      <div class="lb-track"><div class="lb-fill" style="width:${Math.round(d.v/max*100)}%"></div></div>
+      <div class="lb-val">$${d.v.toLocaleString()}</div>
+    </div>
+  `).join('');
+}
+
+/* ── Challenges ─────────────────────────────────── */
+const CHAL_TYPES = {match:'1:1 Match',unlock:'🔓 Unlock',power:'⚡ Power Hour',battle:'⚔️ Battle'};
+function renderChal() {
+  document.getElementById('chal-grid').innerHTML = CHALLENGES.map(c => `
+    <div class="chal-card ${c.cls}">
+      <div class="chal-tag ${c.tag}">${CHAL_TYPES[c.type]||c.type}</div>
+      <div class="chal-name">${c.label}</div>
+      <div class="chal-desc">${c.desc}</div>
+      <div class="chal-big">${c.big}</div>
+      <div class="chal-bar-track">
+        <div class="chal-bar-fill" style="width:${c.pct}%;background:${c.type==='match'?'var(--teal)':c.type==='unlock'?'var(--amber)':c.type==='power'?'var(--coral)':'#5a6da8'}"></div>
+      </div>
+      <div class="chal-footer">
+        <span>${c.footer[0]}</span>
+        <span style="color:${c.type==='match'?'var(--teal)':c.type==='unlock'?'var(--amber)':'var(--ink-45)'}">${c.footer[1]}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Gift stream ────────────────────────────────── */
+function renderStream() {
+  document.getElementById('gift-stream').innerHTML = STREAM.slice(0,10).map((g,i) => `
+    <div class="gift-row ${i===0?'new-gift':''}">
+      <div class="gift-avatar">${g.i}</div>
+      <div>
+        <div class="gift-name">${g.n}</div>
+        <div class="gift-fund">${g.f} · ${g.t}</div>
+      </div>
+      <div class="gift-amt">
+        <div class="a">$${g.a.toLocaleString()}</div>
+        ${g.m ? `<div class="gift-match">+$${g.a.toLocaleString()} MATCHED</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Milestones ─────────────────────────────────── */
+function renderMS() {
+  document.getElementById('ms-list').innerHTML = MILESTONES.map(m => `
+    <div class="milestone ${m.done?'unlocked':''}">
+      <div class="ms-icon">${m.icon}</div>
+      <div><div class="ms-label">${m.label}</div><div class="ms-desc">${m.desc}</div></div>
+      <div class="ms-right">
+        <div class="ms-thresh">${m.thresh}</div>
+        ${m.done ? '<span class="ms-done">✓ UNLOCKED</span>' : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Ambassadors ────────────────────────────────── */
+const AMB_COLORS = ['var(--teal)','var(--amber)','#48a99d','var(--coral)','#5a6da8','#c2853a'];
+function renderAmb() {
+  document.getElementById('amb-grid').innerHTML = AMBASSADORS.map((a,i) => {
+    const pct = Math.min(Math.round(a.raised/a.goal*100), 100);
+    return `<div class="amb-card">
+      <div class="amb-av" style="background:${AMB_COLORS[i%6]}22;color:${AMB_COLORS[i%6]}">${a.i}</div>
+      <div class="amb-name">${a.n}</div>
+      <div class="amb-team">${a.team}</div>
+      <div class="amb-raised">$${a.raised.toLocaleString()}</div>
+      <div class="amb-goal">of $${a.goal.toLocaleString()} goal · ${a.gifts} gifts</div>
+      <div class="amb-prog"><div class="amb-fill" style="width:${pct}%;background:${AMB_COLORS[i%6]}"></div></div>
+      <button class="amb-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Give to ${a.n.split(' ')[0]}&apos;s Page →</button>
+    </div>`;
+  }).join('');
+}
+
+/* ── Impact ─────────────────────────────────────── */
+function renderImpact() {
+  document.getElementById('impact-cards').innerHTML = IMPACT_ITEMS.map(item => `
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:18px 12px">
+        <div style="font-size:32px;margin-bottom:8px">${item.emoji}</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:800;color:var(--teal);margin-bottom:6px">${item.amt}</div>
+        <div style="font-size:11px;color:var(--ink-45);line-height:1.5">${item.desc}</div>
+      </div>
+    </div>
+  `).join('');
+  const max = Math.max(...FUND_BARS.map(f => f.v));
+  document.getElementById('fund-bars').innerHTML = FUND_BARS.map(f => `
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;color:var(--ink-70);font-weight:600">${f.n}</span>
+        <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--teal)">$${f.v.toLocaleString()}</span>
+      </div>
+      <div style="height:7px;background:var(--surface-3);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(f.v/max*100)}%;background:linear-gradient(90deg,var(--teal-mid),var(--teal));border-radius:4px"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Gift form ──────────────────────────────────── */
+function setAmt(amt) {
+  S.amt = amt;
+  document.querySelectorAll('.amt-btn').forEach(b => {
+    const isMatch = parseInt(b.textContent.replace(/\$|K/g,'')) * (b.textContent.includes('K')?1000:1) === amt;
+    b.classList.toggle('sel', isMatch);
+    b.setAttribute('aria-pressed', isMatch);
+  });
+  document.getElementById('custom-amt-input').value = '';
+  document.getElementById('btn-inner').textContent = 'Give $'+amt.toLocaleString()+' Now →';
+  document.getElementById('match-preview').textContent = amt.toLocaleString();
+}
+function handleCustom(v) {
+  if(!v || isNaN(v)) return;
+  S.amt = parseFloat(v);
+  document.querySelectorAll('.amt-btn').forEach(b => { b.classList.remove('sel'); b.setAttribute('aria-pressed','false'); });
+  document.getElementById('btn-inner').textContent = 'Give $'+parseFloat(v).toLocaleString()+' Now →';
+  document.getElementById('match-preview').textContent = parseFloat(v).toLocaleString();
+}
+function setFreq(f) {
+  S.freq = f;
+  const labels = {one_time:'One-time',monthly:'Monthly',annually:'Annually'};
+  document.querySelectorAll('.freq-btn').forEach(b => b.classList.toggle('sel', b.textContent===labels[f]));
+}
+
+function submitGift() {
+  const isAnon = document.getElementById('is-anon').checked;
+  const fname  = document.getElementById('fname').value.trim();
+  const email  = document.getElementById('email').value.trim();
+  if(!isAnon && !fname) { document.getElementById('fname').focus(); return; }
+  if(!email)             { document.getElementById('email').focus(); return; }
+  if(S.amt < 1)          { return; }
+
+  const btn = document.getElementById('give-btn');
+  btn.disabled = true;
+  document.getElementById('btn-inner').innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:pulse 0.6s linear infinite;vertical-align:middle;margin-right:8px"></span> Processing…';
+
+  setTimeout(() => {
+    S.raised  += S.amt; S.gifts  += 1; S.donors += 1; S.matched += S.amt;
+    updateThermo();
+    const ini = isAnon ? '?' : (fname[0]+(document.getElementById('lname').value[0]||'')).toUpperCase();
+    STREAM.unshift({i:ini, n:isAnon?'Anonymous':fname+' '+(document.getElementById('lname').value[0]||'')+'.',
+      f:document.getElementById('fund-select').options[document.getElementById('fund-select').selectedIndex].text,
+      a:S.amt, m:true, t:'just now'});
+    if(S.tab==='stream') renderStream();
+    document.getElementById('modal-amt').textContent = '$'+S.amt.toLocaleString();
+    document.getElementById('success-overlay').classList.add('show');
+    btn.disabled = false;
+    document.getElementById('btn-inner').textContent = 'Give $'+S.amt.toLocaleString()+' Now →';
+  }, 1600);
+}
+function closeModal() { document.getElementById('success-overlay').classList.remove('show'); }
+function doShare(p) {
+  const url  = encodeURIComponent(location.href);
+  const text = encodeURIComponent('I just gave to @GreenfieldUniv Day of Giving! Join me — every dollar doubled today. #GivingDay2026');
+  if(p==='twitter')  window.open('https://twitter.com/intent/tweet?text='+text+'&url='+url);
+  if(p==='facebook') window.open('https://facebook.com/sharer/sharer.php?u='+url);
+  if(p==='copy')     navigator.clipboard.writeText(location.href).then(()=>alert('Link copied!'));
+}
+
+/* ── Simulated live gifts ────────────────────────── */
+let tick2 = 0;
+setInterval(() => {
+  const amts = [25,50,100,150,250,500,1000];
+  const amt  = amts[Math.floor(Math.random()*amts.length)];
+  const idx  = tick2 % NAMES.length; tick2++;
+  STREAM.unshift({i:NAMES[idx].split('.')[0].replace(/[^A-Z]/g,'').slice(0,2)||'??',
+    n:Math.random()>0.1?NAMES[idx]:'Anonymous',
+    f:FUNDS[Math.floor(Math.random()*FUNDS.length)], a:amt, m:Math.random()>0.55, t:'just now'});
+  if(STREAM.length>20) STREAM.pop();
+  S.raised += amt; S.gifts += 1;
+  if(Math.random() > 0.3) S.donors += 1;
+  if(Math.random() > 0.45) S.matched += amt;
+  updateThermo();
+  if(S.tab==='stream') renderS

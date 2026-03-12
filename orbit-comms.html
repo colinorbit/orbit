@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Orbit: Communications Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+:root{--bg:#f0f2f5;--surface:#fff;--s2:#f7f8fa;--s3:#edf0f4;--ink:#1a1d23;--ink70:rgba(26,29,35,.7);--ink45:rgba(26,29,35,.45);--ink20:rgba(26,29,35,.20);--ink12:rgba(26,29,35,.12);--ink08:rgba(26,29,35,.08);--teal:#2a8c7e;--tealh:#1f6e63;--teall:#e4f4f1;--tealm:#48a99d;--coral:#cc6d52;--corall:#faede8;--amber:#c2853a;--amberl:#fdf2e4;--slate:#5a6da8;--slatel:#edf0fa;--green:#16a34a;--greenl:#dcfce7;--red:#dc2626;--redl:#fee2e2;--sb:#1a1d23;--font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sb{width:224px;min-height:100vh;background:var(--sb);display:flex;flex-direction:column;position:sticky;top:0;flex-shrink:0;overflow-y:auto}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.logomark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#2a8c7e,#48a99d);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(42,140,126,.4)}
+.logomark span{color:#fff;font-size:14px;font-weight:800}
+.wordmark{color:#fff;font-size:15px;font-weight:800;letter-spacing:-.02em}
+.back-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;margin:10px 8px 2px;color:rgba(255,255,255,.4);font-size:11px;font-weight:600;border-radius:10px;cursor:pointer;background:none;border:none;width:calc(100% - 16px);transition:all .15s;text-align:left}
+.back-btn:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.05)}
+.nav-sec{padding:10px 8px 4px}
+.nav-lbl{font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:0 10px;margin-bottom:5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;transition:all .15s;width:100%;text-align:left}
+.nav-item:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.07)}
+.nav-item.active{color:#fff;background:rgba(42,140,126,.22)}
+.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nav-label{flex:1}
+.nav-badge{font-size:9px;font-weight:800;background:#cc6d52;color:#fff;padding:2px 6px;border-radius:10px;font-family:var(--mono)}
+.sb-foot{margin-top:auto;padding:14px 10px;border-top:1px solid rgba(255,255,255,.06)}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:var(--surface);border-bottom:1px solid var(--ink08);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:800;color:var(--ink)}
+.topbar-sub{font-size:11px;color:var(--ink45);margin-top:1px}
+.ta{margin-left:auto;display:flex;align-items:center;gap:8px}
+.content{flex:1;padding:24px;overflow-y:auto;max-height:calc(100vh - 56px)}
+.btn{padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:var(--font)}
+.btn-p{background:#2a8c7e;color:#fff}.btn-p:hover{background:#1f6e63}
+.btn-s{background:var(--surface);color:var(--ink);border:1.5px solid var(--ink12)}.btn-s:hover{border-color:var(--ink20);background:var(--s2)}
+.btn-g{background:transparent;color:var(--ink70);border:none;padding:7px 12px}.btn-g:hover{background:var(--s3)}
+.btn-d{background:var(--redl);color:var(--red);border:1px solid rgba(220,38,38,.2)}
+.btn-sm{padding:5px 12px;font-size:11px}
+.ico-btn{width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--s3);border:none;cursor:pointer;color:var(--ink70);font-size:14px;transition:all .15s}
+.ico-btn:hover{background:var(--surface);box-shadow:0 1px 4px rgba(24,24,31,.07)}
+.card{background:var(--surface);border-radius:20px;border:1px solid var(--ink08)}
+.ch{padding:16px 20px;border-bottom:1px solid var(--ink08);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:13px;font-weight:700;color:var(--ink)}
+.cb{padding:20px}
+.ph{margin-bottom:24px}
+.pt{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.ps{font-size:13px;color:var(--ink45);margin-top:4px}
+.tab-bar{display:flex;gap:2px;border-bottom:1px solid var(--ink08);margin-bottom:20px}
+.tab-btn{padding:9px 18px;border:none;background:transparent;font-size:12px;font-weight:600;color:var(--ink45);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;display:flex;align-items:center;gap:6px;font-family:var(--font)}
+.tab-btn:hover{color:var(--ink)}.tab-btn.active{color:#2a8c7e;border-bottom-color:#2a8c7e}
+.fl{font-size:11px;font-weight:700;color:var(--ink45);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.fi{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--ink12);font-size:13px;font-family:var(--font);background:var(--surface);color:var(--ink);transition:border-color .15s;outline:none}
+.fi:focus{border-color:#2a8c7e}
+.fta{resize:vertical;min-height:100px}
+.fsel{appearance:none;cursor:pointer;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a1d23' opacity='.3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+.bg-green{background:#dcfce7;color:#16a34a}.bg-amber{background:#fdf2e4;color:#c2853a}
+.bg-red{background:#fee2e2;color:#dc2626}.bg-slate{background:#edf0fa;color:#5a6da8}
+.bg-teal{background:#e4f4f1;color:#2a8c7e}.bg-coral{background:#faede8;color:#cc6d52}
+.mrow{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.mchip{background:var(--surface);border:1px solid var(--ink08);border-radius:14px;padding:14px 18px;flex:1;min-width:110px}
+.mchip .val{font-size:22px;font-weight:800;color:var(--ink);font-family:var(--mono);letter-spacing:-.03em}
+.mchip .lbl{font-size:10px;color:var(--ink45);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.mchip .delta{font-size:11px;font-weight:700;margin-top:4px}
+.dup{color:#16a34a}.ddn{color:#dc2626}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:flex;align-items:center;justify-content:center;animation:fadein .2s ease}
+.modal{background:var(--surface);border-radius:28px;box-shadow:0 8px 40px rgba(24,24,31,.13);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;animation:slidein .25s ease}
+.mh{padding:20px 24px;border-bottom:1px solid var(--ink08);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.mb{padding:24px;overflow-y:auto;flex:1}
+.mf{padding:16px 24px;border-top:1px solid var(--ink08);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+.tw{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--ink);color:#fff;padding:12px 16px;border-radius:14px;font-size:13px;font-weight:500;box-shadow:0 8px 40px rgba(24,24,31,.13);display:flex;align-items:center;gap:10px;animation:slideup .3s ease;max-width:340px}
+.toast.success{background:#166534;border-left:3px solid #16a34a}
+.toast.error{background:#7f1d1d;border-left:3px solid #dc2626}
+.toast.warn{background:#78350f;border-left:3px solid #c2853a}
+.tok{display:inline-flex;align-items:center;background:rgba(42,140,126,.1);border:1px solid rgba(42,140,126,.25);color:#2a8c7e;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer;font-family:var(--mono);transition:all .12s;margin:2px}
+.tok:hover{background:rgba(42,140,126,.2)}
+.ec{background:#f8f9fc;border:1.5px dashed rgba(26,29,35,.12);border-radius:14px;min-height:500px;overflow:hidden}
+.ep{background:#fff;max-width:560px;margin:0 auto;min-height:400px}
+.blkw{border:1.5px dashed transparent;border-radius:8px;padding:4px;cursor:pointer;transition:all .12s;position:relative}
+.blkw:hover{border-color:rgba(42,140,126,.3)}.blkw.sel{border-color:#2a8c7e;background:rgba(42,140,126,.04)}
+.sms-phone{background:#1c1c1e;border-radius:22px;padding:14px 12px;width:256px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.bubble{max-width:82%;padding:9px 13px;border-radius:18px;font-size:12px;line-height:1.55;margin-bottom:5px}
+.bout{background:#1d8cf5;color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+.bin{background:rgba(255,255,255,.13);color:rgba(255,255,255,.92);border-bottom-left-radius:4px}
+.int-card{background:var(--surface);border:1.5px solid var(--ink08);border-radius:14px;padding:16px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:10px}
+.int-card:hover{border-color:var(--ink20);box-shadow:0 4px 20px rgba(24,24,31,.09);transform:translateY(-1px)}
+.int-card.connected{border-color:rgba(22,163,74,.3);background:linear-gradient(135deg,#fff 0%,rgba(220,252,231,.3) 100%)}
+.int-card.configured{border-color:rgba(42,140,126,.3);background:linear-gradient(135deg,#fff 0%,rgba(228,244,241,.35) 100%)}
+.he-badge{font-size:8px;font-weight:800;background:#edf0fa;color:#5a6da8;padding:2px 6px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase}
+.seq-step{display:flex;align-items:flex-start;margin-bottom:2px}
+.seq-node{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-top:4px}
+.seq-body{flex:1;background:var(--surface);border:1.5px solid var(--ink08);border-radius:14px;padding:12px 14px;margin-left:10px;cursor:pointer;transition:all .15s}
+.seq-body:hover{border-color:var(--ink20);box-shadow:0 1px 4px rgba(24,24,31,.07)}
+.seq-body.active{border-color:#2a8c7e;box-shadow:0 0 0 3px rgba(42,140,126,.1)}
+.sadd{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 52px;font-size:12px;font-weight:600;color:#2a8c7e;cursor:pointer;border-radius:10px;border:none;background:none;transition:all .15s}
+.sadd:hover{background:#e4f4f1}
+.stb{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:14px;border:1.5px solid var(--ink08);cursor:pointer;transition:all .15s;background:var(--surface)}
+.stb:hover{border-color:var(--ink20);box-shadow:0 1px 4px rgba(24,24,31,.07)}.stb.active{border-color:#2a8c7e;background:#e4f4f1}
+.ssp{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--ink08)}
+.ssp:last-child{border-bottom:none}
+.snum{width:24px;height:24px;border-radius:50%;background:#2a8c7e;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+@keyframes slideup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slidein{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(26,29,35,.12);border-radius:3px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ─── Toast system ───────────────────────────────────────────────
+let _toastFn = null;
+function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+  _toastFn = (msg, type, icon) => {
+    const id = Date.now() + Math.random();
+    setToasts(p => [...p, { id, msg, t: type||'success', i: icon||'✓' }]);
+    setTimeout(() => setToasts(p => p.filter(x => x.id !== id)), 3800);
+  };
+  return (
+    <>
+      {children}
+      <div className="tw">
+        {toasts.map(x => (
+          <div key={x.id} className={"toast " + x.t}>
+            <span style={{fontSize:16}}>{x.i}</span>
+            <span>{x.msg}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+function toast(msg, type, icon) { _toastFn && _toastFn(msg, type, icon); }
+
+// ─── Claude API ────────────────────────────────────────────────
+async function callClaude(system, user, maxTokens) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: maxTokens || 800,
+      system: system || '',
+      messages: [{ role: 'user', content: user }],
+    }),
+  });
+  const d = await res.json();
+  if (!res.ok) throw new Error(d.error?.message || 'API error');
+  return d.content?.[0]?.text || '';
+}
+
+// ─── Static data ───────────────────────────────────────────────
+const MERGE_TOKENS = [
+  {tok:'{{first_name}}',lbl:'First Name'},{tok:'{{last_name}}',lbl:'Last Name'},
+  {tok:'{{full_name}}',lbl:'Full Name'},{tok:'{{class_year}}',lbl:'Class Year'},
+  {tok:'{{last_gift_amount}}',lbl:'Last Gift'},{tok:'{{last_gift_date}}',lbl:'Last Gift Date'},
+  {tok:'{{giving_total}}',lbl:'Lifetime Giving'},{tok:'{{fund_name}}',lbl:'Fund Name'},
+  {tok:'{{university}}',lbl:'University'},{tok:'{{agent_name}}',lbl:'Officer Name'},
+  {tok:'{{event_name}}',lbl:'Event Name'},{tok:'{{campaign_goal}}',lbl:'Campaign Goal'},
+  {tok:'{{progress_pct}}',lbl:'Progress %'},{tok:'{{giving_url}}',lbl:'Giving URL'},
+  {tok:'{{unsubscribe_link}}',lbl:'Unsubscribe URL'},{tok:'{{impact_statement}}',lbl:'Impact Statement'},
+];
+const EMAIL_BLOCK_TYPES = [
+  {id:'header',icon:'🏛',lbl:'Header + Logo'},{id:'hero',icon:'🖼',lbl:'Hero Image'},
+  {id:'body',icon:'📝',lbl:'Body Copy'},{id:'impact',icon:'💡',lbl:'Impact Statement'},
+  {id:'cta',icon:'🔗',lbl:'CTA Button'},{id:'story',icon:'📖',lbl:'Student Story'},
+  {id:'stats',icon:'📊',lbl:'Stats Row'},{id:'divider',icon:'➖',lbl:'Divider'},
+  {id:'signature',icon:'✍️',lbl:'Signature'},{id:'footer',icon:'📜',lbl:'Legal Footer'},
+];
+const INIT_BLOCKS = [
+  {id:'h0',type:'header',content:{logo:'{{university}}',tagline:'Office of Advancement'}},
+  {id:'b0',type:'body',content:{text:'Dear {{first_name}},\n\nThank you for your continued generosity to {{university}}. Your gift of {{last_gift_amount}} has made a real difference in the lives of our students.\n\n{{impact_statement}}.'}},
+  {id:'c0',type:'cta',content:{label:'Make Your Gift Today',url:'{{giving_url}}',color:'#2a8c7e'}},
+  {id:'sg0',type:'signature',content:{name:'{{agent_name}}',title:'Vice President for Advancement',uni:'{{university}}'}},
+  {id:'f0',type:'footer',content:{address:'{{university}}, Office of Advancement, 100 University Drive',unsub:'{{unsubscribe_link}}'}},
+];
+const SMS_TEMPLATES = [
+  {id:'st1',name:'Cultivation Opener',agent:'VEO',chars:155,body:'Hi {{first_name}}, this is {{agent_name}} from {{university}}. I sent you a note this week and wanted to make sure you received it. Looking forward to connecting.'},
+  {id:'st2',name:'Event Day Reminder',agent:'VCO',chars:143,body:'Good morning {{first_name}}! Quick reminder: {{event_name}} is tonight at 6pm. Looking forward to seeing you there. Reply STOP to opt out.'},
+  {id:'st3',name:'Giving Day Urgency',agent:'VCO',chars:138,body:'{{first_name}}, 6 hours left in our Giving Day! We are {{progress_pct}}% toward goal. Your gift matters right now. Give: {{giving_url}}'},
+  {id:'st4',name:'Lapse Reconnect',agent:'VSO',chars:139,body:'Hi {{first_name}}, it has been a while and I wanted to check in. No agenda here, just genuinely thinking of you and hoping all is well.'},
+  {id:'st5',name:'Gift Thank You',agent:'VSO',chars:151,body:'{{first_name}}, thank you so much! Your gift of {{last_gift_amount}} to {{fund_name}} just came through and it means a great deal. Receipt on its way.'},
+  {id:'st6',name:'Pledge Reminder',agent:'VEO',chars:128,body:'Hi {{first_name}}, your pledge installment of {{last_gift_amount}} to {{fund_name}} is due in 7 days. Any questions? Reply here.'},
+  {id:'st7',name:'Reunion Save the Date',agent:'VCO',chars:140,body:'{{first_name}}, your class reunion is this fall! Save the date for {{event_name}}. Details coming soon. We look forward to celebrating with you.'},
+  {id:'st8',name:'Planned Giving Touch',agent:'VPGO',chars:147,body:'Hi {{first_name}}, {{agent_name}} here from {{university}}. I have been thinking about your connection to our institution and would love a brief conversation.'},
+];
+const SEQUENCES = [
+  {id:'sq1',name:'Major Gift Cultivation (8-Step)',agent:'VEO',status:'active',enrolled:47,completed:12,opened:'68%',replied:'24%',converted:'11%',color:'#2a8c7e',steps:[
+    {id:'a1',type:'email',delay:0,subject:'A personal note, {{first_name}}',tpl:'Cultivation Opener'},
+    {id:'a2',type:'delay',delay:3,label:'Wait 3 days'},
+    {id:'a3',type:'condition',delay:0,label:'If email was opened'},
+    {id:'a4',type:'sms',delay:5,subject:'Quick text follow-up',tpl:'Cultivation Opener SMS'},
+    {id:'a5',type:'email',delay:10,subject:'The student your giving supports',tpl:'Impact Story'},
+    {id:'a6',type:'task',delay:14,label:'Officer: Review score, escalate if 80+'},
+    {id:'a7',type:'email',delay:21,subject:'Invitation: {{event_name}}',tpl:'Event Invite'},
+    {id:'a8',type:'email',delay:35,subject:'A conversation I would love to have',tpl:'Soft Discovery Ask'},
+  ]},
+  {id:'sq2',name:'Lapse Recovery (5-Step)',agent:'VSO',status:'active',enrolled:312,completed:89,opened:'41%',replied:'9%',converted:'6%',color:'#cc6d52',steps:[
+    {id:'b1',type:'email',delay:0,subject:'We have been thinking about you, {{first_name}}',tpl:'Lapse Opener'},
+    {id:'b2',type:'delay',delay:5,label:'Wait 5 days'},
+    {id:'b3',type:'sms',delay:5,subject:'Check-in text',tpl:'Lapse Reconnect'},
+    {id:'b4',type:'email',delay:14,subject:'Look what your past gifts made possible',tpl:'Impact Reminder'},
+    {id:'b5',type:'email',delay:28,subject:'One last thought, {{first_name}}',tpl:'Final Lapse'},
+  ]},
+  {id:'sq3',name:'Post-Gift Stewardship',agent:'VSO',status:'active',enrolled:1203,completed:847,opened:'74%',replied:'18%',converted:null,color:'#cc6d52',steps:[
+    {id:'c1',type:'email',delay:0,subject:'Your receipt and a personal thank you',tpl:'Gift Receipt'},
+    {id:'c2',type:'email',delay:3,subject:'The student your gift is already reaching',tpl:'Impact Day 3'},
+    {id:'c3',type:'delay',delay:30,label:'Wait 30 days'},
+    {id:'c4',type:'email',delay:30,subject:'A 30-day update from {{university}}',tpl:'Month 1 Update'},
+  ]},
+  {id:'sq4',name:'Planned Giving Discovery',agent:'VPGO',status:'draft',enrolled:0,completed:0,opened:'--',replied:'--',converted:'--',color:'#5a6da8',steps:[
+    {id:'d1',type:'email',delay:0,subject:'A thought about your legacy at {{university}}',tpl:'PG Soft Intro'},
+    {id:'d2',type:'delay',delay:14,label:'Wait 14 days'},
+    {id:'d3',type:'email',delay:14,subject:'What a bequest can look like',tpl:'PG Education'},
+    {id:'d4',type:'task',delay:21,label:'Officer: Call to discuss estate planning resources'},
+  ]},
+  {id:'sq5',name:'Giving Day Campaign (3-Day Burst)',agent:'VCO',status:'active',enrolled:8420,completed:3240,opened:'52%',replied:'12%',converted:'8%',color:'#c2853a',steps:[
+    {id:'e1',type:'email',delay:0,subject:'Today is the day, {{first_name}}!',tpl:'Giving Day Launch'},
+    {id:'e2',type:'sms',delay:0,subject:'Giving Day launch text',tpl:'Giving Day Urgency'},
+    {id:'e3',type:'email',delay:0,subject:'6 hours left',tpl:'Giving Day Final Push'},
+    {id:'e4',type:'sms',delay:1,subject:'Last chance SMS',tpl:'Giving Day Urgency'},
+  ]},
+];
+
+// Integration data (abbreviated for brevity - key providers)
+const INT_EMAIL = [
+  {id:'gmail',name:'Gmail (OAuth 2.0)',icon:'📧',color:'#EA4335',status:'connected',badge:'OAuth 2.0',he:false,desc:'Send directly from Google Workspace or personal Gmail. OAuth handshake, no password stored. Supports shared mailboxes and alias addresses.'},
+  {id:'outlook',name:'Outlook / Exchange',icon:'📨',color:'#0078D4',status:'connected',badge:'OAuth + EWS',he:false,desc:'Microsoft 365 or Exchange on-premise via Graph API or EWS. Supports shared inboxes and delegation for shared advancement mailboxes.'},
+  {id:'smtp',name:'Custom SMTP',icon:'⚙️',color:'#64748b',status:'available',badge:'SMTP/TLS',he:false,desc:'Any SMTP relay: SendGrid relay, Postfix, on-prem Exchange. Full header control, custom envelope-from and reply-to support.'},
+  {id:'sendgrid',name:'SendGrid',icon:'📬',color:'#1A82E2',status:'available',badge:'Web API v3',he:false,desc:'High-volume transactional and marketing email. Open, click, bounce, and spam complaint webhooks for real-time analytics.'},
+  {id:'mailchimp',name:'Mailchimp',icon:'🐒',color:'#FFE01B',status:'available',badge:'REST API v3',he:false,desc:'Sync Orbit templates and segments to Mailchimp audiences. Trigger Mailchimp campaigns from Orbit sequences.'},
+  {id:'constantcontact',name:'Constant Contact',icon:'📮',color:'#2D6CB2',status:'available',badge:'REST API v3',he:true,desc:'Widely used in higher-ed advancement offices for newsletters, event invites, and annual fund appeals.'},
+  {id:'emma',name:'Emma by Marigold',icon:'💌',color:'#E84C8B',status:'available',badge:'REST API',he:true,desc:'Purpose-built for higher education email. Trusted by 900+ universities including Duke, Vanderbilt, and Georgetown.'},
+  {id:'acoustic',name:'Acoustic Campaign',icon:'🎵',color:'#0043CE',status:'available',badge:'REST API',he:true,desc:'Enterprise email for large advancement operations (formerly IBM Watson Campaign Automation). Advanced journey builder included.'},
+  {id:'sfmc',name:'Salesforce Marketing Cloud',icon:'☁️',color:'#00A1E0',status:'configured',badge:'SFMC REST API',he:false,desc:'Journey Builder and Email Studio integration. Full SFMC deployment for universities on the Salesforce ecosystem.'},
+  {id:'luminate',name:'Blackbaud Luminate Online',icon:'🔵',color:'#004990',status:'available',badge:'Luminate API',he:true,desc:'Native Blackbaud email via Luminate Online. Sends map automatically to RE NXT constituent communication history records.'},
+  {id:'pardot',name:'Pardot (Account Engagement)',icon:'📊',color:'#00A1E0',status:'available',badge:'Pardot API v5',he:false,desc:'Salesforce Pardot for advancement offices with complex donor journeys and lead scoring models.'},
+];
+const INT_SMS = [
+  {id:'twilio',name:'Twilio',icon:'📱',color:'#F22F46',status:'configured',badge:'REST API',he:false,desc:'Global SMS, MMS, and WhatsApp. Programmable numbers, real-time delivery webhooks, automatic opt-out handling. A2P 10DLC registered.'},
+  {id:'bandwidth',name:'Bandwidth',icon:'📡',color:'#00A4EF',status:'available',badge:'REST API v2',he:false,desc:'Carrier-grade SMS with full A2P 10DLC compliance. High deliverability for bulk sends with direct carrier relationships.'},
+  {id:'signalvine',name:'Signal Vine',icon:'🌿',color:'#2E8B57',status:'available',badge:'REST API',he:true,desc:'AI-powered SMS built specifically for higher education. Used by 300+ colleges for enrollment and advancement outreach.'},
+  {id:'mobile_commons',name:'Mobile Commons',icon:'📲',color:'#FF6B00',status:'available',badge:'REST API',he:true,desc:'Higher-ed SMS platform with robust opt-in management, campaign analytics, and two-way conversation support.'},
+  {id:'tatango',name:'Tatango',icon:'⚡',color:'#7C4DFF',status:'available',badge:'REST API',he:true,desc:'Enterprise SMS marketing with TCPA compliance automation. Strong higher-ed client base for giving day and reunion campaigns.'},
+  {id:'eztext',name:'EZTexting',icon:'💭',color:'#00B894',status:'available',badge:'REST API v3',he:false,desc:'Accessible SMS campaigns for reunion outreach, event reminders, and giving day countdowns.'},
+  {id:'thinkbroadcast',name:'ThinkBroadcast',icon:'🔊',color:'#E17055',status:'available',badge:'REST API',he:true,desc:'Voice and SMS broadcast for large alumni audiences. Used by major state university systems.'},
+  {id:'salesmsg',name:'Salesmessage',icon:'💬',color:'#6366F1',status:'available',badge:'REST API v2',he:false,desc:'Two-way conversational SMS integrated with CRMs. Officers can have real text conversations logged to donor records.'},
+];
+const INT_MAIL = [
+  {id:'handwrytten',name:'Handwrytten',icon:'✍️',color:'#8B5CF6',status:'configured',badge:'REST API',he:false,desc:'Real pen-written notes at scale. Orbit triggers handwritten cards on gift anniversaries, major gift confirmations, and lapse recovery milestones.'},
+  {id:'postgrid',name:'PostGrid',icon:'📦',color:'#F59E0B',status:'available',badge:'REST API',he:false,desc:'Programmatic direct mail. Print and mail personalized letters, impact reports, and tax receipt packages at scale.'},
+  {id:'lob',name:'Lob',icon:'📬',color:'#0EA5E9',status:'available',badge:'REST API v1',he:false,desc:'Address verification plus automated direct mail. Ideal for annual tax receipt letters and campaign launch mailers.'},
+  {id:'pfl',name:'Printing for Less',icon:'🖨️',color:'#DC2626',status:'available',badge:'REST API',he:false,desc:'Physical mail automation with variable data printing for major gift proposals, case statements, and reunion materials.'},
+];
+const INT_CALLING = [
+  {id:'salesloft',name:'Salesloft',icon:'🎯',color:'#00B4D8',status:'available',badge:'REST API',he:false,desc:'Cadence integration: Orbit sequences push call tasks to Salesloft for gift officer phone steps, with recordings synced back.'},
+  {id:'outreach',name:'Outreach.io',icon:'📤',color:'#6366F1',status:'available',badge:'REST API v2',he:false,desc:'Sequence sync for major gift officers. Outreach dialer and call analytics integrate with Orbit portfolio management.'},
+  {id:'orum',name:'Orum AI Dialer',icon:'🤖',color:'#10B981',status:'available',badge:'REST API',he:false,desc:'AI-powered parallel dialer. 10x connect rates for phonathon programs and lapse recovery calling campaigns.'},
+  {id:'phoneburner',name:'PhoneBurner',icon:'🔥',color:'#EF4444',status:'available',badge:'REST API v2',he:false,desc:'Power dialer for alumni calling programs. Drop pre-recorded voicemail and log calls to CRM automatically.'},
+  {id:'calltools',name:'CallTools',icon:'🛠️',color:'#F97316',status:'available',badge:'REST API',he:true,desc:'Predictive dialer used by higher-ed phonathon programs. Built-in do-not-call compliance and real-time supervisor dashboard.'},
+];
+const INT_CRM = [
+  {id:'re_nxt',name:'Blackbaud RE NXT',icon:'🔵',color:'#004990',status:'connected',badge:'SKY API v1',he:true,desc:'Two-way constituent sync. Email opens, SMS replies, and call outcomes automatically create Activity records in RE NXT profiles.'},
+  {id:'banner',name:'Ellucian Banner / CRM Advance',icon:'🏛',color:'#C0392B',status:'available',badge:'REST + SOAP',he:true,desc:'Communication history written back to Banner constituents. Supports CRM Advance via the Ellucian Ethos integration layer.'},
+  {id:'sf_npsp',name:'Salesforce NPSP',icon:'☁️',color:'#00A1E0',status:'connected',badge:'API v57',he:false,desc:'Activity objects created in Salesforce for every Orbit outreach. Open and click rates appear on Opportunity and Contact records.'},
+  {id:'hubspot',name:'HubSpot CRM',icon:'🟠',color:'#FF7A59',status:'available',badge:'API v3',he:false,desc:'Engagement timeline syncs to HubSpot contacts. Sequence enrollment in Orbit maps to HubSpot sequences.'},
+  {id:'re7',name:"Raiser's Edge 7",icon:'📁',color:'#336699',status:'available',badge:'RE API Bridge',he:true,desc:"Legacy RE7 integration via the RE NXT API Bridge. Read-only sync for institutions on RE7 not yet migrated to NXT."},
+];
+const INT_CATS = [
+  {key:'email',label:'Email Delivery',icon:'✉️',items:INT_EMAIL},
+  {key:'sms',label:'SMS / Text',icon:'💬',items:INT_SMS},
+  {key:'mail',label:'Direct Mail',icon:'✉',items:INT_MAIL},
+  {key:'calling',label:'Phone + Dialers',icon:'📞',items:INT_CALLING},
+  {key:'crm',label:'CRM Write-Back',icon:'🔗',items:INT_CRM},
+];
+
+const STEP_COLORS={email:'#2a8c7e',sms:'#5a6da8',delay:'#94a3b8',condition:'#c2853a',task:'#cc6d52',webhook:'#7c3aed'};
+const STEP_ICONS={email:'✉️',sms:'💬',delay:'⏱',condition:'⑂',task:'☑',webhook:'⚡'};
+const AGENT_COLOR={VEO:'#2a8c7e',VSO:'#cc6d52',VPGO:'#5a6da8',VCO:'#c2853a'};
+const AGENT_BG={VEO:'#e4f4f1',VSO:'#faede8',VPGO:'#edf0fa',VCO:'#fdf2e4'};
+
+function fillVars(txt, fname) {
+  const f=fname||'Margaret';
+  return (txt||'').replace(/{{first_name}}/g,f).replace(/{{last_name}}/g,'Kessler')
+    .replace(/{{full_name}}/g,f+' Kessler').replace(/{{class_year}}/g,"'09")
+    .replace(/{{last_gift_amount}}/g,'$2,500').replace(/{{last_gift_date}}/g,'March 3, 2025')
+    .replace(/{{giving_total}}/g,'$18,750').replace(/{{fund_name}}/g,'Greenfield Scholarship Fund')
+    .replace(/{{university}}/g,'Greenfield University').replace(/{{agent_name}}/g,'Dr. Sarah Chen')
+    .replace(/{{event_name}}/g,'Founders Gala 2026').replace(/{{campaign_goal}}/g,'$500,000')
+    .replace(/{{progress_pct}}/g,'72').replace(/{{giving_url}}/g,'give.greenfield.edu')
+    .replace(/{{unsubscribe_link}}/g,'#unsubscribe')
+    .replace(/{{impact_statement}}/g,'Your gift supported 40 students this semester')
+    .replace(/{{[^}]+}}/g,'[token]');
+}
+
+// ─── Block Preview (email canvas rendering) ─────────────────────
+function BlockPreview({ block }) {
+  const c = block.content || {};
+  if (block.type==='header') return (
+    <div style={{background:'#2a8c7e',padding:'18px 28px',textAlign:'center',color:'#fff'}}>
+      <div style={{fontSize:20,fontWeight:800}}>{c.logo||'University'}</div>
+      {c.tagline && <div style={{fontSize:11,opacity:.7,marginTop:2}}>{c.tagline}</div>}
+    </div>
+  );
+  if (block.type==='body') return (
+    <div style={{padding:'16px 28px',fontSize:14,lineHeight:1.8,color:'#374151',whiteSpace:'pre-wrap',fontFamily:'Georgia,serif'}}>
+      {c.text||''}
+    </div>
+  );
+  if (block.type==='impact') return (
+    <div style={{margin:'8px 28px',padding:'16px 20px',background:'#e4f4f1',borderRadius:10,borderLeft:'4px solid #2a8c7e'}}>
+      <div style={{fontSize:13,fontWeight:700,color:'#2a8c7e'}}>{c.headline||'Your Impact'}</div>
+      <div style={{fontSize:12,color:'#374151',marginTop:4}}>{c.text||'Your generosity makes a difference every single day.'}</div>
+    </div>
+  );
+  if (block.type==='cta') return (
+    <div style={{textAlign:'center',padding:'16px 28px'}}>
+      <span style={{background:c.color||'#2a8c7e',color:'#fff',padding:'12px 32px',borderRadius:28,fontSize:14,fontWeight:700,display:'inline-block'}}>{c.label||'Give Now'}</span>
+    </div>
+  );
+  if (block.type==='story') return (
+    <div style={{margin:'8px 28px',padding:'16px 20px',background:'#fdf2e4',borderRadius:10,borderLeft:'4px solid #c2853a',fontFamily:'Georgia,serif',fontStyle:'italic'}}>
+      <div style={{fontSize:13,color:'#374151',lineHeight:1.7}}>{c.quote||'"Your gift changed my life."'}</div>
+      <div style={{fontSize:11,color:'#c2853a',fontStyle:'normal',marginTop:6,fontWeight:700}}>{c.credit||'Student recipient'}</div>
+    </div>
+  );
+  if (block.type==='stats') return (
+    <div style={{display:'flex',margin:'8px 28px',border:'1px solid #f0f2f5',borderRadius:10,overflow:'hidden'}}>
+      {[{val:'$847K',lbl:'Raised'},{val:'1,200',lbl:'Donors'},{val:'47',lbl:'Scholarships'}].map((s,i)=>(
+        <div key={i} style={{flex:1,textAlign:'center',padding:'14px 8px',borderRight:i<2?'1px solid #f0f2f5':'none'}}>
+          <div style={{fontSize:18,fontWeight:800,color:'#2a8c7e'}}>{s.val}</div>
+          <div style={{fontSize:10,color:'#6b7280',marginTop:2}}>{s.lbl}</div>
+        </div>
+      ))}
+    </div>
+  );
+  if (block.type==='divider') return <div style={{padding:'8px 28px'}}><div style={{height:1,background:'#f0f2f5'}}/></div>;
+  if (block.type==='signature') return (
+    <div style={{padding:'12px 28px 16px',fontFamily:'Georgia,serif',color:'#374151',borderTop:'1px solid #f0f2f5',marginTop:4}}>
+      <div style={{fontSize:13,marginBottom:4}}>Warm regards,</div>
+      <div style={{fontSize:14,fontWeight:700}}>{c.name||'Officer Name'}</div>
+      <div style={{fontSize:12}}>{c.title||'Vice President for Advancement'}</div>
+      <div style={{fontSize:12,color:'#9ca3af'}}>{c.uni||'University'}</div>
+    </div>
+  );
+  if (block.type==='footer') return (
+    <div style={{padding:'12px 28px',fontSize:10,color:'#9ca3af',textAlign:'center',borderTop:'1px solid #f0f2f5'}}>
+      <div>{c.address||'University Office of Advancement'}</div>
+      <div style={{marginTop:4}}>
+        <a href="#" style={{color:'#6b7280',textDecoration:'none'}}>Unsubscribe</a>{' | '}
+        <a href="#" style={{color:'#6b7280',textDecoration:'none'}}>Privacy Policy</a>{' | '}
+        <a href="#" style={{color:'#6b7280',textDecoration:'none'}}>View in Browser</a>
+      </div>
+    </div>
+  );
+  return <div style={{padding:'10px 28px',textAlign:'center',color:'#9ca3af',fontSize:12}}>[{block.type}]</div>;
+}
+
+// ─── Block Property Editor ────────────────────────────────────
+function BlockEditor({ block, onChange }) {
+  if (!block) return (
+    <div style={{padding:24,textAlign:'center',color:'var(--ink45)'}}>
+      <div style={{fontSize:36,marginBottom:8}}>👆</div>
+      <div style={{fontSize:13,fontWeight:600}}>Click a block to edit it</div>
+    </div>
+  );
+  const set = (k,v) => onChange({...block,content:{...block.content,[k]:v}});
+  const C = block.content||{};
+  return (
+    <div style={{padding:16}}>
+      <div style={{fontSize:10,fontWeight:700,color:'var(--ink45)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:14}}>Editing: {block.type}</div>
+      {block.type==='header'&&<>
+        <label className="fl">Logo/University Name</label>
+        <input className="fi" style={{marginBottom:10}} value={C.logo||''} onChange={e=>set('logo',e.target.value)} placeholder="{{university}}"/>
+        <label className="fl">Tagline</label>
+        <input className="fi" value={C.tagline||''} onChange={e=>set('tagline',e.target.value)} placeholder="Office of Advancement"/>
+      </>}
+      {block.type==='body'&&<>
+        <label className="fl">Body Text</label>
+        <textarea className="fi fta" rows={9} value={C.text||''} onChange={e=>set('text',e.target.value)}/>
+      </>}
+      {block.type==='impact'&&<>
+        <label className="fl">Headline</label>
+        <input className="fi" style={{marginBottom:10}} value={C.headline||''} onChange={e=>set('headline',e.target.value)} placeholder="Your Impact This Year"/>
+        <label className="fl">Impact Text</label>
+        <textarea className="fi fta" rows={3} value={C.text||''} onChange={e=>set('text',e.target.value)}/>
+      </>}
+      {block.type==='cta'&&<>
+        <label className="fl">Button Label</label>
+        <input className="fi" style={{marginBottom:10}} value={C.label||''} onChange={e=>set('label',e.target.value)} placeholder="Give Now"/>
+        <label className="fl">URL</label>
+        <input className="fi" style={{marginBottom:10}} value={C.url||''} onChange={e=>set('url',e.target.value)} placeholder="{{giving_url}}"/>
+        <label className="fl">Button Color</label>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <input type="color" value={C.color||'#2a8c7e'} onChange={e=>set('color',e.target.value)} style={{width:40,height:32,border:'none',cursor:'pointer',borderRadius:6}}/>
+          <span style={{fontSize:11,color:'var(--ink45)',fontFamily:'var(--mono)'}}>{C.color||'#2a8c7e'}</span>
+        </div>
+      </>}
+      {block.type==='story'&&<>
+        <label className="fl">Student Quote</label>
+        <textarea className="fi fta" rows={4} style={{marginBottom:10}} value={C.quote||''} onChange={e=>set('quote',e.target.value)} placeholder={'"Your gift changed my life."'}/>
+        <label className="fl">Attribution</label>
+        <input className="fi" value={C.credit||''} onChange={e=>set('credit',e.target.value)} placeholder="Student recipient, Class of 2026"/>
+      </>}
+      {block.type==='signature'&&<>
+        <label className="fl">Name</label>
+        <input className="fi" style={{marginBottom:10}} value={C.name||''} onChange={e=>set('name',e.target.value)} placeholder="{{agent_name}}"/>
+        <label className="fl">Title</label>
+        <input className="fi" style={{marginBottom:10}} value={C.title||''} onChange={e=>set('title',e.target.value)} placeholder="Vice President for Advancement"/>
+        <label className="fl">Institution</label>
+        <input className="fi" value={C.uni||''} onChange={e=>set('uni',e.target.value)} placeholder="{{university}}"/>
+      </>}
+      {block.type==='footer'&&<>
+        <label className="fl">Mailing Address</label>
+        <input className="fi" style={{marginBottom:10}} value={C.address||''} onChange={e=>set('address',e.target.value)} placeholder="University Office of Advancement"/>
+        <label className="fl">Unsubscribe URL</label>
+        <input className="fi" value={C.unsub||''} onChange={e=>set('unsub',e.target.value)} placeholder="{{unsubscribe_link}}"/>
+      </>}
+      {['hero','stats','divider'].includes(block.type)&&<div style={{color:'var(--ink45)',fontSize:12}}>No editable properties for this block type.</div>}
+    </div>
+  );
+}
+
+// ─── Email Designer ────────────────────────────────────────────
+function EmailDesignerPage() {
+  const [blocks,setBlocks] = useState(INIT_BLOCKS);
+  const [selId,setSelId] = useState(null);
+  const [subject,setSubject] = useState('A personal note, {{first_name}}');
+  const [fromName,setFromName] = useState('{{agent_name}} at {{university}} Advancement');
+  const [fromEmail,setFromEmail] = useState('advancement@greenfield.edu');
+  const [replyTo,setReplyTo] = useState('advancement@greenfield.edu');
+  const [prov,setProv] = useState('gmail');
+  const [showToks,setShowToks] = useState(false);
+  const [pane,setPane] = useState('design');
+  const [aiTxt,setAiTxt] = useState('');
+  const [aiLoading,setAiLoading] = useState(false);
+  const [testEmail,setTestEmail] = useState('');
+  const [showTest,setShowTest] = useState(false);
+  const [prevFname,setPrevFname] = useState('Margaret');
+
+  const selBlock = blocks.find(b=>b.id===selId)||null;
+
+  function addBlock(type) {
+    const defs={
+      header:{logo:'{{university}}',tagline:'Office of Advancement'},
+      body:{text:'Your support means everything to us and to the students of {{university}}.'},
+      impact:{headline:'Your Impact',text:'Your gift supported 40 students this semester.'},
+      cta:{label:'Give Now',url:'{{giving_url}}',color:'#2a8c7e'},
+      story:{quote:'"I never thought I would be here. Your gift made this possible."',credit:'Scholarship Recipient, Class of 2026'},
+      signature:{name:'{{agent_name}}',title:'Vice President for Advancement',uni:'{{university}}'},
+      footer:{address:'{{university}}, Office of Advancement, 100 University Drive',unsub:'{{unsubscribe_link}}'},
+    };
+    const id=type+'_'+Date.now();
+    setBlocks(p=>[...p,{id,type,content:defs[type]||{}}]);
+    setSelId(id);
+    toast('Block added','success','➕');
+  }
+
+  function removeBlock(id){setBlocks(p=>p.filter(b=>b.id!==id));if(selId===id)setSelId(null);}
+  function moveBlock(id,dir){
+    setBlocks(p=>{
+      const i=p.findIndex(b=>b.id===id),arr=[...p],j=i+dir;
+      if(j<0||j>=arr.length)return p;
+      [arr[i],arr[j]]=[arr[j],arr[i]];return arr;
+    });
+  }
+
+  async function aiGen(){
+    if(!aiTxt.trim())return;
+    setAiLoading(true);
+    try{
+      const txt=await callClaude('You are an expert higher-education fundraising copywriter. Write warm, genuine, human email body copy per the instruction. 2-3 short paragraphs. No bullet lists. Return ONLY the body text.',aiTxt,500);
+      const bb=blocks.find(b=>b.type==='body');
+      if(bb){setBlocks(p=>p.map(b=>b.id===bb.id?{...b,content:{...b.content,text:txt.trim()}}:b));setSelId(bb.id);toast('AI copy generated','success','✨');}
+    }catch(e){toast('AI unavailable. Check API connection.','error','❌');}
+    setAiLoading(false);
+  }
+
+  const PROVS=[
+    {id:'gmail',label:'Gmail (OAuth 2.0)',icon:'📧',ok:true},
+    {id:'outlook',label:'Outlook / Exchange',icon:'📨',ok:true},
+    {id:'sfmc',label:'Salesforce Marketing Cloud',icon:'☁️',ok:true},
+    {id:'smtp',label:'Custom SMTP',icon:'⚙️',ok:false},
+    {id:'sendgrid',label:'SendGrid',icon:'📬',ok:false},
+    {id:'emma',label:'Emma by Marigold',icon:'💌',ok:false},
+    {id:'constantcontact',label:'Constant Contact',icon:'📮',ok:false},
+    {id:'luminate',label:'Luminate Online (Blackbaud)',icon:'🔵',ok:false},
+  ];
+
+  return (
+    <div>
+      {showTest&&(
+        <div className="overlay" onClick={()=>setShowTest(false)}>
+          <div className="modal" style={{width:460}} onClick={e=>e.stopPropagation()}>
+            <div className="mh">
+              <div>
+                <div style={{fontSize:15,fontWeight:800}}>Send Test Email</div>
+                <div style={{fontSize:11,color:'var(--ink45)',marginTop:2}}>Preview in a real inbox before adding to a sequence</div>
+              </div>
+              <button className="ico-btn" onClick={()=>setShowTest(false)}>✕</button>
+            </div>
+            <div className="mb">
+              <label className="fl">Delivery Provider</label>
+              <select className="fi fsel" style={{marginBottom:14}} value={prov} onChange={e=>setProv(e.target.value)}>
+                {PROVS.map(p=><option key={p.id} value={p.id}>{p.icon} {p.label}{p.ok?' (connected)':''}</option>)}
+              </select>
+              <label className="fl">Send Test To</label>
+              <input className="fi" style={{marginBottom:14}} value={testEmail} onChange={e=>setTestEmail(e.target.value)} placeholder="your@email.edu"/>
+              <label className="fl">Preview As</label>
+              <select className="fi fsel" style={{marginBottom:14}}>
+                <option>Margaret K., Class of 09, $2,500 last gift</option>
+                <option>Robert H., 28yr donor, $25,000 last gift</option>
+                <option>James P., lapsed 6 months, no recent signal</option>
+              </select>
+              <div style={{background:'var(--s2)',borderRadius:10,padding:'10px 14px',fontSize:12,color:'var(--ink70)',lineHeight:1.7}}>
+                <strong>From:</strong> {fromName}<br/>
+                <strong>Subject:</strong> {fillVars(subject,'Margaret')}<br/>
+                <strong>Via:</strong> {(PROVS.find(p=>p.id===prov)||PROVS[0]).label}
+              </div>
+            </div>
+            <div className="mf">
+              <button className="btn btn-s" onClick={()=>setShowTest(false)}>Cancel</button>
+              <button className="btn btn-p" onClick={()=>{toast('Test email queued','success','📤');setShowTest(false);}}>Send Test</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="ph">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
+          <div>
+            <div className="pt">Email Designer</div>
+            <div className="ps">Block-based email builder with merge tokens, AI copy assist, and multi-provider delivery</div>
+          </div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            <button className="btn btn-s btn-sm" onClick={()=>setShowTest(true)}>📤 Send Test</button>
+            <button className="btn btn-s btn-sm" onClick={()=>toast('Template saved','success','💾')}>💾 Save Template</button>
+            <button className="btn btn-p btn-sm" onClick={()=>{window.dispatchEvent(new CustomEvent('orbit:queuemessage',{detail:{id:'et_'+Date.now(),subject,donor:'Selected donors',agent:'VEO',channel:'Email',status:'pending_approval',createdAt:Date.now(),score:75}}));toast('Added to approval queue','success','✅');}}>Add to Queue</button>
+          </div>
+        </div>
+        <div className="tab-bar" style={{marginTop:16}}>
+          {[['design','🎨 Design'],['preview','👁 Preview'],['settings','⚙️ Settings']].map(([id,lbl])=>(
+            <button key={id} className={'tab-btn'+(pane===id?' active':'')} onClick={()=>setPane(id)}>{lbl}</button>
+          ))}
+        </div>
+      </div>
+
+      {pane==='design'&&(
+        <div style={{display:'grid',gridTemplateColumns:'220px 1fr 288px',gap:16,alignItems:'start'}}>
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            <div className="card">
+              <div className="ch" style={{padding:'12px 16px'}}><span className="ct">Content Blocks</span></div>
+              <div style={{padding:'8px'}}>
+                {EMAIL_BLOCK_TYPES.map(b=>(
+                  <button key={b.id} onClick={()=>addBlock(b.id)}
+                    style={{display:'flex',alignItems:'center',gap:9,width:'100%',padding:'7px 10px',border:'none',background:'none',cursor:'pointer',borderRadius:6,fontSize:12,color:'var(--ink70)',transition:'background .12s',textAlign:'left'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='var(--s2)'}
+                    onMouseLeave={e=>e.currentTarget.style.background='none'}>
+                    <span style={{fontSize:15}}>{b.icon}</span>{b.lbl}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="card">
+              <div className="ch" style={{padding:'12px 16px'}}><span className="ct">✨ AI Copywriter</span></div>
+              <div style={{padding:'12px'}}>
+                <textarea className="fi fta" rows={4} value={aiTxt} onChange={e=>setAiTxt(e.target.value)}
+                  placeholder="Write a warm lapse re-engagement email for a donor who gave $500 annually for 5 years then went quiet..." style={{fontSize:11,marginBottom:8}}/>
+                <button className="btn btn-p" style={{width:'100%',justifyContent:'center',fontSize:12}} onClick={aiGen} disabled={aiLoading}>
+                  {aiLoading?'Writing...':'✨ Generate Copy'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div style={{display:'flex',gap:8,marginBottom:10,alignItems:'center'}}>
+              <input className="fi" value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Email subject line" style={{flex:1,fontWeight:600}}/>
+              <button className="btn btn-s btn-sm" onClick={()=>setShowToks(!showToks)} style={{flexShrink:0}}>{'{}'} Tokens</button>
+            </div>
+            {showToks&&(
+              <div style={{background:'var(--surface)',border:'1px solid var(--ink08)',borderRadius:14,padding:'12px 14px',marginBottom:10}}>
+                <div style={{fontSize:10,fontWeight:700,color:'var(--ink45)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:8}}>Click to copy merge token</div>
+                {MERGE_TOKENS.map(t=>(
+                  <span key={t.tok} className="tok" onClick={()=>{navigator.clipboard&&navigator.clipboard.writeText(t.tok);toast('Copied: '+t.tok,'success','📋');}}>
+                    {t.tok}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="ec">
+              <div className="ep">
+                {blocks.map(block=>(
+                  <div key={block.id} className={'blkw'+(selId===block.id?' sel':'')} onClick={()=>setSelId(block.id)} style={{position:'relative'}}>
+                    <BlockPreview block={block}/>
+                    {selId===block.id&&(
+                      <div style={{position:'absolute',top:4,right:4,display:'flex',gap:3,zIndex:10}}>
+                        <button className="ico-btn" style={{width:22,height:22,fontSize:10}} onClick={e=>{e.stopPropagation();moveBlock(block.id,-1);}}>↑</button>
+                        <button className="ico-btn" style={{width:22,height:22,fontSize:10}} onClick={e=>{e.stopPropagation();moveBlock(block.id,1);}}>↓</button>
+                        <button className="ico-btn" style={{width:22,height:22,fontSize:10,background:'var(--redl)',color:'var(--red)'}} onClick={e=>{e.stopPropagation();removeBlock(block.id);}}>✕</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {blocks.length===0&&<div style={{textAlign:'center',padding:'60px 20px',color:'var(--ink45)'}}>
+                  <div style={{fontSize:36,marginBottom:8}}>📧</div>
+                  <div style={{fontWeight:600}}>Add blocks to start building your email</div>
+                </div>}
+              </div>
+            </div>
+          </div>
+
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            <div className="card">
+              <div className="ch" style={{padding:'12px 16px'}}><span className="ct">Block Properties</span></div>
+              <BlockEditor block={selBlock} onChange={updated=>setBlocks(p=>p.map(b=>b.id===updated.id?updated:b))}/>
+            </div>
+            <div className="card">
+              <div className="ch" style={{padding:'12px 16px'}}><span className="ct">From / Delivery</span></div>
+              <div style={{padding:'14px 16px'}}>
+                <label className="fl">From Name</label>
+                <input className="fi" style={{marginBottom:10}} value={fromName} onChange={e=>setFromName(e.target.value)}/>
+                <label className="fl">From Email</label>
+                <input className="fi" style={{marginBottom:10}} value={fromEmail} onChange={e=>setFromEmail(e.target.value)}/>
+                <label className="fl">Reply-To</label>
+                <input className="fi" style={{marginBottom:10}} value={replyTo} onChange={e=>setReplyTo(e.target.value)}/>
+                <label className="fl">Send Via</label>
+                <select className="fi fsel" value={prov} onChange={e=>setProv(e.target.value)}>
+                  {PROVS.map(p=><option key={p.id} value={p.id}>{p.icon} {p.label}</option>)}
+                </select>
+                <div style={{marginTop:8,fontSize:11,fontWeight:600,color:prov==='gmail'||prov==='outlook'?'#16a34a':prov==='sfmc'?'#2a8c7e':'var(--ink45)'}}>
+                  {prov==='gmail'&&'Connected via OAuth 2.0'}
+                  {prov==='outlook'&&'Connected via MS Graph API'}
+                  {prov==='sfmc'&&'Salesforce Marketing Cloud configured'}
+                  {!['gmail','outlook','sfmc'].includes(prov)&&'Setup required in Integrations'}
+                </div>
+                {prov==='smtp'&&<div style={{marginTop:10}}>
+                  <input className="fi" style={{marginBottom:6,fontSize:11}} placeholder="SMTP host (e.g. smtp.greenfield.edu)"/>
+                  <div style={{display:'flex',gap:6}}>
+                    <input className="fi" placeholder="Port 587" style={{fontSize:11,flex:1}}/>
+                    <input className="fi" placeholder="Username" style={{fontSize:11,flex:2}}/>
+                  </div>
+                </div>}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pane==='preview'&&(
+        <div style={{maxWidth:620,margin:'0 auto'}}>
+          <div style={{background:'var(--surface)',border:'1px solid var(--ink08)',borderRadius:14,padding:'12px 18px',marginBottom:16,display:'flex',gap:20,flexWrap:'wrap',fontSize:12,alignItems:'center'}}>
+            <div><span style={{color:'var(--ink45)'}}>From: </span><strong>{fillVars(fromName,prevFname)}</strong></div>
+            <div style={{flex:1}}><span style={{color:'var(--ink45)'}}>Subject: </span><strong>{fillVars(subject,prevFname)}</strong></div>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <span style={{color:'var(--ink45)',fontSize:11}}>Preview as:</span>
+              <input className="fi" value={prevFname} onChange={e=>setPrevFname(e.target.value)} style={{width:100,fontSize:11,padding:'4px 8px'}} placeholder="First name"/>
+            </div>
+          </div>
+          <div style={{background:'#fff',borderRadius:20,overflow:'hidden',boxShadow:'0 8px 40px rgba(24,24,31,.13)'}}>
+            {blocks.map(block=>(
+              <div key={block.id} style={{cursor:'pointer'}} onClick={()=>{setSelId(block.id);setPane('design');}}>
+                <BlockPreview block={{...block,content:Object.fromEntries(Object.entries(block.content||{}).map(([k,v])=>[k,typeof v==='string'?fillVars(v,prevFname):v]))}}/>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pane==='settings'&&(
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,maxWidth:860}}>
+          <div className="card">
+            <div className="ch"><span className="ct">Tracking</span></div>
+            <div className="cb">
+              {[['Track Opens (pixel)',true],['Track Link Clicks',true],['Track Replies',true],['UTM Parameters',false],['A/B Subject Testing',false]].map(([lbl,def])=>{
+                const [on,setOn]=useState(def);
+                return (
+                  <div key={lbl} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                    <div style={{fontSize:13,fontWeight:600}}>{lbl}</div>
+                    <div onClick={()=>setOn(!on)} style={{width:38,height:22,borderRadius:11,background:on?'#2a8c7e':'var(--ink12)',cursor:'pointer',position:'relative',transition:'background .2s'}}>
+                      <div style={{position:'absolute',top:3,left:on?18:3,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s',boxShadow:'0 1px 3px rgba(0,0,0,.2)'}}/>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="card">
+            <div className="ch"><span className="ct">Compliance</span></div>
+            <div className="cb">
+              {[['CAN-SPAM','Unsubscribe link present','green'],['CASL','Consent flags synced from CRM','green'],['GDPR','Required for EU-resident donors','amber'],['SPF/DKIM','Domain authentication active','green'],['DMARC','Policy: p=quarantine','green']].map(([lbl,desc,c])=>(
+                <div key={lbl} style={{display:'flex',gap:10,alignItems:'flex-start',marginBottom:12}}>
+                  <span style={{fontSize:14}}>{c==='green'?'✅':'⚠️'}</span>
+                  <div><div style={{fontSize:12,fontWeight:700}}>{lbl}</div><div style={{fontSize:11,color:'var(--ink45)',marginTop:1}}>{desc}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card">
+            <div className="ch"><span className="ct">Send Optimization</span></div>
+            <div className="cb">
+              <label className="fl">Send Time</label>
+              <select className="fi fsel" style={{marginBottom:12}}>
+                <option>AI-optimized per donor (best open time)</option>
+                <option>9:00 AM recipient local time</option>
+                <option>10:30 AM recipient local time</option>
+                <option>Immediate</option>
+              </select>
+              <label className="fl">Frequency Cap</label>
+              <select className="fi fsel" style={{marginBottom:12}}>
+                <option>Max 2 emails per week per donor</option>
+                <option>Max 1 email per week per donor</option>
+                <option>No cap (sequence controls)</option>
+              </select>
+              <label className="fl">Unsubscribe Suppression</label>
+              <select className="fi fsel"><option>Global (all lists)</option><option>Per-list only</option></select>
+            </div>
+          </div>
+          <div className="card">
+            <div className="ch"><span className="ct">CRM Write-Back</span></div>
+            <div className="cb">
+              {[['RE NXT Activity Record','Write on every send','connected'],['Salesforce NPSP Activity','Write on open + click','connected'],['Banner Communication Log','Write on every send','available']].map(([lbl,desc,s])=>(
+                <div key={lbl} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,padding:'10px 12px',background:'var(--s2)',borderRadius:10}}>
+                  <div><div style={{fontSize:12,fontWeight:700}}>{lbl}</div><div style={{fontSize:11,color:'var(--ink45)',marginTop:1}}>{desc}</div></div>
+                  <span className={'badge '+(s==='connected'?'bg-green':'bg-slate')}>{s==='connected'?'Active':'Setup'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── SMS Designer ──────────────────────────────────────────────
+function SMSDesignerPage() {
+  const [body,setBody] = useState('Hi {{first_name}}, this is {{agent_name}} from {{university}}. Your continued support means so much to all of us. Thank you from the bottom of our hearts.');
+  const [prov,setProv] = useState('twilio');
+  const [showToks,setShowToks] = useState(false);
+  const [prevFname,setPrevFname] = useState('Margaret');
+  const [aiTxt,setAiTxt] = useState('');
+  const [aiLoading,setAiLoading] = useState(false);
+  const [tab,setTab] = useState('compose');
+
+  const MAX=160,len=body.length,parts=Math.ceil(len/MAX)||1,pct=Math.min((len/MAX)*100,100);
+  const barColor=pct>90?'#dc2626':pct>70?'#c2853a':'#2a8c7e';
+
+  const PROVS=[
+    {id:'twilio',lbl:'Twilio',icon:'📱',ok:true},
+    {id:'signalvine',lbl:'Signal Vine (Higher-Ed)',icon:'🌿',ok:false},
+    {id:'mobile_commons',lbl:'Mobile Commons (Higher-Ed)',icon:'📲',ok:false},
+    {id:'tatango',lbl:'Tatango',icon:'⚡',ok:false},
+    {id:'bandwidth',lbl:'Bandwidth',icon:'📡',ok:false},
+    {id:'eztext',lbl:'EZTexting',icon:'💭',ok:false},
+    {id:'thinkbroadcast',lbl:'ThinkBroadcast (Higher-Ed)',icon:'🔊',ok:false},
+    {id:'salesmsg',lbl:'Salesmessage',icon:'💬',ok:false},
+  ];
+
+  async function aiGen(){
+    if(!aiTxt.trim())return;
+    setAiLoading(true);
+    try{
+      const txt=await callClaude('You are an expert higher-ed fundraising SMS copywriter. Write a SINGLE text message under 160 characters. Warm and human, no corporate-speak. Return ONLY the message text.',aiTxt,200);
+      setBody(txt.trim().replace(/^["']|["']$/g,''));
+      toast('SMS copy generated','success','✨');
+    }catch(e){toast('AI unavailable','error','❌');}
+    setAiLoading(false);
+  }
+
+  return (
+    <div>
+      <div className="ph">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
+          <div>
+            <div className="pt">SMS Designer</div>
+            <div className="ps">Compose, preview, and send text messages through higher-ed specialist SMS platforms</div>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-s btn-sm" onClick={()=>toast('SMS template saved','success','💾')}>💾 Save Template</button>
+            <button className="btn btn-p btn-sm" onClick={()=>toast('SMS added to approval queue','success','✅')}>Add to Queue</button>
+          </div>
+        </div>
+        <div className="tab-bar" style={{marginTop:16}}>
+          {[['compose','✍️ Compose'],['templates','📚 Templates'],['compliance','🔒 TCPA Compliance']].map(([id,lbl])=>(
+            <button key={id} className={'tab-btn'+(tab===id?' active':'')} onClick={()=>setTab(id)}>{lbl}</button>
+          ))}
+        </div>
+      </div>
+
+      {tab==='compose'&&(
+        <div style={{display:'grid',gridTemplateColumns:'1fr 280px',gap:20}}>
+          <div>
+            <div className="card" style={{marginBottom:16}}>
+              <div className="ch">
+                <span className="ct">Message Body</span>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <button className="btn btn-g btn-sm" onClick={()=>setShowToks(!showToks)}>{'{}'} Tokens</button>
+                  <select className="fi fsel" value={prov} onChange={e=>setProv(e.target.value)} style={{fontSize:11,padding:'5px 26px 5px 9px',width:200}}>
+                    {PROVS.map(p=><option key={p.id} value={p.id}>{p.icon} {p.lbl}{p.ok?' (active)':''}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="cb">
+                {showToks&&<div style={{marginBottom:14}}>{MERGE_TOKENS.slice(0,12).map(t=>(
+                  <span key={t.tok} className="tok" onClick={()=>{setBody(b=>b+t.tok);toast('Inserted: '+t.tok,'success','📋');}}>{t.tok}</span>
+                ))}</div>}
+                <textarea className="fi fta" rows={5} value={body} onChange={e=>setBody(e.target.value)}
+                  placeholder="Type your SMS... use {{first_name}} to personalize" style={{marginBottom:10,resize:'vertical'}}/>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                  <div style={{flex:1,marginRight:16}}>
+                    <div style={{height:4,background:'rgba(26,29,35,.08)',borderRadius:2,overflow:'hidden'}}>
+                      <div style={{height:'100%',width:pct+'%',background:barColor,borderRadius:2,transition:'width .2s,background .2s'}}/>
+                    </div>
+                  </div>
+                  <div style={{fontSize:11,fontFamily:'var(--mono)',fontWeight:700,color:pct>90?'#dc2626':'var(--ink45)',flexShrink:0}}>{len}/{MAX}{parts>1?' ('+parts+' parts)':''}</div>
+                </div>
+                {parts>1&&<div style={{fontSize:11,color:'#c2853a',fontWeight:600,marginBottom:10}}>Multi-part SMS: carriers may split delivery. Keep under 160 characters for best results.</div>}
+                <div style={{borderTop:'1px solid var(--ink08)',paddingTop:14,marginTop:4}}>
+                  <label className="fl">AI SMS Writer</label>
+                  <div style={{display:'flex',gap:8}}>
+                    <input className="fi" value={aiTxt} onChange={e=>setAiTxt(e.target.value)} placeholder="Write a giving day urgency SMS for donors who gave last year but have not given yet this year..." style={{flex:1,fontSize:12}}/>
+                    <button className="btn btn-p btn-sm" onClick={aiGen} disabled={aiLoading} style={{flexShrink:0}}>{aiLoading?'Writing...':'✨ Generate'}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="ch"><span className="ct">Delivery Settings</span></div>
+              <div className="cb">
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                  <div><label className="fl">Sender Number</label>
+                    <select className="fi fsel">
+                      <option>+1 (617) 555-0142 (Main Advancement)</option>
+                      <option>+1 (617) 555-0198 (Campaign Line)</option>
+                      <option>+1 (617) 555-0203 (Alumni Relations)</option>
+                    </select>
+                  </div>
+                  <div><label className="fl">SMS Provider</label>
+                    <select className="fi fsel" value={prov} onChange={e=>setProv(e.target.value)}>
+                      {PROVS.map(p=><option key={p.id} value={p.id}>{p.lbl}</option>)}
+                    </select>
+                  </div>
+                  <div><label className="fl">Opt-In List</label>
+                    <select className="fi fsel">
+                      <option>All SMS Consented (12,482)</option>
+                      <option>Campaign Opted-In (3,241)</option>
+                      <option>Event Opted-In (847)</option>
+                      <option>Annual Fund List (5,120)</option>
+                    </select>
+                  </div>
+                  <div><label className="fl">Quiet Hours (TCPA)</label>
+                    <select className="fi fsel">
+                      <option>8am to 9pm recipient local time (Default)</option>
+                      <option>9am to 8pm recipient local time (Conservative)</option>
+                      <option>No restriction (manual override)</option>
+                    </select>
+                  </div>
+                </div>
+                <div style={{marginTop:14,padding:'10px 14px',background:'var(--teall)',borderRadius:10,fontSize:11,color:'#2a8c7e',fontWeight:600}}>
+                  STOP handler active: replies of STOP, UNSUBSCRIBE, CANCEL, END, or QUIT auto-remove the donor from all SMS lists and log the opt-out in the CRM.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div className="card" style={{marginBottom:12}}>
+              <div className="ch" style={{padding:'12px 16px'}}>
+                <span className="ct">Live Preview</span>
+                <input className="fi" value={prevFname} onChange={e=>setPrevFname(e.target.value)} placeholder="First name" style={{fontSize:11,padding:'4px 9px',width:86,borderRadius:6}}/>
+              </div>
+              <div className="cb" style={{display:'flex',justifyContent:'center',padding:20}}>
+                <div className="sms-phone">
+                  <div style={{display:'flex',justifyContent:'space-between',padding:'0 4px 8px',fontSize:9,color:'rgba(255,255,255,.4)'}}>
+                    <span>9:41 AM</span><span>5G</span>
+                  </div>
+                  <div style={{textAlign:'center',color:'rgba(255,255,255,.35)',fontSize:10,marginBottom:10}}>
+                    Greenfield University Advancement<br/>
+                    <span style={{fontSize:9,opacity:.6}}>+1 (617) 555-0142</span>
+                  </div>
+                  <div style={{fontSize:9,color:'rgba(255,255,255,.3)',textAlign:'center',margin:'4px 0 8px'}}>Today 9:41 AM</div>
+                  <div className="bubble bout">{fillVars(body,prevFname)||'Your message appears here...'}</div>
+                  <div className="bubble bin" style={{marginTop:8}}>Thank you so much! That means a lot.</div>
+                  <div style={{textAlign:'center',marginTop:10}}>
+                    <div style={{display:'inline-block',background:'rgba(255,255,255,.06)',borderRadius:10,padding:'5px 9px'}}>
+                      <span style={{fontSize:9,color:'rgba(255,255,255,.3)'}}>Reply STOP to opt out</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="ch" style={{padding:'12px 16px'}}><span className="ct">SMS Benchmarks</span></div>
+              <div style={{padding:'14px 16px'}}>
+                {[['Open Rate','98%','vs 22% email'],['Reply Rate','45%','vs 6% email'],['Opt-Out Rate','0.3%','TCPA compliant'],['Delivery Rate','99.1%','via Twilio']].map(([l,v,s])=>(
+                  <div key={l} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,padding:'9px 12px',background:'var(--s2)',borderRadius:10}}>
+                    <div><div style={{fontSize:12,fontWeight:600}}>{l}</div><div style={{fontSize:10,color:'var(--ink45)',marginTop:1}}>{s}</div></div>
+                    <div style={{fontSize:16,fontWeight:800,color:'var(--ink)',fontFamily:'var(--mono)'}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab==='templates'&&(
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:14}}>
+          {SMS_TEMPLATES.map(tpl=>(
+            <div key={tpl.id} className="card" style={{cursor:'pointer',transition:'transform .15s'}}
+              onClick={()=>{setBody(tpl.body);setTab('compose');toast('Template loaded: '+tpl.name,'success','📱');}}
+              onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
+              onMouseLeave={e=>e.currentTarget.style.transform='none'}>
+              <div className="cb">
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:700}}>{tpl.name}</div>
+                    <div style={{fontSize:10,color:'var(--ink45)',marginTop:2}}>Agent: {tpl.agent}</div>
+                  </div>
+                  <span style={{fontSize:10,fontWeight:700,background:AGENT_BG[tpl.agent],color:AGENT_COLOR[tpl.agent],padding:'2px 8px',borderRadius:6,flexShrink:0}}>{tpl.agent}</span>
+                </div>
+                <div style={{fontSize:12,color:'var(--ink70)',lineHeight:1.6,fontStyle:'italic',background:'var(--s2)',padding:'10px 12px',borderRadius:10,marginBottom:10}}>
+                  {'"'}{tpl.body.slice(0,140)}{tpl.body.length>140?'...':''}{'"'}
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'var(--ink45)',fontFamily:'var(--mono)'}}>
+                  <span>{tpl.chars} chars</span>
+                  <span style={{color:tpl.chars<=160?'#16a34a':'#c2853a',fontWeight:700}}>{tpl.chars<=160?'1 part':'2 parts'}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab==='compliance'&&(
+        <div style={{maxWidth:720}}>
+          <div className="card">
+            <div className="ch"><span className="ct">TCPA Compliance Controls</span></div>
+            <div className="cb">
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                {[['Prior Express Written Consent Required',true,'Required by TCPA'],['STOP / UNSUBSCRIBE Auto-Handler',true,'Active'],['Quiet Hours Enforcement (8am to 9pm local)',true,'Enforced'],['A2P 10DLC Registration',true,'Registered'],['Opt-In Confirmation Reply',true,'Enabled'],['HELP Response Auto-Reply',true,'Configured'],['Opt-Out Suppression Sync to CRM',true,'Live'],['EU GDPR Consent Layer',false,'Setup Required'],['Canadian CASL Compliance',true,'Active'],['Do-Not-Call Registry Check',true,'Enabled']].map(([lbl,ok,badge])=>(
+                  <div key={lbl} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',background:'var(--s2)',borderRadius:10}}>
+                    <span style={{fontSize:16}}>{ok?'✅':'⚠️'}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:12,fontWeight:600}}>{lbl}</div>
+                      <div style={{fontSize:10,color:ok?'#16a34a':'#c2853a',fontWeight:700,marginTop:1}}>{badge}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{marginTop:16,padding:'12px 16px',background:'#fdf2e4',borderRadius:10,border:'1px solid rgba(194,133,58,.2)',fontSize:12,color:'#c2853a',lineHeight:1.6}}>
+                <strong>Note:</strong> TCPA compliance requires documented proof of prior express written consent for all promotional SMS messages. Orbit stores consent timestamps and source for every opted-in number. Consult your legal team before sending any promotional SMS to contacts without explicit consent records.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Sequences ─────────────────────────────────────────────────
+function SequencesPage() {
+  const [seqs,setSeqs] = useState(SEQUENCES);
+  const [activeSeq,setActiveSeq] = useState(SEQUENCES[0]);
+  const [activeStep,setActiveStep] = useState(null);
+  const [showAddStep,setShowAddStep] = useState(false);
+  const [view,setView] = useState('list');
+
+  function addStep(type){
+    const newStep={id:'step_'+Date.now(),type,delay:type==='delay'?3:0,
+      subject:type==='email'?'New email step':'',
+      label:type==='delay'?'Wait 3 days':type==='task'?'New officer task':type==='condition'?'If email was opened':'',
+      tpl:type==='email'?'Select template':'',
+    };
+    setActiveSeq(s=>({...s,steps:[...s.steps,newStep]}));
+    setShowAddStep(false);
+    toast('Step added','success','➕');
+  }
+  function removeStep(id){setActiveSeq(s=>({...s,steps:s.steps.filter(x=>x.id!==id)}));if(activeStep&&activeStep.id===id)setActiveStep(null);}
+
+  return (
+    <div>
+      <div className="ph">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
+          <div>
+            <div className="pt">Sequences</div>
+            <div className="ps">Multi-step, multi-channel donor journeys with email, SMS, tasks, conditions, and webhooks</div>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            {view==='builder'&&<button className="btn btn-s btn-sm" onClick={()=>setView('list')}>Back to All Sequences</button>}
+            <button className="btn btn-p btn-sm" onClick={()=>toast('New sequence created','success','✨')}>+ New Sequence</button>
+          </div>
+        </div>
+      </div>
+
+      {view==='list'&&(
+        <div>
+          <div className="mrow">
+            {[['5','Sequences'],['562','Enrolled Donors'],['54%','Avg Open Rate'],['14%','Avg Reply Rate']].map(([v,l])=>(
+              <div key={l} className="mchip"><div className="val">{v}</div><div className="lbl">{l}</div></div>
+            ))}
+          </div>
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            {seqs.map(seq=>(
+              <div key={seq.id} className="card" style={{cursor:'pointer',transition:'box-shadow .15s'}}
+                onClick={()=>{setActiveSeq(seq);setActiveStep(null);setView('builder');}}
+                onMouseEnter={e=>e.currentTarget.style.boxShadow='0 4px 20px rgba(24,24,31,.09)'}
+                onMouseLeave={e=>e.currentTarget.style.boxShadow=''}>
+                <div style={{padding:'16px 20px',display:'flex',alignItems:'center',gap:16}}>
+                  <div style={{width:4,height:52,borderRadius:2,background:AGENT_COLOR[seq.agent]||'#2a8c7e',flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
+                      <div style={{fontSize:14,fontWeight:800}}>{seq.name}</div>
+                      <span className={'badge '+(seq.status==='active'?'bg-green':'bg-slate')}>{seq.status}</span>
+                      <span style={{fontSize:10,fontWeight:700,background:AGENT_BG[seq.agent],color:AGENT_COLOR[seq.agent],padding:'2px 8px',borderRadius:6}}>{seq.agent}</span>
+                    </div>
+                    <div style={{display:'flex',gap:4,alignItems:'center',flexWrap:'wrap'}}>
+                      {seq.steps.filter(s=>s.type!=='delay').map((step,i)=>(
+                        <div key={step.id} style={{display:'flex',alignItems:'center',gap:3}}>
+                          {i>0&&<span style={{color:'var(--ink20)',fontSize:10}}>&#8250;</span>}
+                          <span style={{fontSize:10,background:'var(--s2)',border:'1px solid var(--ink08)',padding:'2px 7px',borderRadius:5}}>
+                            {STEP_ICONS[step.type]} {step.type}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{display:'flex',gap:20,flexShrink:0}}>
+                    {[['enrolled',seq.enrolled,'👥'],['opened',seq.opened,'📬'],['replied',seq.replied,'💬'],['converted',seq.converted||'--','🎯']].map(([k,v,ico])=>(
+                      <div key={k} style={{textAlign:'center',minWidth:40}}>
+                        <div style={{fontSize:14,fontWeight:800,fontFamily:'var(--mono)'}}>{v}</div>
+                        <div style={{fontSize:9,color:'var(--ink45)',textTransform:'uppercase',letterSpacing:'.05em',marginTop:1}}>{ico} {k}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{color:'var(--ink20)',fontSize:20}}>&#8250;</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {view==='builder'&&activeSeq&&(
+        <div style={{display:'grid',gridTemplateColumns:'360px 1fr',gap:20,alignItems:'start'}}>
+          <div>
+            <div className="card">
+              <div className="ch">
+                <div>
+                  <div className="ct">{activeSeq.name}</div>
+                  <div style={{fontSize:10,color:'var(--ink45)',marginTop:2}}>{activeSeq.steps.length} steps · {activeSeq.agent} agent</div>
+                </div>
+                <span className={'badge '+(activeSeq.status==='active'?'bg-green':'bg-slate')}>{activeSeq.status}</span>
+              </div>
+              <div style={{padding:'14px 16px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',background:'#e4f4f1',borderRadius:10,marginBottom:14,border:'1px solid rgba(42,140,126,.2)'}}>
+                  <span style={{fontSize:18}}>▶</span>
+                  <div>
+                    <div style={{fontSize:12,fontWeight:700,color:'#2a8c7e'}}>Enrollment Trigger</div>
+                    <div style={{fontSize:11,color:'var(--ink70)'}}>Manual enrollment or criteria-based auto-enroll</div>
+                  </div>
+                </div>
+
+                {activeSeq.steps.map((step,idx)=>(
+                  <div key={step.id}>
+                    {step.type==='delay'?(
+                      <div style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0 5px 50px',fontSize:10,color:'var(--ink45)',fontFamily:'var(--mono)',fontWeight:600}}>
+                        ⏱ {step.label}
+                      </div>
+                    ):(
+                      <>
+                        <div className="seq-step">
+                          <div style={{width:40,flexShrink:0}}>
+                            <div className="seq-node" style={{background:(STEP_COLORS[step.type]||'#2a8c7e')+'20',border:'2px solid '+(STEP_COLORS[step.type]||'#2a8c7e'),color:STEP_COLORS[step.type]||'#2a8c7e',margin:'4px auto 0'}}>
+                              {STEP_ICONS[step.type]||'●'}
+                            </div>
+                          </div>
+                          <div className={'seq-body'+(activeStep&&activeStep.id===step.id?' active':'')} onClick={()=>setActiveStep(step)}>
+                            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                              <div style={{flex:1,minWidth:0}}>
+                                <div style={{fontSize:12,fontWeight:700,marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{step.subject||step.label||step.tpl||step.type}</div>
+                                <div style={{display:'flex',gap:6}}>
+                                  <span style={{fontSize:10,color:STEP_COLORS[step.type],fontWeight:700,textTransform:'uppercase',letterSpacing:'.05em'}}>{STEP_ICONS[step.type]} {step.type}</span>
+                                  {step.delay>0&&<span style={{fontSize:9,color:'var(--ink45)',fontFamily:'var(--mono)'}}>Day {step.delay}</span>}
+                                </div>
+                              </div>
+                              <button onClick={e=>{e.stopPropagation();removeStep(step.id);}} style={{background:'none',border:'none',color:'var(--ink20)',cursor:'pointer',fontSize:12,padding:'0 2px',flexShrink:0}}>✕</button>
+                            </div>
+                          </div>
+                        </div>
+                        {idx<activeSeq.steps.length-1&&activeSeq.steps[idx+1]&&activeSeq.steps[idx+1].type!=='delay'&&(
+                          <div style={{height:10,width:2,background:'rgba(26,29,35,.08)',margin:'1px 0 1px 19px'}}/>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ))}
+
+                {!showAddStep?(
+                  <button className="sadd" onClick={()=>setShowAddStep(true)}>+ Add Step</button>
+                ):(
+                  <div style={{padding:'12px',background:'var(--s2)',borderRadius:14,marginTop:8}}>
+                    <div style={{fontSize:11,fontWeight:700,color:'var(--ink45)',marginBottom:10}}>Choose step type:</div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
+                      {[['email','✉️','Email'],['sms','💬','SMS'],['delay','⏱','Wait'],['condition','⑂','Condition'],['task','☑','Officer Task'],['webhook','⚡','Webhook']].map(([type,icon,lbl])=>(
+                        <button key={type} className="stb" onClick={()=>addStep(type)}>
+                          <span style={{fontSize:18}}>{icon}</span>
+                          <div style={{fontSize:12,fontWeight:700}}>{lbl}</div>
+                        </button>
+                      ))}
+                    </div>
+                    <button className="btn btn-g btn-sm" style={{marginTop:8,width:'100%',justifyContent:'center'}} onClick={()=>setShowAddStep(false)}>Cancel</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {activeStep?(
+              <div className="card" style={{marginBottom:16}}>
+                <div className="ch">
+                  <div className="ct">{STEP_ICONS[activeStep.type]} Edit {activeStep.type} Step</div>
+                  <button className="ico-btn" onClick={()=>setActiveStep(null)}>✕</button>
+                </div>
+                <div className="cb">
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+                    {activeStep.type==='email'&&<>
+                      <div style={{gridColumn:'1/-1'}}><label className="fl">Subject Line</label><input className="fi" defaultValue={activeStep.subject} placeholder="Subject with {{merge_tokens}}"/></div>
+                      <div><label className="fl">Email Template</label>
+                        <select className="fi fsel">
+                          <option>Cultivation Opener</option><option>Impact Story</option><option>Event Invite</option>
+                          <option>Soft Discovery Ask</option><option>Gift Receipt</option><option>Lapse Opener</option>
+                          <option>Custom (open designer)</option>
+                        </select>
+                      </div>
+                      <div><label className="fl">Day in Sequence</label><input className="fi" type="number" defaultValue={activeStep.delay} min={0}/></div>
+                      <div><label className="fl">Delivery Provider</label>
+                        <select className="fi fsel">
+                          <option>Gmail (OAuth) - connected</option><option>Outlook / Exchange - connected</option>
+                          <option>SendGrid</option><option>Emma by Marigold</option><option>Salesforce Marketing Cloud</option>
+                        </select>
+                      </div>
+                      <div><label className="fl">Send Time</label>
+                        <select className="fi fsel">
+                          <option>AI-optimized (best open time per donor)</option>
+                          <option>9:00 AM recipient local time</option>
+                          <option>10:30 AM recipient local time</option>
+                          <option>Immediate on enrollment</option>
+                        </select>
+                      </div>
+                    </>}
+                    {activeStep.type==='sms'&&<>
+                      <div style={{gridColumn:'1/-1'}}><label className="fl">Message Body</label><textarea className="fi fta" rows={4} defaultValue={activeStep.subject} placeholder="160 chars max for single-part delivery"/></div>
+                      <div><label className="fl">SMS Provider</label>
+                        <select className="fi fsel"><option>Twilio (configured)</option><option>Signal Vine</option><option>Mobile Commons</option><option>Tatango</option></select>
+                      </div>
+                      <div><label className="fl">Day in Sequence</label><input className="fi" type="number" defaultValue={activeStep.delay} min={0}/></div>
+                    </>}
+                    {activeStep.type==='delay'&&<>
+                      <div><label className="fl">Wait Duration (days)</label><input className="fi" type="number" defaultValue={activeStep.delay||3} min={1}/></div>
+                      <div><label className="fl">Skip Weekends</label><select className="fi fsel"><option>Yes (business days only)</option><option>No (calendar days)</option></select></div>
+                    </>}
+                    {activeStep.type==='condition'&&<>
+                      <div><label className="fl">Condition</label>
+                        <select className="fi fsel">
+                          <option>Email opened</option><option>Email link clicked</option><option>SMS replied</option>
+                          <option>Gift received</option><option>Propensity score above threshold</option>
+                        </select>
+                      </div>
+                      <div><label className="fl">Evaluate After (days)</label><input className="fi" type="number" defaultValue={3} min={1}/></div>
+                      <div style={{gridColumn:'1/-1',display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                        <div style={{background:'#dcfce7',padding:'10px 14px',borderRadius:10}}>
+                          <div style={{fontSize:11,fontWeight:700,color:'#16a34a',marginBottom:6}}>YES Branch</div>
+                          <select className="fi fsel" style={{fontSize:11}}>
+                            <option>Continue to next step</option><option>Jump to specific step</option><option>Escalate to officer</option>
+                          </select>
+                        </div>
+                        <div style={{background:'#fdf2e4',padding:'10px 14px',borderRadius:10}}>
+                          <div style={{fontSize:11,fontWeight:700,color:'#c2853a',marginBottom:6}}>NO Branch</div>
+                          <select className="fi fsel" style={{fontSize:11}}>
+                            <option>Send SMS follow-up</option><option>Wait 7 more days</option><option>Remove from sequence</option>
+                          </select>
+                        </div>
+                      </div>
+                    </>}
+                    {activeStep.type==='task'&&<>
+                      <div style={{gridColumn:'1/-1'}}><label className="fl">Task Description (shown to officer)</label><textarea className="fi fta" rows={3} defaultValue={activeStep.label} placeholder="What should the officer do at this step?"/></div>
+                      <div><label className="fl">Assign To</label>
+                        <select className="fi fsel"><option>Portfolio officer (auto-assigned)</option><option>Major gifts team</option><option>VP of Advancement</option></select>
+                      </div>
+                      <div><label className="fl">Due (days after trigger)</label><input className="fi" type="number" defaultValue={activeStep.delay||14}/></div>
+                    </>}
+                    {activeStep.type==='webhook'&&<>
+                      <div style={{gridColumn:'1/-1'}}><label className="fl">Webhook URL</label><input className="fi" placeholder="https://your-university.edu/webhook/orbit"/></div>
+                      <div><label className="fl">Method</label><select className="fi fsel"><option>POST</option><option>GET</option><option>PUT</option></select></div>
+                      <div><label className="fl">Day in Sequence</label><input className="fi" type="number" defaultValue={0} min={0}/></div>
+                    </>}
+                  </div>
+                  <div style={{marginTop:16,display:'flex',gap:8,justifyContent:'flex-end'}}>
+                    <button className="btn btn-s btn-sm" onClick={()=>setActiveStep(null)}>Cancel</button>
+                    <button className="btn btn-p btn-sm" onClick={()=>{toast('Step updated','success','✅');setActiveStep(null);}}>Save Step</button>
+                  </div>
+                </div>
+              </div>
+            ):(
+              <div className="card" style={{marginBottom:16}}>
+                <div className="cb" style={{textAlign:'center',padding:'48px 24px',color:'var(--ink45)'}}>
+                  <div style={{fontSize:40,marginBottom:12}}>⑂</div>
+                  <div style={{fontWeight:700,fontSize:14,marginBottom:4}}>Click any step to edit it</div>
+                  <div style={{fontSize:12}}>Or add a new step below the flow</div>
+                </div>
+              </div>
+            )}
+            <div className="card" style={{marginBottom:16}}>
+              <div className="ch"><span className="ct">Sequence Performance</span></div>
+              <div className="cb">
+                <div className="mrow" style={{marginBottom:14}}>
+                  {[['Enrolled',activeSeq.enrolled],['Opened',activeSeq.opened],['Replied',activeSeq.replied],['Converted',activeSeq.converted||'--']].map(([l,v])=>(
+                    <div key={l} className="mchip" style={{minWidth:80}}><div className="val" style={{fontSize:18}}>{v}</div><div className="lbl">{l}</div></div>
+                  ))}
+                </div>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                  <button className="btn btn-s btn-sm" onClick={()=>toast('Sequence paused','warn','⏸')}>⏸ Pause</button>
+                  <button className="btn btn-s btn-sm" onClick={()=>toast('Select donors to enroll','success','👥')}>👥 Enroll Donors</button>
+                  <button className="btn btn-s btn-sm" onClick={()=>toast('Template exported','success','📄')}>Export</button>
+                  <button className="btn btn-d btn-sm" onClick={()=>toast('Sequence archived','warn','🗄')}>Archive</button>
+                </div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="ch"><span className="ct">Sequence Settings</span></div>
+              <div className="cb">
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                  <div><label className="fl">Goal</label>
+                    <select className="fi fsel">
+                      <option>Major Gift Discovery</option><option>Annual Gift Renewal</option>
+                      <option>Lapse Recovery</option><option>Stewardship</option><option>Event Attendance</option>
+                    </select>
+                  </div>
+                  <div><label className="fl">Exit Condition</label>
+                    <select className="fi fsel">
+                      <option>Gift received (auto-exit)</option><option>Sequence completed</option>
+                      <option>Donor opts out</option><option>Manual removal only</option>
+                    </select>
+                  </div>
+                  <div><label className="fl">Re-Enroll After (days)</label><input className="fi" type="number" defaultValue={365} placeholder="0 = never"/></div>
+                  <div><label className="fl">Max Concurrent Sequences</label>
+                    <select className="fi fsel"><option>1 per donor</option><option>2 per donor</option><option>No limit</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Integrations Hub ──────────────────────────────────────────
+function IntegrationsPage() {
+  const [activeCat,setActiveCat] = useState('email');
+  const [selInt,setSelInt] = useState(null);
+  const [searchQ,setSearchQ] = useState('');
+
+  const allItems = INT_CATS.flatMap(c=>c.items);
+  const currentCat = INT_CATS.find(c=>c.key===activeCat)||INT_CATS[0];
+  const filtered = searchQ ? allItems.filter(i=>i.name.toLowerCase().includes(searchQ.toLowerCase())||i.desc.toLowerCase().includes(searchQ.toLowerCase())) : currentCat.items;
+
+  const SB={connected:'bg-green',configured:'bg-teal',available:'bg-slate'};
+  const SL={connected:'Connected',configured:'Configured',available:'Available'};
+  const SD={connected:'#16a34a',configured:'#2a8c7e',available:'rgba(26,29,35,.2)'};
+
+  return (
+    <div>
+      {selInt&&(
+        <div className="overlay" onClick={()=>setSelInt(null)}>
+          <div className="modal" style={{width:560}} onClick={e=>e.stopPropagation()}>
+            <div className="mh">
+              <div style={{display:'flex',alignItems:'center',gap:14}}>
+                <div style={{width:44,height:44,borderRadius:10,background:selInt.color+'18',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>{selInt.icon}</div>
+                <div>
+                  <div style={{fontSize:16,fontWeight:800}}>{selInt.name}</div>
+                  <div style={{display:'flex',gap:6,marginTop:3,flexWrap:'wrap'}}>
+                    <span className={'badge '+SB[selInt.status]}>{SL[selInt.status]}</span>
+                    <span className="badge bg-slate" style={{fontFamily:'var(--mono)'}}>{selInt.badge}</span>
+                    {selInt.he&&<span className="he-badge">Higher-Ed</span>}
+                  </div>
+                </div>
+              </div>
+              <button className="ico-btn" onClick={()=>setSelInt(null)}>✕</button>
+            </div>
+            <div className="mb">
+              <p style={{fontSize:13,color:'var(--ink70)',lineHeight:1.7,marginBottom:20}}>{selInt.desc}</p>
+              {(selInt.status==='connected'||selInt.status==='configured')?(
+                <>
+                  <div style={{background:'#dcfce7',border:'1px solid rgba(22,163,74,.2)',borderRadius:10,padding:'12px 16px',marginBottom:16}}>
+                    <div style={{fontSize:13,fontWeight:700,color:'#16a34a',marginBottom:4}}>{selInt.status==='connected'?'Connected and active':'Configured and ready to activate'}</div>
+                    <div style={{fontSize:11,color:'#166534'}}>API: {selInt.badge}</div>
+                  </div>
+                  {[['API Credential','••••••••••••••••••••ab4f'],['Last Synced','Today at 9:42 AM'],['Records Synced','47,821'],['Status','Healthy']].map(([k,v])=>(
+                    <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',background:'var(--s2)',borderRadius:10,fontSize:12,marginBottom:6}}>
+                      <span style={{color:'var(--ink45)'}}>{k}</span>
+                      <span style={{fontFamily:k==='API Credential'?'var(--mono)':'inherit',fontWeight:600}}>{v}</span>
+                    </div>
+                  ))}
+                </>
+              ):(
+                <>
+                  <div style={{fontSize:12,fontWeight:700,color:'var(--ink45)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:14}}>Setup Instructions</div>
+                  {['Obtain API credentials from your '+selInt.name+' admin panel','Enter your API key or authorize via OAuth below','Click Test Connection to verify credentials','Configure sync frequency and field mapping'].map((txt,i)=>(
+                    <div key={i} className="ssp">
+                      <div className="snum">{i+1}</div>
+                      <div style={{fontSize:12,color:'var(--ink70)',paddingTop:2}}>{txt}</div>
+                    </div>
+                  ))}
+                  <div style={{marginTop:16}}>
+                    <label className="fl">API Key / OAuth Token</label>
+                    <input className="fi" style={{marginBottom:10,fontFamily:'var(--mono)',fontSize:12}} placeholder={'Paste your '+selInt.name+' API key'} type="password"/>
+                    {(selInt.id==='gmail'||selInt.id==='outlook')&&(
+                      <button className="btn btn-p" style={{marginTop:4}} onClick={()=>toast('Opening OAuth authorization flow...','success','🔑')}>
+                        🔑 Authorize with {selInt.id==='gmail'?'Google':'Microsoft'}
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="mf">
+              {selInt.status==='available'?(
+                <>
+                  <button className="btn btn-s" onClick={()=>setSelInt(null)}>Cancel</button>
+                  <button className="btn btn-s" onClick={()=>toast('Connection test successful','success','✓')}>Test Connection</button>
+                  <button className="btn btn-p" onClick={()=>{toast(selInt.name+' connected!','success','🔗');setSelInt(null);}}>Connect</button>
+                </>
+              ):(
+                <>
+                  <button className="btn btn-d btn-sm" onClick={()=>{toast(selInt.name+' disconnected','warn','🔌');setSelInt(null);}}>Disconnect</button>
+                  <button className="btn btn-s" onClick={()=>setSelInt(null)}>Close</button>
+                  <button className="btn btn-p" onClick={()=>toast('Settings saved','success','💾')}>Save Settings</button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="ph">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
+          <div>
+            <div className="pt">Delivery Integrations</div>
+            <div className="ps">Email, SMS, direct mail, calling, and CRM write-back. Higher-ed specialist platforms highlighted.</div>
+          </div>
+          <input className="fi" value={searchQ} onChange={e=>setSearchQ(e.target.value)} placeholder="Search integrations..." style={{width:220,fontSize:12}}/>
+        </div>
+      </div>
+
+      <div className="mrow">
+        {[['5','Connected'],['33+','Available'],['12','Higher-Ed Specialist'],['3','CRM Bridges Active']].map(([v,l])=>(
+          <div key={l} className="mchip"><div className="val">{v}</div><div className="lbl">{l}</div></div>
+        ))}
+      </div>
+
+      {!searchQ&&(
+        <div style={{display:'flex',gap:6,marginBottom:20,flexWrap:'wrap'}}>
+          {INT_CATS.map(cat=>{
+            const cnt=cat.items.filter(i=>i.status==='connected'||i.status==='configured').length;
+            return (
+              <button key={cat.key} onClick={()=>setActiveCat(cat.key)}
+                style={{padding:'8px 16px',borderRadius:14,border:activeCat===cat.key?'2px solid #2a8c7e':'1.5px solid var(--ink08)',background:activeCat===cat.key?'#e4f4f1':'var(--surface)',color:activeCat===cat.key?'#2a8c7e':'var(--ink70)',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:7,transition:'all .15s'}}>
+                {cat.icon} {cat.label}
+                {cnt>0&&<span style={{background:'#16a34a',color:'#fff',fontSize:9,fontWeight:800,padding:'1px 5px',borderRadius:8}}>{cnt}</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {filtered.length===0&&<div style={{textAlign:'center',padding:'60px',color:'var(--ink45)'}}>No integrations match your search.</div>}
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:14}}>
+        {filtered.map(item=>(
+          <div key={item.id} className={'int-card '+item.status} onClick={()=>setSelInt(item)}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{width:40,height:40,borderRadius:10,background:item.color+'18',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>{item.icon}</div>
+                <div>
+                  <div style={{fontSize:13,fontWeight:700}}>{item.name}</div>
+                  {item.he&&<span className="he-badge" style={{display:'inline-block',marginTop:3}}>Higher-Ed</span>}
+                </div>
+              </div>
+              <span className={'badge '+SB[item.status]} style={{flexShrink:0}}>
+                <span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:SD[item.status]}}/>
+                {SL[item.status]}
+              </span>
+            </div>
+            <div style={{fontSize:11,color:'var(--ink45)',lineHeight:1.55}}>{item.desc}</div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span className="badge bg-slate" style={{fontFamily:'var(--mono)'}}>{item.badge}</span>
+              <span style={{fontSize:11,color:'#2a8c7e',fontWeight:700}}>Configure →</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Analytics ─────────────────────────────────────────────────
+function AnalyticsPage() {
+  return (
+    <div>
+      <div className="ph">
+        <div className="pt">Communications Analytics</div>
+        <div className="ps">Open rates, click rates, replies, and opt-outs across all channels and sequences</div>
+      </div>
+      <div className="mrow">
+        {[['24.8%','Email Open Rate','+3.2%',true],['6.1%','Click Rate','+0.8%',true],['47,821','Messages Sent (30d)','',null],['0.3%','Opt-Out Rate','-0.1%',false]].map(([v,l,d,up])=>(
+          <div key={l} className="mchip">
+            <div className="val">{v}</div><div className="lbl">{l}</div>
+            {d&&<div className={'delta '+(up?'dup':'ddn')}>{d} vs last month</div>}
+          </div>
+        ))}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+        <div className="card">
+          <div className="ch"><span className="ct">Channel Performance (30 days)</span></div>
+          <div className="cb">
+            {[['Gmail (OAuth)','28.4%','7.2%',18420,'#EA4335'],['Exchange','22.1%','5.8%',9230,'#0078D4'],['SMS via Twilio','98.0%','44.2%',3847,'#F22F46'],['Signal Vine SMS','96.5%','41.0%',1204,'#2E8B57'],['SendGrid','21.3%','5.1%',8420,'#1A82E2']].map(([ch,open,click,vol,color])=>(
+              <div key={ch} style={{marginBottom:16}}>
+                <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
+                  <span style={{fontSize:12,fontWeight:700,display:'flex',alignItems:'center',gap:6}}>
+                    <span style={{display:'inline-block',width:8,height:8,borderRadius:'50%',background:color}}/>
+                    {ch}
+                  </span>
+                  <span style={{fontSize:10,color:'var(--ink45)',fontFamily:'var(--mono)'}}>{vol.toLocaleString()} sent</span>
+                </div>
+                <div style={{display:'flex',gap:10}}>
+                  <div style={{flex:1}}>
+                    <div style={{height:5,background:'rgba(26,29,35,.08)',borderRadius:3,overflow:'hidden'}}>
+                      <div style={{height:'100%',width:open,background:color,borderRadius:3,opacity:.8}}/>
+                    </div>
+                    <div style={{fontSize:9,color:'var(--ink45)',marginTop:2}}>Open {open}</div>
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{height:5,background:'rgba(26,29,35,.08)',borderRadius:3,overflow:'hidden'}}>
+                      <div style={{height:'100%',width:click,background:color,borderRadius:3,opacity:.5}}/>
+                    </div>
+                    <div style={{fontSize:9,color:'var(--ink45)',marginTop:2}}>Click {click}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card">
+          <div className="ch"><span className="ct">Top Sequences by Reply Rate</span></div>
+          <div className="cb">
+            {SEQUENCES.filter(s=>s.status==='active').map((seq,i)=>(
+              <div key={seq.id} style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+                <div style={{width:26,height:26,borderRadius:'50%',background:seq.color+'20',color:seq.color,fontSize:12,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{i+1}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:12,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{seq.name}</div>
+                  <div style={{height:5,background:'rgba(26,29,35,.08)',borderRadius:3,marginTop:4,overflow:'hidden'}}>
+                    <div style={{height:'100%',width:seq.replied,background:seq.color,borderRadius:3}}/>
+                  </div>
+                </div>
+                <div style={{fontSize:14,fontWeight:800,color:seq.color,fontFamily:'var(--mono)',minWidth:38,textAlign:'right'}}>{seq.replied}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16}}>
+        <div className="card">
+          <div className="ch"><span className="ct">Opt-Out Rate</span></div>
+          <div className="cb" style={{textAlign:'center',padding:'20px 0'}}>
+            <div style={{fontSize:36,fontWeight:800,color:'#16a34a',fontFamily:'var(--mono)'}}>0.3%</div>
+            <div style={{fontSize:12,color:'var(--ink45)',marginTop:4}}>Well below 0.5% industry benchmark</div>
+            <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:16,flexWrap:'wrap'}}>
+              <span className="badge bg-green">Email 0.2%</span>
+              <span className="badge bg-green">SMS 0.4%</span>
+            </div>
+          </div>
+        </div>
+        <div className="card">
+          <div className="ch"><span className="ct">Delivery Health</span></div>
+          <div className="cb">
+            {[['Delivered','99.1%','green'],['Bounced','0.6%','amber'],['Spam Reports','0.04%','green'],['Deferred','0.3%','slate']].map(([l,v,c])=>(
+              <div key={l} style={{display:'flex',justifyContent:'space-between',marginBottom:10,padding:'8px 10px',background:'var(--s2)',borderRadius:8}}>
+                <span style={{fontSize:12,fontWeight:600}}>{l}</span>
+                <span className={'badge bg-'+c} style={{fontFamily:'var(--mono)'}}>{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card">
+          <div className="ch"><span className="ct">Best Send Times</span></div>
+          <div className="cb">
+            {[['Tuesday 10am','34% open'],['Thursday 9am','31% open'],['Wednesday 2pm','28% open'],['Monday 8am','24% open']].map(([t,v],i)=>(
+              <div key={t} style={{display:'flex',justifyContent:'space-between',marginBottom:10,alignItems:'center'}}>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <div style={{width:20,height:20,borderRadius:'50%',background:'#e4f4f1',color:'#2a8c7e',fontSize:10,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center'}}>{i+1}</div>
+                  <span style={{fontSize:12,fontWeight:600}}>{t}</span>
+                </div>
+                <span style={{fontSize:11,color:'#2a8c7e',fontWeight:700}}>{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Direct Mail ───────────────────────────────────────────────
+function DirectMailPage() {
+  const [prov,setProv] = useState('handwrytten');
+  const [aiLoading,setAiLoading] = useState(false);
+  const [noteBody,setNoteBody] = useState('Dear {{first_name}},\n\nThank you for your incredible generosity over the years. Your gift has made a lasting difference in the lives of our students, and we are deeply grateful for your continued support of {{university}}.\n\nWith heartfelt gratitude,\n{{agent_name}}');
+  const [aiTxt,setAiTxt] = useState('');
+
+  async function aiGenNote(){
+    if(!aiTxt.trim())return;
+    setAiLoading(true);
+    try{
+      const txt=await callClaude('You are an expert fundraising copywriter writing handwritten card notes for university donors. Write a warm, brief, personal note under 120 words. No bullet lists. Sign as {{agent_name}}. Return ONLY the note text.',aiTxt,250);
+      setNoteBody(txt.trim());
+      toast('Note copy generated','success','✍️');
+    }catch(e){toast('AI unavailable','error','❌');}
+    setAiLoading(false);
+  }
+
+  return (
+    <div>
+      <div className="ph">
+        <div className="pt">Direct Mail + Handwritten Notes</div>
+        <div className="ps">Physical mail automation: handwritten notes, printed letters, and personalized mailers at scale</div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:20}}>
+        <div>
+          <div className="card">
+            <div className="ch"><span className="ct">Note Composer</span></div>
+            <div className="cb">
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+                <div><label className="fl">Delivery Provider</label>
+                  <select className="fi fsel" value={prov} onChange={e=>setProv(e.target.value)}>
+                    <option value="handwrytten">✍️ Handwrytten (configured)</option>
+                    <option value="postgrid">📦 PostGrid</option>
+                    <option value="lob">📬 Lob</option>
+                    <option value="pfl">🖨️ Printing for Less</option>
+                  </select>
+                </div>
+                <div><label className="fl">Card Style</label>
+                  <select className="fi fsel">
+                    <option>University Branded Card</option><option>Personal Notecard</option>
+                    <option>Seasonal (Holiday)</option><option>Impact Report Insert</option><option>Annual Fund Card</option>
+                  </select>
+                </div>
+                <div><label className="fl">Trigger / Occasion</label>
+                  <select className="fi fsel">
+                    <option>Major gift thank you (post-commitment)</option><option>Gift anniversary</option>
+                    <option>Lapse recovery (personal touch)</option><option>Milestone giving level reached</option>
+                    <option>Birthday outreach</option><option>Reunion year acknowledgment</option>
+                  </select>
+                </div>
+                <div><label className="fl">Handwriting Style</label>
+                  <select className="fi fsel">
+                    <option>Warm casual script</option><option>Formal cursive</option>
+                    <option>Clean print</option><option>Officer personal style (upload sample)</option>
+                  </select>
+                </div>
+              </div>
+              <label className="fl">Note Body</label>
+              <textarea className="fi fta" rows={7} value={noteBody} onChange={e=>setNoteBody(e.target.value)} style={{marginBottom:14}}/>
+              <div style={{background:'var(--s2)',borderRadius:10,padding:'10px 14px',fontSize:11,color:'var(--ink45)',marginBottom:14,lineHeight:1.6}}>
+                {noteBody.length} characters. Aim for ~120 words for handwritten notes. Tokens like {'{{first_name}}'} will be personalized per recipient.
+              </div>
+              <div style={{borderTop:'1px solid var(--ink08)',paddingTop:14}}>
+                <label className="fl">AI Note Writer</label>
+                <div style={{display:'flex',gap:8}}>
+                  <input className="fi" value={aiTxt} onChange={e=>setAiTxt(e.target.value)}
+                    placeholder="Write a heartfelt thank you note for a donor who just made their first major gift after 10 years of annual giving..." style={{flex:1,fontSize:12}}/>
+                  <button className="btn btn-p btn-sm" onClick={aiGenNote} disabled={aiLoading} style={{flexShrink:0}}>{aiLoading?'Writing...':'✍️ Generate'}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className="card" style={{marginBottom:12}}>
+            <div className="ch" style={{padding:'12px 16px'}}><span className="ct">Note Preview</span></div>
+            <div style={{padding:'16px'}}>
+              <div style={{background:'#fffef5',border:'1px solid #e8e4d0',borderRadius:12,padding:'24px 22px',fontFamily:'Georgia,serif',fontSize:13,lineHeight:1.85,color:'#2c2416',minHeight:220,boxShadow:'0 2px 8px rgba(0,0,0,.06)'}}>
+                {fillVars(noteBody,'Margaret').split('\n').map((line,i)=>(
+                  <div key={i} style={{marginBottom:line===''?8:0}}>{line||'\u00A0'}</div>
+                ))}
+              </div>
+              <div style={{marginTop:10,fontSize:10,color:'var(--ink45)',textAlign:'center'}}>Approximate handwritten card preview</div>
+            </div>
+          </div>
+          <div className="card" style={{marginBottom:12}}>
+            <div className="ch" style={{padding:'12px 16px'}}><span className="ct">Send Details</span></div>
+            <div style={{padding:'14px 16px'}}>
+              <label className="fl">Recipient Segment</label>
+              <select className="fi fsel" style={{marginBottom:10}}>
+                <option>Selected donors (5 selected)</option><option>All major gift donors ($10K+)</option>
+                <option>Lapsed donors, 1 year+</option><option>Gift anniversary this month</option>
+              </select>
+              <label className="fl">Send Date</label>
+              <input className="fi" type="date" style={{marginBottom:10}} defaultValue="2026-03-15"/>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:12,padding:'10px 12px',background:'var(--s2)',borderRadius:10,marginBottom:10}}>
+                <span style={{color:'var(--ink45)'}}>Estimated cost</span>
+                <span style={{fontWeight:700}}>$4.50 / card (5 = $22.50)</span>
+              </div>
+              <button className="btn btn-p" style={{width:'100%',justifyContent:'center'}} onClick={()=>toast('5 handwritten notes queued via Handwrytten','success','✍️')}>
+                Queue 5 Notes for Review
+              </button>
+            </div>
+          </div>
+          <div className="card">
+            <div className="ch" style={{padding:'12px 16px'}}><span className="ct">Provider Status</span></div>
+            <div style={{padding:'14px 16px'}}>
+              {[['Handwrytten','configured','$3.50/card base'],['PostGrid','available','From $0.75/letter'],['Lob','available','From $0.55/letter'],['Printing for Less','available','From $1.20/piece']].map(([n,s,p])=>(
+                <div key={n} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,padding:'8px 10px',background:'var(--s2)',borderRadius:8}}>
+                  <div><div style={{fontSize:12,fontWeight:700}}>{n}</div><div style={{fontSize:10,color:'var(--ink45)'}}>{p}</div></div>
+                  <span className={'badge '+(s==='configured'?'bg-teal':'bg-slate')}>{s}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── App Shell ─────────────────────────────────────────────────
+const PAGES = {
+  email:     {lbl:'Email Designer',   icon:'✉️',  Component:EmailDesignerPage,  badge:null},
+  sms:       {lbl:'SMS Designer',     icon:'💬',  Component:SMSDesignerPage,    badge:'8'},
+  sequences: {lbl:'Sequences',        icon:'⑂',   Component:SequencesPage,      badge:'5'},
+  directmail:{lbl:'Direct Mail',      icon:'✍️',  Component:DirectMailPage,     badge:null},
+  integrations:{lbl:'Integrations',   icon:'🔗',  Component:IntegrationsPage,   badge:null},
+  analytics: {lbl:'Analytics',        icon:'📊',  Component:AnalyticsPage,      badge:null},
+};
+
+function App() {
+  const [page,setPage] = useState('email');
+  const Pg = PAGES[page]||PAGES.email;
+
+  useEffect(()=>{
+    const h=e=>{if(PAGES[e.detail?.page])setPage(e.detail.page);};
+    window.addEventListener('orbit:navigate',h);
+    return ()=>window.removeEventListener('orbit:navigate',h);
+  },[]);
+
+  const connected=[
+    {lbl:'Gmail',color:'#EA4335'},{lbl:'Exchange',color:'#0078D4'},
+    {lbl:'Twilio SMS',color:'#F22F46'},{lbl:'Handwrytten',color:'#8B5CF6'},
+    {lbl:'RE NXT',color:'#004990'},{lbl:'Salesforce',color:'#00A1E0'},
+  ];
+
+  return (
+    <ToastProvider>
+      <div className="app">
+        <div className="sb">
+          <div className="sb-logo">
+            <div className="logomark"><span>O</span></div>
+            <span className="wordmark">Orbit</span>
+          </div>
+          <button className="back-btn" onClick={()=>window.location.href='orbit-dashboard.html'}>
+            &#8592; Back to Dashboard
+          </button>
+          <div className="nav-sec">
+            <div className="nav-lbl">Communications Hub</div>
+            {Object.entries(PAGES).map(([id,pg])=>(
+              <button key={id} className={'nav-item'+(page===id?' active':'')} onClick={()=>setPage(id)}>
+                <span className="nav-icon">{pg.icon}</span>
+                <span className="nav-label">{pg.lbl}</span>
+                {pg.badge&&<span className="nav-badge">{pg.badge}</span>}
+              </button>
+            ))}
+          </div>
+          <div className="sb-foot">
+            <div style={{margin:'0 2px 6px',padding:'10px 12px',background:'rgba(42,140,126,.1)',borderRadius:10,border:'1px solid rgba(42,140,126,.2)'}}>
+              <div style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,.3)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:7}}>Active Channels</div>
+              {connected.map(ch=>(
+                <div key={ch.lbl} style={{display:'flex',alignItems:'center',fontSize:10,color:'rgba(255,255,255,.5)',marginBottom:4}}>
+                  <span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:ch.color,marginRight:7,flexShrink:0}}/>
+                  {ch.lbl}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="main">
+          <div className="topbar">
+            <div>
+              <div className="topbar-title">Communications Hub</div>
+              <div className="topbar-sub">Email + SMS designer, sequences, direct mail, and delivery integrations</div>
+            </div>
+            <div className="ta">
+              <button className="btn btn-s btn-sm" onClick={()=>toast('All integrations syncing...','success','🔄')}>Sync All</button>
+              <button className="btn btn-p btn-sm" onClick={()=>setPage('sequences')}>View Sequences</button>
+              <div style={{width:34,height:34,borderRadius:'50%',background:'#2a8c7e',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,cursor:'pointer',flexShrink:0}}>AR</div>
+            </div>
+          </div>
+          <div className="content">
+            <Pg.Component/>
+          </div>
+        </div>
+      </div>
+    </ToastProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
