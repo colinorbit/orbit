@@ -119,6 +119,72 @@ Orbit is a B2B SaaS multi-tenant platform. Primary users are advancement office 
 | Payments | Stripe | PCI-DSS compliance, subscription management |
 | eSignature | DocuSign | Legal enforceability, nonprofit pricing |
 | CRM | Salesforce NPSP | Most common in higher ed advancement |
+| Agent Intelligence | Python 3.10+ | Rapid ML iteration, rich data-science ecosystem |
+
+---
+
+## 3a. Python Agent Intelligence Layer
+
+The four Python intelligence modules are a recognized, first-class architectural layer. They are **not** throw-away scripts — they are the cognitive core of each AI agent, responsible for all pre-Claude reasoning before prompts are assembled and sent to the API.
+
+### Architecture Role
+
+```
+┌────────────────────────────────────────────────────────────┐
+│              PYTHON AGENT INTELLIGENCE LAYER               │
+│                                                            │
+│  veo_intelligence/   — VEO cognitive modules               │
+│  vso_intelligence/   — VSO cognitive modules               │
+│  vpgo_intelligence/  — VPGO cognitive modules              │
+│  vco_intelligence/   — VCO cognitive modules               │
+│                                                            │
+│  Inputs:  Donor JSON profile from API or queue             │
+│  Outputs: Structured decision object + formatted prompt    │
+│  Called by: Worker fleet (Bull jobs) or REST route         │
+└──────────────────────────┬─────────────────────────────────┘
+                           │ Structured prompt context
+                           ▼
+              ANTHROPIC CLAUDE API (message generation)
+```
+
+### Module Inventory
+
+#### `veo_intelligence/` — Virtual Engagement Officer
+| Module | Purpose |
+|---|---|
+| `life_event_detector.py` | Detects life events (bereavement, IPO, estate) from donor signals |
+| `signal_processor.py` | Enriches donor with iWave / DonorSearch wealth data |
+| `cost_governor.py` | Token budget enforcement; multi-client billing |
+
+#### `vso_intelligence/` — Virtual Stewardship Officer
+| Module | Purpose |
+|---|---|
+| `stewardship_engine.py` | Core decision engine: action, channel, tone, content themes |
+| `lapse_predictor.py` | Predicts lapse tier (critical / high / medium / low) |
+| `impact_reporter.py` | Builds fund-specific impact profiles for personalized messaging |
+| `recognition_engine.py` | Detects giving milestones, streak events, society upgrades |
+| `stewardship_calendar.py` | Annual touchpoint calendar by tier |
+
+#### `vpgo_intelligence/` — Virtual Planned Giving Officer
+Modules covering bequest score modeling, estate planning signal detection, and legacy gift cultivation sequencing.
+
+#### `vco_intelligence/` — Virtual Campaign Officer
+Modules covering campaign segmentation, Giving Day optimization, participation rate modeling, and campaign calendar management.
+
+### Integration with Node.js Backend
+
+The Python layer is consumed by the Express API in two ways:
+
+1. **REST Route** — `POST /api/agents/vso/run` (and equivalents) call the decision logic via a JavaScript port (`backend/services/stewardship-engine.js`) for synchronous use
+2. **Worker Fleet** — Bull queue workers invoke Python scripts via `child_process.spawn()` for async batch processing
+
+### Rules for This Layer
+
+1. **Each module is independently testable** — run `python3 *_demo.py` to validate any agent
+2. **No side effects** — modules are pure functions; they read donor data, return decisions, never mutate state
+3. **JSON in, JSON out** — all inputs are donor dict objects; all outputs are dataclass instances serializable to JSON
+4. **Cost governance required** — all Claude API calls routed through `cost_governor.py`
+5. **The JS ports must stay in sync** — when Python logic changes, update the corresponding `backend/services/*.js` port
 
 ---
 
@@ -179,8 +245,14 @@ orbit/
 │           └── 001_initial_schema.ts  ← ✅ Complete
 │
 ├── frontend/
-│   ├── orbit-platform.html            ← Prototype ✅
+│   ├── orbit-v4.html                  ← Main app dashboard ✅
+│   ├── orbit-platform.html            ← Marketing/sales prototype ✅
 │   └── src/                           ← React migration TODO
+│
+├── veo_intelligence/                  ← VEO Python intelligence module ✅
+├── vso_intelligence/                  ← VSO Python intelligence module ✅
+├── vpgo_intelligence/                 ← VPGO Python intelligence module ✅
+├── vco_intelligence/                  ← VCO Python intelligence module ✅
 │
 └── docs/
     ├── API.md

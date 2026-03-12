@@ -133,6 +133,61 @@ router.post('/:key/run', validateAgent, async (req, res) => {
   res.json(reasoning);
 });
 
+// POST /agents/vso/run — run VSO stewardship engine on a donor JSON object
+router.post('/vso/run', asyncHandler(async (req, res) => {
+  const stewEngine = require('../services/stewardship-engine');
+  const donor = req.body;
+
+  // Validate required donor fields
+  if (!donor || typeof donor !== 'object') {
+    return res.status(400).json({ error: 'Donor object is required in request body' });
+  }
+  if (!donor.firstName || !donor.lastName) {
+    return res.status(400).json({ error: 'Donor must have firstName and lastName' });
+  }
+
+  // Extract VSO-specific parameters from request
+  const opts = {
+    lapse_risk: req.body.lapse_risk || null,
+    recognition_events: req.body.recognition_events || [],
+    life_events: req.body.life_events || [],
+    days_since_last_gift: req.body.days_since_last_gift || donor.daysSinceLastGift || 0,
+    days_since_last_contact: req.body.days_since_last_contact || donor.daysSinceLastContact || 0,
+  };
+
+  // Compute stewardship decision
+  const decision = stewEngine.decideStewAction(donor, opts);
+
+  // Format for AI prompt if needed
+  const promptFormatted = stewEngine.formatDecisionForPrompt(decision);
+
+  // Return structured response
+  res.json({
+    donor: {
+      id: donor.id || 'N/A',
+      name: `${donor.firstName} ${donor.lastName}`,
+      archetype: donor.archetype || 'LOYAL_ALUMNI',
+      stage: donor.journeyStage || 'stewardship',
+      totalGiving: donor.totalGiving || 0,
+      givingStreak: donor.givingStreak || 0,
+    },
+    decision: {
+      action: decision.action,
+      tier: decision.tier,
+      urgency: decision.urgency,
+      channel: decision.channel,
+      tone: decision.tone,
+      content_themes: decision.content_themes,
+      cta: decision.cta,
+      ask_amount_cents: decision.ask_amount_cents,
+      escalate_to_human: decision.escalate_to_human,
+      hold_days: decision.hold_days,
+      rationale: decision.rationale,
+    },
+    prompt_formatted: promptFormatted,
+  });
+}));
+
 // POST /agents/:key/brief — generate full donor brief
 router.post('/:key/brief', validateAgent, async (req, res) => {
   const { donorId, purpose = 'meeting prep' } = req.body;
