@@ -55,6 +55,11 @@
   --vso-clr:      var(--teal);
   --vpgo-clr:     var(--amber);
   --vco-clr:      var(--purple);
+  --sky:          #38BDF8;   /* used for VAFO / annual fund */
+  --sky-dim:      rgba(56,189,248,0.15);
+  --sky-pale:     rgba(56,189,248,0.08);
+  --sky-glow:     0 0 0 3px rgba(56,189,248,0.2);
+  --vafo-clr:     var(--sky);
 
   /* ── Borders ── */
   --border:       #2E3540;
@@ -217,10 +222,12 @@ a { text-decoration:none; color:inherit; }
 .pill-vso  { color:var(--teal); }
 .pill-vpgo { color:var(--amber); }
 .pill-vco  { color:var(--purple); }
+.pill-vafo { color:var(--sky); }
 .pill-veo.active  { background:var(--green-pale); }
 .pill-vso.active  { background:var(--teal-dim); }
 .pill-vpgo.active { background:var(--amber-dim); }
 .pill-vco.active  { background:var(--purple-dim); }
+.pill-vafo.active { background:var(--sky-dim); }
 
 .agent-live-dot {
   width:6px; height:6px; border-radius:50%; flex-shrink:0;
@@ -230,6 +237,7 @@ a { text-decoration:none; color:inherit; }
 .dot-sage   { background:var(--teal); }
 .dot-gold   { background:var(--amber); }
 .dot-violet { background:var(--purple); }
+.dot-sky    { background:var(--sky); }
 
 .sidebar-footer {
   padding:12px 10px; border-top:1px solid var(--border-soft); flex-shrink:0;
@@ -354,6 +362,7 @@ a { text-decoration:none; color:inherit; }
 .tag-sage   { background:var(--teal-dim);   color:var(--teal); }
 .tag-gold   { background:var(--amber-dim);  color:var(--amber); }
 .tag-violet { background:var(--purple-dim); color:var(--purple); }
+.tag-sky    { background:var(--sky-pale);   color:var(--sky); }
 .tag-blue   { background:var(--blue-pale);  color:var(--blue); }
 .tag-ink    { background:var(--bg-elevated); color:var(--text-soft); }
 
@@ -553,6 +562,7 @@ a { text-decoration:none; color:inherit; }
 .chat-bar-tab.tab-vso.active  { border-bottom-color:var(--teal); color:var(--teal); background:var(--bg-card); }
 .chat-bar-tab.tab-vpgo.active { border-bottom-color:var(--amber); color:var(--amber); background:var(--bg-card); }
 .chat-bar-tab.tab-vco.active  { border-bottom-color:var(--purple); color:var(--purple); background:var(--bg-card); }
+.chat-bar-tab.tab-vafo.active { border-bottom-color:var(--sky); color:var(--sky); background:var(--bg-card); }
 .chat-bar-tab.tab-all.active  { border-bottom-color:var(--text-soft); color:var(--text); background:var(--bg-card); }
 .chat-tab-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; animation:pulse 2.5s infinite; }
 
@@ -604,6 +614,7 @@ a { text-decoration:none; color:inherit; }
 .ag-av-vso  { background:var(--teal-dim); }
 .ag-av-vpgo { background:var(--amber-dim); }
 .ag-av-vco  { background:var(--purple-dim); }
+.ag-av-vafo { background:var(--sky-dim); }
 
 .ag-online {
   position:absolute; bottom:1px; right:1px;
@@ -658,6 +669,30 @@ a { text-decoration:none; color:inherit; }
 .mav-vso  { background:var(--teal-dim);   color:var(--teal); }
 .mav-vpgo { background:var(--amber-dim);  color:var(--amber); }
 .mav-vco  { background:var(--purple-dim); color:var(--purple); }
+.mav-vafo { background:var(--sky-dim);    color:var(--sky); }
+
+/* ── VAFO Chat-to-Give Preview ── */
+.ctg-preview-wrap { border:1px solid rgba(56,189,248,0.2); border-radius:var(--radius-lg); overflow:hidden; }
+.ctg-preview-hd { background:var(--sky-pale); padding:10px 14px; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--sky); font-weight:600; border-bottom:1px solid rgba(56,189,248,0.15); }
+.ctg-preview-body { padding:14px; display:flex; flex-direction:column; gap:10px; }
+.ctg-ai-bubble { background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px 10px 2px 10px; padding:10px 14px; font-size:12.5px; color:var(--text-soft); max-width:85%; }
+.ctg-alumni-bubble { background:var(--sky-pale); border:1px solid rgba(56,189,248,0.2); border-radius:10px 10px 10px 2px; padding:10px 14px; font-size:12.5px; color:var(--text); max-width:85%; }
+.gift-amount-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin:10px 0; }
+.gift-amt-btn { background:var(--sky-pale); border:1px solid rgba(56,189,248,0.2); border-radius:var(--radius-sm); padding:8px 4px; text-align:center; font-size:13px; font-weight:600; color:var(--sky); cursor:pointer; transition:var(--transition); }
+.gift-amt-btn:hover { background:var(--sky-dim); }
+.gift-amt-btn.selected { background:var(--sky); color:var(--bg); }
+.vafo-stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.vafo-stat-card { background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; text-align:center; }
+.vafo-stat-num { font-size:22px; font-weight:700; color:var(--sky); }
+.vafo-stat-lbl { font-size:11px; color:var(--text-muted); margin-top:4px; }
+.seg-bar { display:flex; gap:8px; }
+.seg-pill { flex:1; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 8px; text-align:center; }
+.seg-pill-num { font-size:20px; font-weight:700; color:var(--sky); display:block; }
+.seg-pill-lbl { font-size:11px; color:var(--text-muted); display:block; margin-top:2px; }
+.handoff-card { background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 16px; display:flex; align-items:center; gap:12px; }
+.handoff-badge { background:var(--sky-pale); color:var(--sky); font-size:11px; font-weight:600; padding:3px 8px; border-radius:20px; white-space:nowrap; }
+.handoff-confirm-btn { background:var(--sky); color:var(--bg); border:none; border-radius:var(--radius-sm); padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; transition:var(--transition); }
+.handoff-confirm-btn:hover { opacity:0.85; }
 .mav-user { background:linear-gradient(135deg,var(--purple-deep),var(--green)); color:#fff; }
 
 .msg-bbl {
@@ -1332,6 +1367,9 @@ a { text-decoration:none; color:inherit; }
     </div>
     <div class="agent-pill pill-vco" onclick="navAgent('vco')">
       <span class="agent-live-dot dot-violet"></span>VCO — Campaign
+    </div>
+    <div class="agent-pill pill-vafo" onclick="navAgent('vafo')">
+      <span class="agent-live-dot dot-sky"></span>VAFO — Annual Fund
     </div>
 
     <div class="nav-section-label">Settings</div>
@@ -3071,6 +3109,293 @@ a { text-decoration:none; color:inherit; }
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════
+         VAFO — VIRTUAL ANNUAL FUND OFFICER
+    ══════════════════════════════════════════ -->
+    <div class="panel" id="panel-vafo">
+      <div class="sh" style="margin-bottom:12px;"><div><div class="sh-title">Virtual Annual Fund Officer</div><div class="sh-sub">AI-powered chat-to-give for unmanaged alumni — qualifies prospects, captures first gifts, routes to the right officer</div></div><span class="tag tag-sky tag-live">Online</span></div>
+      <div class="agent-page">
+        <!-- ── CHAT BAR ── -->
+        <div class="agent-chat-bar">
+          <div class="chat-bar-tabs">
+            <div class="chat-bar-tab tab-vafo active" onclick="switchChatTab('vafo','vafo',this)" id="ctab-vafo-self">
+              <span class="chat-tab-dot" style="background:var(--sky)"></span>
+              💬 VAFO
+            </div>
+            <div class="chat-bar-tab tab-all" onclick="switchChatTab('vafo','all',this)" id="ctab-vafo-all">
+              🌐 Orbit Command
+            </div>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:0 12px;">
+              <span style="font-size:10.5px;color:var(--text-muted);">Chat with this agent or all agents at once</span>
+            </div>
+          </div>
+
+          <!-- Agent pane -->
+          <div class="chat-bar-pane active" id="cbpane-vafo-self">
+            <div class="chat-msgs-bar" id="cbmsgs-vafo">
+              <div class="msg-row">
+                <div class="msg-av mav-vafo">AF</div>
+                <div><div class="msg-sender">VAFO · Active now</div><div class="msg-bbl" style="color:var(--text-soft);font-size:12.5px;">Good morning Kelly. Here is your annual fund intelligence for today:<br><br><strong style="color:var(--sky)">3 Handoff Recommendations ready for your review</strong> — AI has identified prospects ready to move to VEO or VPGO.<br><strong>847 active alumni conversations</strong> in progress across email, SMS, and web.<br><strong>12 first gifts captured overnight</strong> — total $4,280. VSO stewardship sequences triggered automatically.<br><strong>Segment B (lapsed 2-5 years)</strong> showing 34% open rate this week — highest in 6 months.<div class="msg-chips"><button class="msg-chip" onclick="sendBarMsg('vafo','vafo','Review the 3 handoff recommendations')">Review handoffs</button><button class="msg-chip" onclick="sendBarMsg('vafo','vafo','Show me Segment B performance breakdown')">Segment B report</button><button class="msg-chip" onclick="sendBarMsg('vafo','vafo','Draft a new outreach sequence for never-given alumni')">New sequence</button></div></div></div>
+              </div>
+            </div>
+            <div class="chat-inp-area-bar">
+              <div class="chat-inp-row-bar">
+                <textarea class="chat-ta-bar" id="cbinput-vafo" rows="1" placeholder="Ask VAFO to build a sequence, review handoffs, analyze segment performance..." onkeydown="handleBarEnter(event,'vafo','vafo')"></textarea>
+                <button class="send-btn" style="width:26px;height:26px;font-size:11px;" onclick="sendBarMsg('vafo','vafo')">&#10148;</button>
+              </div>
+              <div class="bar-chips-row"><button class="cm-chip">📎 Import segment</button><button class="cm-chip">💬 Preview chat widget</button><button class="cm-chip">✦ Generate sequence</button></div>
+            </div>
+          </div>
+
+          <!-- Orbit Command (all agents) pane -->
+          <div class="chat-bar-pane" id="cbpane-vafo-all">
+            <div class="chat-msgs-bar" id="cbmsgs-vafo-all">
+              <div class="msg-row">
+                <div class="msg-av" style="background:linear-gradient(135deg,var(--green),var(--purple));color:#fff;font-size:8px;font-weight:800;">ORB</div>
+                <div><div class="msg-sender">Orbit Command · All Agents</div><div class="msg-bbl" style="color:var(--text-soft);font-size:12.5px;">All five AI Officers are listening. Ask anything — I will route to the right agent or coordinate across VEO, VSO, VPGO, VCO, and VAFO simultaneously.<div class="msg-chips"><button class="msg-chip" onclick="sendBarMsg('vafo','all','Give me my morning briefing across all agents')">Morning briefing</button><button class="msg-chip" onclick="sendBarMsg('vafo','all','Who needs my attention most urgently today?')">Priority digest</button><button class="msg-chip" onclick="sendBarMsg('vafo','all','What actions are pending in my review queue?')">Review queue</button></div></div></div>
+              </div>
+            </div>
+            <div class="chat-inp-area-bar">
+              <div class="chat-inp-row-bar">
+                <textarea class="chat-ta-bar" id="cbinput-vafo-all" rows="1" placeholder="Ask all agents at once, or let Orbit route to the right one automatically..." onkeydown="handleBarEnter(event,'vafo','all')"></textarea>
+                <button class="send-btn" style="width:26px;height:26px;font-size:11px;background:var(--purple-deep);" onclick="sendBarMsg('vafo','all')">&#10148;</button>
+              </div>
+              <div class="bar-chips-row"><button class="cm-chip">🔀 Auto-route</button><button class="cm-chip">📊 Cross-agent summary</button><button class="cm-chip">📬 Send to all</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="agent-body">
+          <div class="agent-sidebar-col">
+            <div class="agent-id-card">
+              <div class="ag-av ag-av-vafo">💬<div class="ag-online"></div></div>
+              <div class="ag-name">VAFO</div>
+              <div class="ag-tagline">Reaches every unmanaged alumnus through conversation, not solicitation</div>
+              <ul class="cap-list">
+                <li><div class="cap-dot" style="background:var(--sky)">&#10003;</div>Chat-to-give for all alumni segments</li>
+                <li><div class="cap-dot" style="background:var(--sky)">&#10003;</div>Never-given alumni activation</li>
+                <li><div class="cap-dot" style="background:var(--sky)">&#10003;</div>Lapsed donor reactivation</li>
+                <li><div class="cap-dot" style="background:var(--sky)">&#10003;</div>Giving capacity qualification</li>
+                <li><div class="cap-dot" style="background:var(--sky)">&#10003;</div>AI-recommended prospect routing</li>
+                <li><div class="cap-dot" style="background:var(--sky)">&#10003;</div>Data enrichment via conversation</li>
+                <li><div class="cap-dot" style="background:var(--sky)">&#10003;</div>First gift capture + VSO handoff</li>
+                <li><div class="cap-dot" style="background:var(--sky)">&#10003;</div>Planned giving signal detection</li>
+              </ul>
+            </div>
+
+            <!-- ── HUMAN IN THE LOOP ── -->
+            <div class="hitl-panel">
+              <div class="hitl-header" onclick="toggleHitl('vafo')">
+                <div class="hitl-header-icon">🧑‍✈️</div>
+                <div class="hitl-header-text">
+                  <div class="hitl-header-title">Handoff Review Queue</div>
+                  <div class="hitl-header-sub">3 recommendations awaiting confirmation</div>
+                </div>
+                <div class="hitl-badge" style="background:var(--sky)">3</div>
+                <div class="hitl-chevron open" id="chevron-vafo">&#9662;</div>
+              </div>
+              <div class="hitl-body" id="hitl-body-vafo">
+                <div class="hitl-autonomy">
+                  <div class="hitl-auto-label">
+                    <span class="hitl-auto-title">VAFO Autonomy Level</span>
+                    <span class="hitl-auto-val" id="auto-label-vafo">Supervised</span>
+                  </div>
+                  <input type="range" class="hitl-slider" min="0" max="2" value="1"
+                    id="slider-vafo"
+                    oninput="updateAutonomy('vafo', this.value)"
+                    style="--pct:50%">
+                  <div class="hitl-auto-labels">
+                    <span>Manual</span><span>Supervised</span><span>Autonomous</span>
+                  </div>
+                </div>
+
+                <div class="hitl-queue" id="hitl-queue-vafo">
+
+                  <div class="hitl-item" id="hitl-vafo-1">
+                    <div class="hitl-item-top">
+                      <div class="hitl-item-icon" style="background:var(--sky-dim)">🔵</div>
+                      <div class="hitl-item-content">
+                        <div class="hitl-item-type">Prospect Handoff</div>
+                        <div class="hitl-item-title">Marcus Webb — Class of 2009</div>
+                        <div class="hitl-item-detail">4 conversations · alumni network mention · $500 gift capacity signal</div>
+                      </div>
+                    </div>
+                    <div class="hitl-item-preview">AI recommends handoff to VEO. Response Likelihood 78% with Amount Band $1K-$5K. Webb has engaged in 4 chat sessions and expressed interest in business school scholarships.</div>
+                    <div class="hitl-actions">
+                      <button class="ha-btn ha-approve" onclick="hitlAction('vafo','vafo-1','approved')">&#10003; Confirm to VEO</button>
+                      <button class="ha-btn ha-edit" onclick="hitlAction('vafo','vafo-1','edited')">&#9998; Reassign</button>
+                      <button class="ha-btn ha-reject" onclick="hitlAction('vafo','vafo-1','rejected')">&#10005; Keep in VAFO</button>
+                    </div>
+                  </div>
+
+                  <div class="hitl-item" id="hitl-vafo-2">
+                    <div class="hitl-item-top">
+                      <div class="hitl-item-icon" style="background:var(--amber-dim)">📜</div>
+                      <div class="hitl-item-content">
+                        <div class="hitl-item-type">Planned Giving Signal</div>
+                        <div class="hitl-item-title">Patricia Osei — Class of 1987</div>
+                        <div class="hitl-item-detail">Estate planning language · age signal · legacy society interest</div>
+                      </div>
+                    </div>
+                    <div class="hitl-item-preview">AI recommends handoff to VPGO. Osei mentioned estate planning and expressed interest in leaving a legacy. Age 61, consistent giving history of 18 years.</div>
+                    <div class="hitl-actions">
+                      <button class="ha-btn ha-approve" onclick="hitlAction('vafo','vafo-2','approved')">&#10003; Confirm to VPGO</button>
+                      <button class="ha-btn ha-edit" onclick="hitlAction('vafo','vafo-2','edited')">&#9998; Reassign</button>
+                      <button class="ha-btn ha-reject" onclick="hitlAction('vafo','vafo-2','rejected')">&#10005; Keep in VAFO</button>
+                    </div>
+                  </div>
+
+                  <div class="hitl-item" id="hitl-vafo-3">
+                    <div class="hitl-item-top">
+                      <div class="hitl-item-icon" style="background:var(--purple-dim)">💎</div>
+                      <div class="hitl-item-content">
+                        <div class="hitl-item-type">Major Gift Signal</div>
+                        <div class="hitl-item-title">David Chen — Class of 2001</div>
+                        <div class="hitl-item-detail">6 touchpoints · high engagement · $25K+ wealth signal detected</div>
+                      </div>
+                    </div>
+                    <div class="hitl-item-preview">AI recommends handoff to Major Gift Officer. Chen has $25K+ wealth capacity signal, 6 engaged touchpoints, and expressed interest in naming opportunities for the engineering building.</div>
+                    <div class="hitl-actions">
+                      <button class="ha-btn ha-approve" onclick="hitlAction('vafo','vafo-3','approved')">&#10003; Confirm to MGO</button>
+                      <button class="ha-btn ha-edit" onclick="hitlAction('vafo','vafo-3','edited')">&#9998; Reassign</button>
+                      <button class="ha-btn ha-reject" onclick="hitlAction('vafo','vafo-3','rejected')">&#10005; Keep in VAFO</button>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="hitl-log">
+                  <div class="hitl-log-title">Recent Decisions</div>
+                  <div class="hitl-log-item"><div class="hitl-log-dot" style="background:var(--green)"></div>Confirmed — R. Torres to VEO (response likelihood 82%)<div class="hitl-log-time">Yesterday</div></div>
+                  <div class="hitl-log-item"><div class="hitl-log-dot" style="background:var(--amber)"></div>Confirmed — M. Nguyen to VPGO (bequest language detected)<div class="hitl-log-time">2 days ago</div></div>
+                  <div class="hitl-log-item"><div class="hitl-log-dot" style="background:var(--sky)"></div>Kept — J. Park in VAFO (needs more cultivation)<div class="hitl-log-time">3 days ago</div></div>
+                </div>
+              </div>
+            </div>
+            <!-- ── END HITL ── -->
+          </div>
+          <div class="agent-content-col">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+
+  <!-- Annual Fund Pipeline Stats -->
+  <div class="card">
+    <div class="card-head"><div class="card-title">📊 Annual Fund Pipeline · FY2025</div><button class="btn btn-ghost btn-sm" onclick="sendBarMsg('vafo','vafo','Generate a full annual fund pipeline report for FY2025')">Full report</button></div>
+    <div class="card-body">
+      <div class="vafo-stats-grid" style="margin-bottom:14px;">
+        <div class="vafo-stat-card"><div class="vafo-stat-num">12,847</div><div class="vafo-stat-lbl">Alumni in sequences</div></div>
+        <div class="vafo-stat-card"><div class="vafo-stat-num">$48,290</div><div class="vafo-stat-lbl">Raised this cycle</div></div>
+        <div class="vafo-stat-card"><div class="vafo-stat-num">847</div><div class="vafo-stat-lbl">Active conversations</div></div>
+        <div class="vafo-stat-card"><div class="vafo-stat-num">152</div><div class="vafo-stat-lbl">First gifts captured</div></div>
+        <div class="vafo-stat-card"><div class="vafo-stat-num">34</div><div class="vafo-stat-lbl">Prospects qualified</div></div>
+        <div class="vafo-stat-card"><div class="vafo-stat-num">0.1%</div><div class="vafo-stat-lbl">Opt-out rate</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Alumni pipeline by segment</div>
+      <div class="seg-bar">
+        <div class="seg-pill"><span class="seg-pill-num">4,210</span><span class="seg-pill-lbl">Never given</span></div>
+        <div class="seg-pill"><span class="seg-pill-num">3,890</span><span class="seg-pill-lbl">Lapsed 2-5 yrs</span></div>
+        <div class="seg-pill"><span class="seg-pill-num">2,940</span><span class="seg-pill-lbl">Lapsed 5+ yrs</span></div>
+        <div class="seg-pill"><span class="seg-pill-num">1,807</span><span class="seg-pill-lbl">Re-engaged</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat-to-Give Preview -->
+  <div class="card">
+    <div class="card-head"><div class="card-title">💬 Chat-to-Give Interface — Alumni View Preview</div></div>
+    <div class="card-body">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">This is what alumni experience when they receive a VAFO outreach link. Delivered via email, SMS, or embedded on your giving page.</div>
+      <div class="ctg-preview-wrap">
+        <div class="ctg-preview-hd">
+          <div class="ag-av ag-av-vafo" style="width:22px;height:22px;font-size:11px;border-radius:50%">💬</div>
+          <span>Westfield University · Annual Fund</span>
+          <span style="margin-left:auto;font-size:11px;font-weight:400;color:var(--text-muted)">Powered by Orbit</span>
+        </div>
+        <div class="ctg-preview-body">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div class="ag-av ag-av-vafo" style="width:26px;height:26px;font-size:12px;border-radius:50%;flex-shrink:0">💬</div>
+            <div class="ctg-ai-bubble">Hi Marcus — it has been a few years since we last connected! I am reaching out because graduates from the Class of 2009 have been doing remarkable things, and I wanted to share what your classmates have helped make possible at Westfield this year.</div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;">
+            <div class="ctg-alumni-bubble">That sounds great, I am glad to hear it. What has been happening on campus?</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div class="ag-av ag-av-vafo" style="width:26px;height:26px;font-size:12px;border-radius:50%;flex-shrink:0">💬</div>
+            <div class="ctg-ai-bubble">A lot has changed since 2009! The new engineering lab opened last fall, and 47 students in your major received scholarships this year. Alumni support makes all of that possible. Is there an area of campus life you feel most connected to?</div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;">
+            <div class="ctg-alumni-bubble">I was always involved in the business school. Good to know scholarships are growing.</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div class="ag-av ag-av-vafo" style="width:26px;height:26px;font-size:12px;border-radius:50%;flex-shrink:0">💬</div>
+            <div class="ctg-ai-bubble">The business school scholarship fund is one of our most impactful programs. Would you consider making a gift to support it this year? Even a modest amount makes a real difference for students like the ones you sat next to in class.
+              <div style="margin-top:10px;">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Choose a gift amount:</div>
+                <div class="gift-amount-grid">
+                  <div class="gift-amt-btn" onclick="selectGiftAmount(this)">$25</div>
+                  <div class="gift-amt-btn selected" onclick="selectGiftAmount(this)">$50</div>
+                  <div class="gift-amt-btn" onclick="selectGiftAmount(this)">$100</div>
+                  <div class="gift-amt-btn" onclick="selectGiftAmount(this)">$250</div>
+                </div>
+                <button style="width:100%;background:var(--sky);color:var(--bg);border:none;border-radius:var(--radius-md);padding:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;transition:var(--transition);">Give to the Business School Fund &#8594;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm">📱 Preview SMS</button>
+        <button class="btn btn-ghost btn-sm">📧 Preview email</button>
+        <button class="btn btn-ghost btn-sm">🌐 Preview widget</button>
+        <button class="btn btn-ghost btn-sm" onclick="sendBarMsg('vafo','vafo','Customize the chat-to-give script for the Class of 2009')">&#9997; Customize script</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Handoff Routing Logic -->
+  <div class="card">
+    <div class="card-head"><div class="card-title">🔀 Handoff Routing Logic</div><span class="tag tag-sky">5 rules</span></div>
+    <div class="card-body">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">AI evaluates these signals after each conversation and recommends the right next step. Staff confirms with one click.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sky-pale);border-radius:var(--radius-md);border:1px solid rgba(56,189,248,0.15);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--sky);flex-shrink:0"></div>
+          <div style="flex:1;font-size:12.5px;color:var(--text-soft)">Response Likelihood &gt; 70% + Amount Band $1K-$10K</div>
+          <div class="handoff-badge">&#8594; VEO</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--amber-dim);border-radius:var(--radius-md);border:1px solid rgba(245,158,11,0.15);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0"></div>
+          <div style="flex:1;font-size:12.5px;color:var(--text-soft)">Planned giving language detected (estate, legacy, bequest, endowment)</div>
+          <div class="handoff-badge" style="background:var(--amber-dim);color:var(--amber)">&#8594; VPGO</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--purple-pale);border-radius:var(--radius-md);border:1px solid rgba(167,139,250,0.15);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--purple);flex-shrink:0"></div>
+          <div style="flex:1;font-size:12.5px;color:var(--text-soft)">Wealth signal detected + Amount Band &gt; $10K (3+ conversation touches)</div>
+          <div class="handoff-badge" style="background:var(--purple-dim);color:var(--purple)">&#8594; Major Gift Officer</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--green-pale);border-radius:var(--radius-md);border:1px solid rgba(62,207,142,0.15);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
+          <div style="flex:1;font-size:12.5px;color:var(--text-soft)">First gift captured &lt; $500 — trigger stewardship sequence</div>
+          <div class="handoff-badge" style="background:var(--green-pale);color:var(--green)">&#8594; VSO auto</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg-raised);border-radius:var(--radius-md);border:1px solid var(--border);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--text-muted);flex-shrink:0"></div>
+          <div style="flex:1;font-size:12.5px;color:var(--text-soft)">No engagement after 3 touches — exit active sequence, mark lapsed</div>
+          <div class="handoff-badge" style="background:var(--bg-elevated);color:var(--text-muted)">&#8594; Archive</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="sendBarMsg('vafo','vafo','Adjust the handoff routing thresholds')">&#9881; Adjust thresholds</button>
+        <button class="btn btn-ghost btn-sm" onclick="sendBarMsg('vafo','vafo','Show me routing performance over the last 90 days')">📊 Routing analytics</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ══ END VAFO PANEL ══ -->
+
     <!-- ══════════════════════
          INTEGRATIONS
     ══════════════════════ -->
@@ -3887,7 +4212,7 @@ advancement@westfield.edu</textarea>
 // ═══════════════════
 // NAVIGATION
 // ═══════════════════
-const panels = ['dashboard','prospects','activity','analytics','givingday','commandcenter','volunteers','forms','veo','vso','vpgo','vco','integrations','settings'];
+const panels = ['dashboard','prospects','activity','analytics','givingday','commandcenter','volunteers','forms','veo','vso','vpgo','vco','vafo','integrations','settings'];
 const titles = {
   dashboard:     'Dashboard <span>/ Overview</span>',
   prospects:     'Prospects <span>/ Portfolio</span>',
@@ -3901,6 +4226,7 @@ const titles = {
   vso:           'VSO <span>/ Virtual Stewardship Officer</span>',
   vpgo:          'VPGO <span>/ Virtual Planned Giving Officer</span>',
   vco:           'VCO <span>/ Virtual Campaign Officer</span>',
+  vafo:          'VAFO <span>/ Virtual Annual Fund Officer</span>',
   integrations:  'Integrations <span>/ Data Sources</span>',
   settings:      'Settings <span>/ Platform Configuration</span>',
 };
@@ -3939,6 +4265,13 @@ function navAgent(agent) {
   document.querySelectorAll('.agent-pill').forEach(p => p.classList.remove('active'));
   const pill = document.querySelector('.pill-'+agent);
   if (pill) pill.classList.add('active');
+}
+
+function selectGiftAmount(el) {
+  el.closest('.gift-amount-grid').querySelectorAll('.gift-amt-btn').forEach(function(b) {
+    b.classList.remove('selected');
+  });
+  el.classList.add('selected');
 }
 
 // ═══════════════════
@@ -4011,11 +4344,12 @@ async function sendMsg(agent, presetText) {
   if (!text) return;
   if (inp) inp.value = '';
 
-  const avMap = { veo:'VE', vso:'VS', vpgo:'PG', vco:'VC' };
-  const nameMap = { veo:'VEO', vso:'VSO', vpgo:'VPGO', vco:'VCO' };
+  const avMap = { veo:'VE', vso:'VS', vpgo:'PG', vco:'VC', vafo:'AF' };
+  const nameMap = { veo:'VEO', vso:'VSO', vpgo:'VPGO', vco:'VCO', vafo:'VAFO' };
   const titleMap = {
     veo:'Virtual Engagement Officer', vso:'Virtual Stewardship Officer',
-    vpgo:'Virtual Planned Giving Officer', vco:'Virtual Campaign Officer'
+    vpgo:'Virtual Planned Giving Officer', vco:'Virtual Campaign Officer',
+    vafo:'Virtual Annual Fund Officer'
   };
 
   // User message
@@ -4116,11 +4450,12 @@ async function sendBarMsg(pageAgent, targetPane, presetText) {
   if (!text || !msgs) return;
   if (inp) { inp.value = ''; inp.style.height = 'auto'; }
 
-  const avMap   = { veo:'VE', vso:'VS', vpgo:'PG', vco:'VC' };
-  const nameMap = { veo:'VEO', vso:'VSO', vpgo:'VPGO', vco:'VCO' };
+  const avMap   = { veo:'VE', vso:'VS', vpgo:'PG', vco:'VC', vafo:'AF' };
+  const nameMap = { veo:'VEO', vso:'VSO', vpgo:'VPGO', vco:'VCO', vafo:'VAFO' };
   const titleMap = {
     veo:'Virtual Engagement Officer', vso:'Virtual Stewardship Officer',
-    vpgo:'Virtual Planned Giving Officer', vco:'Virtual Campaign Officer'
+    vpgo:'Virtual Planned Giving Officer', vco:'Virtual Campaign Officer',
+    vafo:'Virtual Annual Fund Officer'
   };
 
   // User bubble
