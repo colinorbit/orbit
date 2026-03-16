@@ -353,4 +353,49 @@ router.patch('/signals/:signalId/apply', authenticate, tenantScope, asyncHandler
   res.json(sig);
 }));
 
+// POST /agents/chat — backend proxy for agent chat (keeps API key server-side)
+// Body: { system: string, messages: [{role, content}] }
+// Used by orbit-v4.html to route all agent chat through the backend.
+router.post('/chat', authenticate, asyncHandler(async (req, res) => {
+  const { system, messages } = req.body;
+
+  if (!system || typeof system !== 'string') {
+    return res.status(422).json({ error: 'system prompt is required', code: 'VALIDATION_ERROR', details: [] });
+  }
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return res.status(422).json({ error: 'messages array is required', code: 'VALIDATION_ERROR', details: [] });
+  }
+
+  // Trim to last 10 turns; validate roles (CLAUDE.md agent rule)
+  const trimmed = messages
+    .filter(m => m && typeof m.content === 'string' && ["user","assistant"].includes(m.role))
+    .slice(-10);
+
+  const fetch = require("node-fetch");
+  const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
+    method:  "POST",
+    headers: {
+      "Content-Type":      "application/json",
+      "x-api-key":         process.env.ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model:      process.env.CLAUDE_MODEL || "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system,
+      messages:   trimmed,
+    }),
+  });
+
+  if (\!claudeRes.ok) {
+    logger.error("Claude API error in /agents/chat", { status: claudeRes.status });
+    return res.status(502).json({ error: "AI service error", code: "UPSTREAM_ERROR", details: [] });
+  }
+
+  const data  = await claudeRes.json();
+  const reply = data.content?.[0]?.text || "No response from AI.";
+
+  res.json({ data: { reply } });
+}));
+
 module.exports = router;

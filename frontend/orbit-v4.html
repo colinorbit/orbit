@@ -4208,6 +4208,238 @@ advancement@westfield.edu</textarea>
 </div><!-- /main -->
 </div><!-- /app -->
 
+<!-- ═══════════════════════════════════════════════════
+     LOGIN OVERLAY — shown when no valid token is stored
+     ═══════════════════════════════════════════════════ -->
+<div id="login-overlay" style="
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(16,18,22,0.97);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;">
+  <div style="
+    background:var(--bg-card);border:1px solid var(--border);
+    border-radius:16px;padding:40px 36px;width:380px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.6);">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.08em;color:var(--green);text-transform:uppercase;margin-bottom:6px;">Orbit</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);">Sign in to your workspace</div>
+      <div style="font-size:12.5px;color:var(--text-muted);margin-top:6px;">AI Advancement Platform</div>
+    </div>
+    <div id="login-error" style="display:none;background:var(--rose-dim);border:1px solid var(--rose);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--rose);margin-bottom:16px;"></div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.04em;">EMAIL</label>
+      <input id="login-email" type="email" autocomplete="email"
+        style="width:100%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13.5px;outline:none;"
+        placeholder="you@university.edu" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.04em;">PASSWORD</label>
+      <input id="login-password" type="password" autocomplete="current-password"
+        style="width:100%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13.5px;outline:none;"
+        placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button onclick="doLogin()" id="login-btn"
+      style="width:100%;background:var(--green);color:#0a1a10;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;">
+      Sign in
+    </button>
+    <div style="text-align:center;margin-top:16px;font-size:11.5px;color:var(--text-faint);">
+      Orbit Advancement Platform &copy; 2025
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// ORBIT API CLIENT
+// Handles auth state, token storage, and all backend calls.
+// Configure ORBIT_API_BASE to match your backend URL.
+// ══════════════════════════════════════════════════════════
+
+const ORBIT_API_BASE = window.ORBIT_API_BASE || 'http://localhost:4000/api/v1';
+
+const orbitApi = (() => {
+  const TOKEN_KEY = 'orbit_access_token';
+  const USER_KEY  = 'orbit_user';
+
+  function getToken() { return localStorage.getItem(TOKEN_KEY); }
+  function getUser()  {
+    try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); }
+    catch { return null; }
+  }
+  function isAuthenticated() { return !!getToken(); }
+
+  function setSession(data) {
+    localStorage.setItem(TOKEN_KEY, data.accessToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+  }
+
+  async function request(method, path, body) {
+    const token = getToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    const opts = { method, headers };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(ORBIT_API_BASE + path, opts);
+    if (res.status === 401) { clearSession(); showLogin(); return null; }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'API error ' + res.status);
+    }
+    return res.json();
+  }
+
+  return {
+    getToken, getUser, isAuthenticated, setSession, clearSession,
+    get:    (path)         => request('GET',    path),
+    post:   (path, body)   => request('POST',   path, body),
+    patch:  (path, body)   => request('PATCH',  path, body),
+    delete: (path, body)   => request('DELETE', path, body),
+
+    /** Route agent chat through the backend proxy instead of calling Anthropic directly. */
+    async agentChat(system, messages) {
+      const res = await request('POST', '/agents/chat', { system, messages });
+      return res?.data?.reply || 'Unable to connect. Check API configuration.';
+    },
+  };
+})();
+
+// ── Login / logout UI ────────────────────────────────────────────────────────
+
+function showLogin() {
+  const overlay = document.getElementById('login-overlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+function hideLogin() {
+  const overlay = document.getElementById('login-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+async function doLogin() {
+  const email    = document.getElementById('login-email')?.value?.trim();
+  const password = document.getElementById('login-password')?.value;
+  const errEl    = document.getElementById('login-error');
+  const btn      = document.getElementById('login-btn');
+  if (!email || !password) {
+    if (errEl) { errEl.textContent = 'Email and password are required.'; errEl.style.display = 'block'; }
+    return;
+  }
+  if (btn) { btn.textContent = 'Signing in…'; btn.disabled = true; }
+  if (errEl) errEl.style.display = 'none';
+  try {
+    const data = await orbitApi.post('/auth/login', { email, password });
+    if (data?.data) {
+      orbitApi.setSession(data.data);
+      hideLogin();
+      loadDashboard();
+    }
+  } catch(e) {
+    if (errEl) { errEl.textContent = e.message || 'Invalid credentials.'; errEl.style.display = 'block'; }
+  } finally {
+    if (btn) { btn.textContent = 'Sign in'; btn.disabled = false; }
+  }
+}
+
+// ── Data loading helpers ──────────────────────────────────────────────────────
+
+/** Load donor table into the Prospects panel. */
+async function loadDonors(search, stage) {
+  if (!orbitApi.isAuthenticated()) return;
+  const tbody = document.querySelector('#panel-prospects table tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;">Loading donors…</td></tr>`;
+
+  try {
+    let qs = '?limit=25&sort=propensity_score&order=desc';
+    if (search) qs += '&search=' + encodeURIComponent(search);
+    if (stage)  qs += '&stage='  + encodeURIComponent(stage);
+
+    const res = await orbitApi.get('/donors' + qs);
+    const donors = res?.data || [];
+
+    if (donors.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;">No donors found.</td></tr>`;
+      return;
+    }
+
+    const stageClass = { solicitation:'stage-sol', stewardship:'stage-stew', cultivation:'stage-cul', discovery:'stage-disc', uncontacted:'stage-disc', legacy_cultivation:'stage-stew' };
+    const agentTag   = { VEO:'tag-coral', VSO:'tag-sage', VPGO:'tag-gold', VCO:'tag-violet', VAFO:'tag-blue' };
+
+    tbody.innerHTML = donors.map(d => {
+      const initials = ((d.firstName?.[0] || '') + (d.lastName?.[0] || '')).toUpperCase() || '??';
+      const name     = `${d.firstName || ''} ${d.lastName || ''}`.trim() || 'Unknown';
+      const score    = d.propensityScore ?? 0;
+      const scoreClr = score >= 80 ? 'var(--green)' : score >= 60 ? 'var(--amber)' : 'var(--text-muted)';
+      const stage    = (d.journeyStage || 'uncontacted').replace(/_/g,' ');
+      const stCls    = stageClass[d.journeyStage] || 'stage-disc';
+      const cap      = d.wealthCapacityCents > 0
+        ? '$' + (d.wealthCapacityCents / 100).toLocaleString('en-US', { notation:'compact', maximumFractionDigits:1 })
+        : 'Unknown';
+      const lastContact = d.lastContactAt
+        ? new Date(d.lastContactAt).toLocaleDateString('en-US', { month:'short', day:'numeric' })
+        : 'Never';
+      const ask = d.totalGivingCents > 0
+        ? '$' + Math.round(d.totalGivingCents / 100 * 1.3 / 100) * 100
+        : '...';
+
+      return `<tr>
+        <td><div class="d-cell"><div class="d-av">${initials}</div><div>
+          <div class="d-name">${name}</div>
+          <div class="d-sub">${d.email || ''}</div>
+        </div></div></td>
+        <td><strong style="color:${scoreClr}">${score}</strong></td>
+        <td>${cap}</td>
+        <td><span class="stage ${stCls}">${stage}</span></td>
+        <td style="color:var(--text-soft);font-size:12px;">${lastContact}</td>
+        <td style="font-weight:600;color:var(--text);font-size:12px;">${ask}</td>
+        <td><span class="tag tag-coral" style="font-size:10px;">VEO</span></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--rose);font-size:12px;">Failed to load donors: ${e.message}</td></tr>`;
+  }
+}
+
+/** Load overview metrics into dashboard stat cards. */
+async function loadDashboard() {
+  if (!orbitApi.isAuthenticated()) return;
+  try {
+    const res = await orbitApi.get('/analytics/overview');
+    const d = res?.data;
+    if (!d) return;
+
+    // Update stat cards by ID (ids already present in the HTML)
+    const fmt = (cents) => '$' + (cents / 100).toLocaleString('en-US', { notation:'compact', maximumFractionDigits:1 });
+    const set  = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    set('stat-raised',   fmt(d.giving?.totalRaisedCents ?? 0));
+    set('stat-donors',   (d.donors?.total ?? 0).toLocaleString());
+    set('stat-opted-in', (d.donors?.aiOptedIn ?? 0).toLocaleString());
+    set('stat-decisions',(d.agents?.totalDecisions ?? 0).toLocaleString());
+  } catch(e) {
+    // Dashboard metrics remain at placeholder values if API is unavailable
+    console.warn('Orbit: dashboard load failed', e.message);
+  }
+}
+
+// ── Auth gate on page load ────────────────────────────────────────────────────
+
+(function initAuth() {
+  if (!orbitApi.isAuthenticated()) {
+    showLogin();
+  } else {
+    // Token exists — load initial data
+    setTimeout(loadDashboard, 300);
+  }
+})();
+
+</script>
+
 <script>
 // ═══════════════════
 // NAVIGATION
@@ -4243,6 +4475,10 @@ function nav(id) {
   document.querySelectorAll('.agent-pill').forEach(n => n.classList.remove('active'));
 
   document.getElementById('topbar-title').innerHTML = titles[id] || id;
+
+  // Load real data when switching panels
+  if (id === 'prospects') loadDonors();
+  if (id === 'dashboard') loadDashboard();
 
   // Highlight correct nav item
   document.querySelectorAll('.nav-item').forEach(n => {
@@ -4369,19 +4605,8 @@ async function sendMsg(agent, presetText) {
   histories[agent].push({ role:'user', content:text });
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 1000,
-        system: SYSTEMS[agent],
-        messages: histories[agent]
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || 'Connection error — please try again.';
-    histories[agent].push({ role:'assistant', content:reply });
+    const reply = await orbitApi.agentChat(SYSTEMS[agent], histories[agent]);
+    histories[agent].push({ role:'assistant', content: reply });
 
     tRow.remove();
     const aRow = document.createElement('div');
@@ -4488,18 +4713,7 @@ async function sendBarMsg(pageAgent, targetPane, presetText) {
   msgs.scrollTop = msgs.scrollHeight;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: window.barHistories[agentKey]
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || 'Connection error — please try again.';
+    const reply = await orbitApi.agentChat(systemPrompt, window.barHistories[agentKey]);
     window.barHistories[agentKey].push({ role:'assistant', content: reply });
 
     tRow.remove();
