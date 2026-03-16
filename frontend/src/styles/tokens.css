@@ -1,0 +1,121 @@
+/* ════════════════════════════════════════════════════
+   ORBIT DESIGN SYSTEM — CSS Custom Properties
+   Dark / Green / Purple palette
+   ════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Backgrounds ── */
+  --bg:           #181B20;
+  --bg-raised:    #1F2328;
+  --bg-card:      #252A31;
+  --bg-elevated:  #2C323B;
+  --bg-overlay:   #343C47;
+
+  /* ── Text ── */
+  --text:         #F0F2F5;
+  --text-soft:    #C8CDD6;
+  --text-muted:   #7E8899;
+  --text-faint:   #4A5568;
+
+  /* ── Green accent (primary) ── */
+  --green:        #3ECF8E;
+  --green-hover:  #34B97C;
+  --green-dim:    rgba(62, 207, 142, 0.15);
+  --green-pale:   rgba(62, 207, 142, 0.08);
+  --green-glow:   0 0 0 3px rgba(62, 207, 142, 0.2);
+
+  /* ── Purple accent ── */
+  --purple:       #A78BFA;
+  --purple-deep:  #7C5CEB;
+  --purple-dim:   rgba(167, 139, 250, 0.15);
+  --purple-pale:  rgba(167, 139, 250, 0.08);
+  --purple-glow:  0 0 0 3px rgba(167, 139, 250, 0.2);
+
+  /* ── Supporting accents ── */
+  --teal:         #2DD4BF;
+  --teal-dim:     rgba(45, 212, 191, 0.12);
+  --amber:        #F59E0B;
+  --amber-dim:    rgba(245, 158, 11, 0.12);
+  --rose:         #F87171;
+  --rose-dim:     rgba(248, 113, 113, 0.12);
+  --sky:          #38BDF8;
+  --sky-dim:      rgba(56, 189, 248, 0.15);
+  --sky-pale:     rgba(56, 189, 248, 0.08);
+
+  /* ── Agent identity colors ── */
+  --veo-clr:      var(--green);
+  --vso-clr:      var(--teal);
+  --vpgo-clr:     var(--amber);
+  --vco-clr:      var(--purple);
+  --vafo-clr:     var(--sky);
+
+  /* ── Borders ── */
+  --border:       #2E3540;
+  --border-soft:  #252A31;
+  --border-bright:#3D4756;
+
+  /* ── Shadows ── */
+  --shadow-xs:    0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-sm:    0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md:    0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg:    0 12px 48px rgba(0, 0, 0, 0.45);
+
+  /* ── Radii ── */
+  --radius-sm:    6px;
+  --radius-md:    10px;
+  --radius-lg:    14px;
+  --radius-xl:    20px;
+
+  /* ── Spacing scale ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Typography ── */
+  --font:       'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:  'DM Mono', 'Fira Code', monospace;
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--green);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--green-hover);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+input, select, textarea {
+  font-family: var(--font);
+}

@@ -1,0 +1,155 @@
+.shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-raised);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) 0;
+}
+
+.logoMark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-4);
+}
+
+.logoText {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.navList {
+  list-style: none;
+  flex: 1;
+  padding: 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.12s, color 0.12s;
+  text-decoration: none;
+}
+
+.navItem:hover {
+  background: var(--bg-elevated);
+  color: var(--text-soft);
+}
+
+.navItemActive {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.navItemActive:hover {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.navIcon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+/* ── User area ────────────────────────────────────────────────── */
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-4);
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userRole {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.logoutBtn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.logoutBtn:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+
+/* ── Main content ─────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg);
+  padding: var(--space-8);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 64px;
+  }
+
+  .logoText,
+  .navItem span:last-child,
+  .userInfo {
+    display: none;
+  }
+
+  .logoMark {
+    justify-content: center;
+    padding: 0 0 var(--space-6);
+  }
+
+  .main {
+    padding: var(--space-5);
+  }
+}

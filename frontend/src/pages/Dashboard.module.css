@@ -1,0 +1,118 @@
+.page {
+  max-width: 1200px;
+}
+
+.loading, .error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 200px;
+  color: var(--text-muted);
+}
+
+.error {
+  color: var(--rose);
+}
+
+.header {
+  margin-bottom: var(--space-8);
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* ── Stats grid ───────────────────────────────────────────────── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-10);
+}
+
+/* ── Recent gifts ─────────────────────────────────────────────── */
+.recentSection {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+.sectionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--space-5);
+}
+
+.giftList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.giftRow {
+  display: grid;
+  grid-template-columns: 90px 80px 1fr 80px;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+}
+
+.giftAmount {
+  font-weight: 600;
+  color: var(--green);
+  font-size: 14px;
+}
+
+.giftType {
+  color: var(--text-soft);
+  text-transform: capitalize;
+}
+
+.giftDate {
+  color: var(--text-muted);
+}
+
+.giftStatus {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.status_cleared {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.status_pending {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.status_bounced, .status_refunded {
+  background: var(--rose-dim);
+  color: var(--rose);
+}
+
+.empty {
+  color: var(--text-muted);
+  font-size: 13px;
+}

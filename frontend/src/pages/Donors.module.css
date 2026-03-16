@@ -1,0 +1,195 @@
+.page {
+  max-width: 1200px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+.search {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  color: var(--text);
+  font-size: 14px;
+  width: 260px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search:focus {
+  border-color: var(--green);
+  box-shadow: var(--green-glow);
+}
+
+.error {
+  color: var(--rose);
+  margin-bottom: var(--space-5);
+}
+
+/* ── Table ────────────────────────────────────────────────────── */
+.tableWrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead th {
+  padding: var(--space-3) var(--space-5);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: left;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.numCol {
+  text-align: right !important;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--border-soft);
+  transition: background 0.1s;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.dataRow:hover {
+  background: var(--bg-elevated);
+}
+
+.table tbody td {
+  padding: var(--space-3) var(--space-5);
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+/* ── Cell content ─────────────────────────────────────────────── */
+.donorLink {
+  color: var(--text);
+  font-weight: 500;
+  transition: color 0.1s;
+}
+
+.donorLink:hover {
+  color: var(--green);
+}
+
+.classYear {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: var(--space-2);
+}
+
+.stageBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+
+.stageBadge[data-accent='green']  { background: var(--green-dim);  color: var(--green); }
+.stageBadge[data-accent='teal']   { background: var(--teal-dim);   color: var(--teal); }
+.stageBadge[data-accent='purple'] { background: var(--purple-dim); color: var(--purple); }
+.stageBadge[data-accent='amber']  { background: var(--amber-dim);  color: var(--amber); }
+.stageBadge[data-accent='rose']   { background: var(--rose-dim);   color: var(--rose); }
+
+.score {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 32px;
+  text-align: right;
+}
+
+.scoreHigh { color: var(--green); }
+.scoreMid  { color: var(--amber); }
+.scoreLow  { color: var(--text-muted); }
+
+.aiOn  { font-size: 11px; font-weight: 600; color: var(--green); background: var(--green-dim); padding: 2px 8px; border-radius: 20px; }
+.aiOff { font-size: 11px; color: var(--text-faint); }
+
+/* ── Skeleton loader ──────────────────────────────────────────── */
+.skeletonRow td {
+  padding: var(--space-3) var(--space-5);
+}
+
+.skeleton {
+  height: 14px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Pagination ───────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+}
+
+.pageBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  font-size: 13px;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 13px;
+  color: var(--text-muted);
+}
